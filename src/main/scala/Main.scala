@@ -11,12 +11,12 @@ object Main extends App {
 
   println('\n')
 
-  val newHand = AI.hand.sortCards()
+  val newHand = AI.hand.sortCards
 
   print(newHand)
 
   println("\n")
-  val sets = newHand.getListOfSets()
+  val sets = newHand.getListOfIntermediateSets
 
   print(sets)
 

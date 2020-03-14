@@ -69,24 +69,27 @@ case class Hand(listOfCards: List[Card]) {
     ))
   }
 
-  def getListOfSets: List[Set[Card]] = {
+  def getListOfIntermediateSets: List[List[Card]] = {
     @tailrec
-    def getListOfSetsHelper(lastCardSeen: Card, startIndex: Int,
-                            endIndex: Int, listSoFar: List[Set[Card]]): List[Set[Card]] = {
-      if (startIndex + 1 == this.listOfCards.size) listSoFar :+ Set() ++ this.listOfCards.slice(startIndex, endIndex)
+    def getListOfIntermediateSetsHelper(lastCardSeen: Card, startIndex: Int,
+                            endIndex: Int, listSoFar: List[List[Card]]): List[List[Card]] = {
+      if (startIndex + 1 == this.listOfCards.size) listSoFar :+ List.empty ++ this.listOfCards.slice(startIndex, endIndex)
       else {
         if(lastCardSeen.value == this.listOfCards(endIndex).value)
-          getListOfSetsHelper(this.listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
+          getListOfIntermediateSetsHelper(this.listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
         else
-          getListOfSetsHelper(this.listOfCards(endIndex), endIndex, endIndex + 1,
-            listSoFar :+ Set() ++ this.listOfCards.slice(startIndex, endIndex))
+          getListOfIntermediateSetsHelper(this.listOfCards(endIndex), endIndex, endIndex + 1,
+            listSoFar :+ List.empty ++ this.listOfCards.slice(startIndex, endIndex))
       }
     }
-    getListOfSetsHelper(this.listOfCards.head, 0, 1, List.empty)
+    getListOfIntermediateSetsHelper(this.listOfCards.head, 0, 1, List.empty)
   }
 
   // Parse current listOfCards to make a set of valid moves
   def getAllMoves: Moves = {
+    def createListOfMoves(currentSetIndex: Int, movesSoFar: List[Move]) = {
+      ???
+    }
     ???
   }
 
