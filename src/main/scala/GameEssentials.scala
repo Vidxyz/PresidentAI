@@ -2,7 +2,9 @@ import Consants.numberToCardMap
 
 sealed trait Suit
 sealed trait Value
-sealed trait Card
+sealed trait Card {
+  def value: String = "Card"
+}
 
 object Suits {
   case object Diamond extends Suit
@@ -30,9 +32,11 @@ object FaceValue {
 
 case object Joker extends Card {
   override def toString: String = "JOKER"
+  override def value: String = toString
 }
 case class NormalCard(faceValue: Value, suit: Suit) extends Card {
   override def toString: String = "<" + faceValue.toString + "," + suit.toString + ">"
+  override def value: String = faceValue.toString
 }
 
 case class Hand(listOfCards: List[Card]) {
@@ -49,7 +53,7 @@ case class Hand(listOfCards: List[Card]) {
   }
 
   /*
-  Sort cars according to their (faceValue, suit)
+  Sort cards according to their (faceValue, suit)
   Sorting logic is as follows :-
   Diamonds < Clubs < Hearts < Spades
   3 < 4 < 5 < ..... < K < A < 2 < JOKER
@@ -61,6 +65,22 @@ case class Hand(listOfCards: List[Card]) {
         numberToCardMap.find(_._2 == card1).map(_._1).getOrElse(-1) <
           numberToCardMap.find(_._2 == card2).map(_._1).getOrElse(-1)
     ))
+  }
+
+  def getListOfSets(): List[Set[Card]] = {
+    def getListOfSetsHelper(lastCardSeen: Card, startIndex: Int,
+                            endIndex: Int, listSoFar: List[Set[Card]]): List[Set[Card]] = {
+      if (startIndex + 1 == this.listOfCards.size) listSoFar :+ Set() ++ this.listOfCards.slice(startIndex, endIndex)
+      else {
+        if(lastCardSeen.value == this.listOfCards(endIndex).value)
+          getListOfSetsHelper(this.listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
+        else
+          getListOfSetsHelper(this.listOfCards(endIndex), endIndex, endIndex + 1,
+            listSoFar :+ Set() ++ this.listOfCards.slice(startIndex, endIndex))
+      }
+    }
+
+    getListOfSetsHelper(this.listOfCards.head, 0, 1, List.empty)
   }
 
   // Parse current listOfCards to make a set of valid moves
