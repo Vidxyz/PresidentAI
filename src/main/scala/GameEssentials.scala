@@ -1,5 +1,7 @@
 import Consants.numberToCardMap
 
+import scala.annotation.tailrec
+
 sealed trait Suit
 sealed trait Value
 sealed trait Card {
@@ -59,7 +61,7 @@ case class Hand(listOfCards: List[Card]) {
   3 < 4 < 5 < ..... < K < A < 2 < JOKER
   3_Diamonds < 3_Clubs < 3_Hears < 3_Spades
    */
-  def sortCards(): Hand = {
+  def sortCards: Hand = {
     Hand(this.listOfCards.sortWith(
       (card1, card2) =>
         numberToCardMap.find(_._2 == card1).map(_._1).getOrElse(-1) <
@@ -67,7 +69,8 @@ case class Hand(listOfCards: List[Card]) {
     ))
   }
 
-  def getListOfSets(): List[Set[Card]] = {
+  def getListOfSets: List[Set[Card]] = {
+    @tailrec
     def getListOfSetsHelper(lastCardSeen: Card, startIndex: Int,
                             endIndex: Int, listSoFar: List[Set[Card]]): List[Set[Card]] = {
       if (startIndex + 1 == this.listOfCards.size) listSoFar :+ Set() ++ this.listOfCards.slice(startIndex, endIndex)
@@ -79,12 +82,15 @@ case class Hand(listOfCards: List[Card]) {
             listSoFar :+ Set() ++ this.listOfCards.slice(startIndex, endIndex))
       }
     }
-
     getListOfSetsHelper(this.listOfCards.head, 0, 1, List.empty)
   }
 
   // Parse current listOfCards to make a set of valid moves
-  def getValidMoves(): Moves = {
+  def getAllMoves: Moves = {
+    ???
+  }
+
+  def getValidMoves(allMoves: Moves): Moves = {
     ???
   }
 
