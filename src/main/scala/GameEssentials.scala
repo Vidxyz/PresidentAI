@@ -1,3 +1,5 @@
+import Consants.numberToCardMap
+
 sealed trait Suit
 sealed trait Value
 sealed trait Card
@@ -44,6 +46,26 @@ case class Hand(listOfCards: List[Card]) {
       sizeSeen += 4
     }
     stringValue
+  }
+
+  /*
+  Sort cars according to their (faceValue, suit)
+  Sorting logic is as follows :-
+  Diamonds < Clubs < Hearts < Spades
+  3 < 4 < 5 < ..... < K < A < 2 < JOKER
+  3_Diamonds < 3_Clubs < 3_Hears < 3_Spades
+   */
+  def sortCards(): Hand = {
+    Hand(this.listOfCards.sortWith(
+      (card1, card2) =>
+        numberToCardMap.find(_._2 == card1).map(_._1).getOrElse(-1) <
+          numberToCardMap.find(_._2 == card2).map(_._1).getOrElse(-1)
+    ))
+  }
+
+  // Parse current listOfCards to make a set of valid moves
+  def getValidMoves(): Moves = {
+    ???
   }
 
 }

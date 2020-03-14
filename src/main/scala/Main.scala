@@ -5,9 +5,13 @@ object Main extends App {
 
   val sampleHand: Hand = GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards)
 
-  val AI = new Player("AI", sampleHand)
+  val AI = Player("AI", sampleHand)
 
   print(AI.hand)
+
+  println('\n')
+
+  print(AI.hand.sortCards())
 
 }
 
