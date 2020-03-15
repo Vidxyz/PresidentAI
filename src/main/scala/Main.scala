@@ -1,3 +1,6 @@
+import FaceValue.{ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING}
+import Suits.{Diamond, Spade, Heart, Club}
+
 object Main extends App {
 
   val numberOfPlayers = 4
@@ -16,9 +19,22 @@ object Main extends App {
   print(newHand)
 
   println("\n")
-  val sets = newHand.getListOfIntermediateSets
+  val intermediatsets = newHand.getListOfIntermediateSets
 
-  print(sets)
+  println("\n")
+  print(intermediatsets)
+
+//
+  val allMoves = newHand.getAllMoves(intermediatsets)
+  println("\n")
+//
+  print(allMoves)
+
+  println("\n")
+
+  val validMoves = newHand.getValidMoves(allMoves, Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade))))
+
+  print(validMoves)
 
 }
 

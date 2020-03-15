@@ -69,6 +69,10 @@ case class Hand(listOfCards: List[Card]) {
     ))
   }
 
+  /*
+  Makes clumped sets out of a sorted list
+  WARNING - thereis a bug here
+   */
   def getListOfIntermediateSets: List[List[Card]] = {
     @tailrec
     def getListOfIntermediateSetsHelper(lastCardSeen: Card, startIndex: Int,
@@ -86,18 +90,34 @@ case class Hand(listOfCards: List[Card]) {
   }
 
   // Parse current listOfCards to make a set of valid moves
-  def getAllMoves: Moves = {
-    def createListOfMoves(currentSetIndex: Int, movesSoFar: List[Move]) = {
-      ???
+  def getAllMoves(intermediateMoves: List[List[Card]]): Moves = {
+    @tailrec
+    def createListOfMoves(currentSetIndex: Int, movesSoFar: List[Move]): List[Move] = {
+      if (currentSetIndex == intermediateMoves.size) return movesSoFar
+      val allCombinations: List[Move] =
+        intermediateMoves(currentSetIndex).toSet.subsets().toList.filter(e => e.nonEmpty).map(set => Move(set.toList))
+      createListOfMoves(currentSetIndex + 1, movesSoFar ++ allCombinations)
     }
-    ???
+    Moves(createListOfMoves(0, List.empty))
   }
 
-  def getValidMoves(allMoves: Moves): Moves = {
-    ???
+  def getValidMoves(allMoves: Moves, state: Move): Moves = {
+    Moves(allMoves.moves.filter(move => isValidMove(move, state)))
+  }
+
+  private def isValidMove(move: Move, state: Move): Boolean = {
+    if(move.cards.size < state.cards.size) false
+    else {
+      if (numberToCardMap.find(_._2 == move.cards.last).map(_._1).getOrElse(-1) >
+        numberToCardMap.find(_._2 == state.cards.last).map(_._1).getOrElse(-1)) true
+      else false
+    }
   }
 
 }
+
+
+
 
 case class Move(cards: List[Card])
 case class Moves(moves: List[Move])
