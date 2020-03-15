@@ -18,15 +18,15 @@ object Main extends App {
   print(newHand)
   println("\n")
 
-  val intermediatsets = getListOfIntermediateSets(newHand.listOfCards)
+  val intermediatsets: List[List[Card]] = getListOfIntermediateSets(newHand.listOfCards)
   print(intermediatsets)
   println("\n")
 
-  val allMoves = getAllMoves(intermediatsets)
+  val allMoves: Moves = getAllMoves(intermediatsets)
   print(allMoves)
   println("\n")
 
-  val validMoves = getValidMoves(allMoves, Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade))))
+  val validMoves: Moves = getValidMoves(allMoves, Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade))))
   print(validMoves)
   println("\n")
 

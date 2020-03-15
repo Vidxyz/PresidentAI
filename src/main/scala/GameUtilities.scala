@@ -83,6 +83,13 @@ case object GameUtilities {
     Moves(createListOfMoves(0, List.empty))
   }
 
+  /*
+  Gets valid moves from ListOfAllMoves
+  Current limitations :-
+  1. No special logic for 2s
+  2. No special logic for 3s
+  3. No special logic for JOKERS
+   */
   def getValidMoves(allMoves: Moves, state: Move): Moves = {
     Moves(allMoves.moves.filter(move => isValidMove(move, state)))
   }
