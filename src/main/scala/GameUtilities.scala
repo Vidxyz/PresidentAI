@@ -1,4 +1,5 @@
 import Consants.numberToCardMap
+import FaceValue.TWO
 
 import scala.annotation.tailrec
 import scala.util.Random
@@ -74,6 +75,7 @@ case object GameUtilities {
   /*
   Parse current listOfCards to make a set of valid moves
   Shortcoming - JOKERs will also be paired up into 1s/2s - Gotta make this work out
+  TODO - use a match statement here too
    */
   def getAllMoves(intermediateSetsOfCards: List[List[Card]]): Moves = {
     @tailrec
@@ -98,7 +100,7 @@ case object GameUtilities {
   Current limitations :-
   1. No special logic for 2s
   2. No special logic for 3s
-  3. No special logic for JOKERS
+  3. No special logic for JOKERS - this is not needed - Jokers are split up one by one
    */
   def getValidMoves(allMoves: Moves, state: Move): Moves = {
     Moves(allMoves.moves.filter(move => isValidMove(move, state)))
@@ -107,6 +109,12 @@ case object GameUtilities {
   // TODO - maybe use match case statement?
   private def isValidMove(move: Move, state: Move): Boolean = {
     if(move.cards.last == Joker) return true
+
+    // Need max(1, n-1) 2s to be played when state.size = n
+    if(move.cards.head.value == "TWO") {
+      if(state.cards.size - move.cards.size == 1) return true
+      else return false
+    }
 
     if(move.cards.size != state.cards.size) false
     // Else check value comparison

@@ -18,13 +18,15 @@ object Main extends App {
     NormalCard(TEN, Club),
     NormalCard(TEN, Heart),
     NormalCard(ACE, Heart),
-    NormalCard(EIGHT, Heart),
-    NormalCard(FOUR, Heart),
-    NormalCard(SIX, Diamond),
-    NormalCard(EIGHT, Diamond),
+    NormalCard(TWO, Diamond),
+    NormalCard(TWO, Heart),
+    NormalCard(TWO, Spade),
+    NormalCard(TWO, Club),
     Joker,
     Joker,
   ))
+
+  val currentState = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade), NormalCard(SIX, Heart)))
 
   val AI = Player("AI", errorHand)
 //  val AI = Player("AI", sampleHand)
@@ -44,7 +46,7 @@ object Main extends App {
   print(allMoves)
   println("\n")
 
-  val validMoves: Moves = getValidMoves(allMoves, Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade))))
+  val validMoves: Moves = getValidMoves(allMoves, currentState)
   print(validMoves)
   println("\n")
 
