@@ -71,7 +71,10 @@ case object GameUtilities {
     getListOfIntermediateSetsHelper(listOfCards.head, 0, 1, List.empty)
   }
 
-  // Parse current listOfCards to make a set of valid moves
+  /*
+  Parse current listOfCards to make a set of valid moves
+  Shortcoming - JOKERs will also be paired up into 1s/2s - Gotta make this work out
+   */
   def getAllMoves(intermediateMoves: List[List[Card]]): Moves = {
     @tailrec
     def createListOfMoves(currentSetIndex: Int, movesSoFar: List[Move]): List[Move] = {
@@ -94,7 +97,10 @@ case object GameUtilities {
     Moves(allMoves.moves.filter(move => isValidMove(move, state)))
   }
 
+  // TODO - maybe use match case statement?
   private def isValidMove(move: Move, state: Move): Boolean = {
+    if(move.cards.last == Joker) return true
+
     if(move.cards.size != state.cards.size) false
     // Else check value comparison
     else {
