@@ -36,6 +36,7 @@ case object Joker extends Card {
   override def toString: String = "JOKER"
   override def value: String = toString
 }
+
 case class NormalCard(faceValue: Value, suit: Suit) extends Card {
   override def toString: String = "<" + faceValue.toString + "," + suit.toString + ">"
   override def value: String = faceValue.toString
@@ -47,77 +48,13 @@ case class Hand(listOfCards: List[Card]) {
     val size = listOfCards.size
     var sizeSeen = 0
     var stringValue = ""
-    while(sizeSeen < size) {
+    while (sizeSeen < size) {
       stringValue = stringValue + listOfCards.slice(sizeSeen, sizeSeen + 4).toString + "\n"
       sizeSeen += 4
     }
     stringValue
   }
-
-  /*
-  Sort cards according to their (faceValue, suit)
-  Sorting logic is as follows :-
-  Diamonds < Clubs < Hearts < Spades
-  3 < 4 < 5 < ..... < K < A < 2 < JOKER
-  3_Diamonds < 3_Clubs < 3_Hears < 3_Spades
-   */
-  def sortCards: Hand = {
-    Hand(this.listOfCards.sortWith(
-      (card1, card2) =>
-        numberToCardMap.find(_._2 == card1).map(_._1).getOrElse(-1) <
-          numberToCardMap.find(_._2 == card2).map(_._1).getOrElse(-1)
-    ))
-  }
-
-  /*
-  Makes clumped sets out of a sorted list
-  WARNING - thereis a bug here
-   */
-  def getListOfIntermediateSets: List[List[Card]] = {
-    @tailrec
-    def getListOfIntermediateSetsHelper(lastCardSeen: Card, startIndex: Int,
-                            endIndex: Int, listSoFar: List[List[Card]]): List[List[Card]] = {
-      if (startIndex + 1 == this.listOfCards.size) listSoFar :+ List.empty ++ this.listOfCards.slice(startIndex, endIndex)
-      else {
-        if(lastCardSeen.value == this.listOfCards(endIndex).value)
-          getListOfIntermediateSetsHelper(this.listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
-        else
-          getListOfIntermediateSetsHelper(this.listOfCards(endIndex), endIndex, endIndex + 1,
-            listSoFar :+ List.empty ++ this.listOfCards.slice(startIndex, endIndex))
-      }
-    }
-    getListOfIntermediateSetsHelper(this.listOfCards.head, 0, 1, List.empty)
-  }
-
-  // Parse current listOfCards to make a set of valid moves
-  def getAllMoves(intermediateMoves: List[List[Card]]): Moves = {
-    @tailrec
-    def createListOfMoves(currentSetIndex: Int, movesSoFar: List[Move]): List[Move] = {
-      if (currentSetIndex == intermediateMoves.size) return movesSoFar
-      val allCombinations: List[Move] =
-        intermediateMoves(currentSetIndex).toSet.subsets().toList.filter(e => e.nonEmpty).map(set => Move(set.toList))
-      createListOfMoves(currentSetIndex + 1, movesSoFar ++ allCombinations)
-    }
-    Moves(createListOfMoves(0, List.empty))
-  }
-
-  def getValidMoves(allMoves: Moves, state: Move): Moves = {
-    Moves(allMoves.moves.filter(move => isValidMove(move, state)))
-  }
-
-  private def isValidMove(move: Move, state: Move): Boolean = {
-    if(move.cards.size < state.cards.size) false
-    else {
-      if (numberToCardMap.find(_._2 == move.cards.last).map(_._1).getOrElse(-1) >
-        numberToCardMap.find(_._2 == state.cards.last).map(_._1).getOrElse(-1)) true
-      else false
-    }
-  }
-
 }
-
-
-
 
 case class Move(cards: List[Card])
 case class Moves(moves: List[Move])
