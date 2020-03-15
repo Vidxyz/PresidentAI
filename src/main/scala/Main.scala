@@ -1,5 +1,6 @@
-import FaceValue.{ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING}
-import Suits.{Diamond, Spade, Heart, Club}
+import FaceValue._
+import Suits._
+import GameUtilities._
 
 object Main extends App {
 
@@ -11,30 +12,23 @@ object Main extends App {
   val AI = Player("AI", sampleHand)
 
   print(AI.hand)
-
   println('\n')
 
-  val newHand = AI.hand.sortCards
-
+  val newHand: Hand = sortCards(AI.hand.listOfCards)
   print(newHand)
-
   println("\n")
-  val intermediatsets = newHand.getListOfIntermediateSets
 
-  println("\n")
+  val intermediatsets = getListOfIntermediateSets(newHand.listOfCards)
   print(intermediatsets)
-
-//
-  val allMoves = newHand.getAllMoves(intermediatsets)
   println("\n")
-//
+
+  val allMoves = getAllMoves(intermediatsets)
   print(allMoves)
-
   println("\n")
 
-  val validMoves = newHand.getValidMoves(allMoves, Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade))))
-
+  val validMoves = getValidMoves(allMoves, Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade))))
   print(validMoves)
+  println("\n")
 
 }
 

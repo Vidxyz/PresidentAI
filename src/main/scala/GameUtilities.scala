@@ -59,7 +59,7 @@ case object GameUtilities {
     @tailrec
     def getListOfIntermediateSetsHelper(lastCardSeen: Card, startIndex: Int,
                                         endIndex: Int, listSoFar: List[List[Card]]): List[List[Card]] = {
-      if (startIndex + 1 == listOfCards.size) listSoFar :+ List.empty ++ listOfCards.slice(startIndex, endIndex)
+      if (endIndex + 1 == listOfCards.size) listSoFar :+ List.empty ++ listOfCards.drop(startIndex)
       else {
         if(lastCardSeen.value == listOfCards(endIndex).value)
           getListOfIntermediateSetsHelper(listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
@@ -88,7 +88,8 @@ case object GameUtilities {
   }
 
   private def isValidMove(move: Move, state: Move): Boolean = {
-    if(move.cards.size < state.cards.size) false
+    if(move.cards.size != state.cards.size) false
+    // Else check value comparison
     else {
       if (numberToCardMap.find(_._2 == move.cards.last).map(_._1).getOrElse(-1) >
         numberToCardMap.find(_._2 == state.cards.last).map(_._1).getOrElse(-1)) true
