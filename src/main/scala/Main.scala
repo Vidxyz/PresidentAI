@@ -9,7 +9,25 @@ object Main extends App {
 
   val sampleHand: Hand = GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards)
 
-  val AI = Player("AI", sampleHand)
+  val errorHand: Hand = Hand(List(
+    NormalCard(TEN, Diamond),
+    NormalCard(JACK, Club),
+    NormalCard(ACE, Diamond),
+    NormalCard(KING, Heart),
+    NormalCard(FOUR, Spade),
+    NormalCard(TEN, Club),
+    NormalCard(TEN, Heart),
+    NormalCard(ACE, Heart),
+    NormalCard(EIGHT, Heart),
+    NormalCard(FOUR, Heart),
+    NormalCard(SIX, Diamond),
+    NormalCard(EIGHT, Diamond),
+    Joker,
+    Joker,
+  ))
+
+  val AI = Player("AI", errorHand)
+//  val AI = Player("AI", sampleHand)
 
   print(AI.hand)
   println('\n')

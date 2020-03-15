@@ -75,13 +75,20 @@ case object GameUtilities {
   Parse current listOfCards to make a set of valid moves
   Shortcoming - JOKERs will also be paired up into 1s/2s - Gotta make this work out
    */
-  def getAllMoves(intermediateMoves: List[List[Card]]): Moves = {
+  def getAllMoves(intermediateSetsOfCards: List[List[Card]]): Moves = {
     @tailrec
     def createListOfMoves(currentSetIndex: Int, movesSoFar: List[Move]): List[Move] = {
-      if (currentSetIndex == intermediateMoves.size) return movesSoFar
-      val allCombinations: List[Move] =
-        intermediateMoves(currentSetIndex).toSet.subsets().toList.filter(e => e.nonEmpty).map(set => Move(set.toList))
-      createListOfMoves(currentSetIndex + 1, movesSoFar ++ allCombinations)
+      if (currentSetIndex == intermediateSetsOfCards.size) return movesSoFar
+
+      if (intermediateSetsOfCards(currentSetIndex).head == Joker) {
+        val splitUpJokers = intermediateSetsOfCards(currentSetIndex).map(e => List(e)).map(l => Move(l))
+        createListOfMoves(currentSetIndex + 1, movesSoFar ++ splitUpJokers)
+      }
+      else {
+        val allCombinations: List[Move] = intermediateSetsOfCards(currentSetIndex).toSet.subsets().toList.filter(e => e.nonEmpty).map(set => Move(set.toList))
+        createListOfMoves(currentSetIndex + 1, movesSoFar ++ allCombinations)
+      }
+
     }
     Moves(createListOfMoves(0, List.empty))
   }
