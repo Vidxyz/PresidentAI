@@ -30,8 +30,8 @@ object Main extends App {
 //  val currentState = Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Club)))
 
 //  var AI = Player("AI", stackedHand)
-  var AI = Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
-  var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
+  var AI = Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards), Active)
+  var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards), Active)
 
   val sortedHand: Hand = Hand(sortCards(AI.hand.listOfCards))
   print(sortedHand)
@@ -50,7 +50,7 @@ object Main extends App {
   println("\n")
 
   val newHandAfterPlaying = AI.getNewHand(AI.hand, nextMove)
-  AI = Player(AI.name, newHandAfterPlaying)
+  AI = Player(AI.name, newHandAfterPlaying, AI.status)
   println(Hand(sortCards(AI.hand.listOfCards)))
 }
 

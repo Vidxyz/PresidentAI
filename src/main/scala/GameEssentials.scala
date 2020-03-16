@@ -1,5 +1,6 @@
 import FaceValue._
 
+sealed trait PlayerStatus
 sealed trait Suit
 sealed trait Value
 sealed trait Card {
@@ -7,13 +8,15 @@ sealed trait Card {
   val intValue: Int
 }
 
+case object Active extends PlayerStatus
+case object Complete extends PlayerStatus
+
 object Suits {
   case object Diamond extends Suit
   case object Club extends Suit
   case object Heart extends Suit
   case object Spade extends Suit
 }
-
 
 object FaceValue {
   case object ACE extends Value

@@ -1,6 +1,11 @@
 import GameUtilities._
 
-case class Player(name: String, hand: Hand) {
+case class Player(name: String, hand: Hand, status: PlayerStatus) {
+
+  def apply(name: String, hand: Hand, status: PlayerStatus): Player = {
+    if(hand.listOfCards.isEmpty) Player(name, hand, Complete)
+    else Player(name, hand, status)
+  }
   /*
   Returns the move chosen to play, given current hand and current state
    */
