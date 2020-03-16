@@ -60,7 +60,8 @@ case object GameUtilities {
     @tailrec
     def getListOfIntermediateSetsHelper(lastCardSeen: Card, startIndex: Int,
                                         endIndex: Int, listSoFar: List[List[Card]]): List[List[Card]] = {
-      if (endIndex + 1 == listOfCards.size) listSoFar :+ List.empty ++ listOfCards.drop(startIndex)
+      if (endIndex + 1 == listOfCards.size)
+        listSoFar :+ List.empty ++ listOfCards.drop(startIndex)
       else {
         if(lastCardSeen.value == listOfCards(endIndex).value)
           getListOfIntermediateSetsHelper(listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
@@ -83,14 +84,20 @@ case object GameUtilities {
       if (currentSetIndex == intermediateSetsOfCards.size) return movesSoFar
 
       if (intermediateSetsOfCards(currentSetIndex).head == Joker) {
-        val splitUpJokers = intermediateSetsOfCards(currentSetIndex).map(e => List(e)).map(l => Move(l))
+        val splitUpJokers = intermediateSetsOfCards(currentSetIndex)
+                                        .map(e => List(e))
+                                        .map(l => Move(l))
         createListOfMoves(currentSetIndex + 1, movesSoFar ++ splitUpJokers)
       }
       else {
-        val allCombinations: List[Move] = intermediateSetsOfCards(currentSetIndex).toSet.subsets().toList.filter(e => e.nonEmpty).map(set => Move(set.toList))
+        val allCombinations: List[Move] = intermediateSetsOfCards(currentSetIndex)
+                                          .toSet
+                                          .subsets()
+                                          .toList
+                                          .filter(e => e.nonEmpty)
+                                          .map(set => Move(set.toList))
         createListOfMoves(currentSetIndex + 1, movesSoFar ++ allCombinations)
       }
-
     }
     Moves(createListOfMoves(0, List.empty))
   }
@@ -103,7 +110,8 @@ case object GameUtilities {
   3. No special logic for JOKERS - this is not needed - Jokers are split up one by one
    */
   def getValidMoves(allMoves: Moves, state: Move): Moves = {
-    Moves(allMoves.moves.filter(move => isValidMove(move, state)))
+    Moves(allMoves.moves
+                  .filter(move => isValidMove(move, state)))
   }
 
   // TODO - maybe use match case statement?
