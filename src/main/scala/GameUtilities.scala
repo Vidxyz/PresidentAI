@@ -15,14 +15,12 @@ case object GameUtilities {
   def dealNewHand(numberOfPlayers: Int, totalNormalCards: Int): Hand = {
 
     def dealNextCard(currentPlayer: Int, seenSoFar: List[Int], dealtSoFar: List[Card] ): List[Card] = {
-      // Base case
       if(seenSoFar.size == totalNormalCards) return dealtSoFar
 
       val nextCardNum = Random.nextInt(totalNormalCards)
 
-      // Repeat if encounter same number
-      if(seenSoFar.contains(nextCardNum)) dealNextCard(currentPlayer, seenSoFar, dealtSoFar)
-      // Else increment player and continue
+      if(seenSoFar.contains(nextCardNum))
+        dealNextCard(currentPlayer, seenSoFar, dealtSoFar)
       else {
         dealNextCard(
           if(currentPlayer == numberOfPlayers) 1
@@ -76,7 +74,6 @@ case object GameUtilities {
   /*
   Parse current listOfCards to make a set of valid moves
   Shortcoming - JOKERs will also be paired up into 1s/2s - Gotta make this work out
-  TODO - use a match statement here too
    */
   def getAllMoves(intermediateSetsOfCards: List[List[Card]]): Moves = {
     @tailrec
@@ -105,16 +102,13 @@ case object GameUtilities {
   /*
   Gets valid moves from ListOfAllMoves
   Current limitations :-
-  1. No special logic for 2s
-  2. No special logic for 3s
-  3. No special logic for JOKERS - this is not needed - Jokers are split up one by one
+  1. No special logic for 3s
    */
   def getValidMoves(allMoves: Moves, state: Move): Moves = {
     Moves(allMoves.moves
                   .filter(move => isValidMove(move, state)))
   }
 
-  // TODO - maybe use match case statement?
   private def isValidMove(move: Move, state: Move): Boolean = {
     if(move.cards.last == Joker) return true
 
@@ -132,4 +126,27 @@ case object GameUtilities {
       else false
     }
   }
+
+  /*
+  Fetches the next best move possible, given current game state and current hand
+   */
+  def getNextMove(validMoves: Moves, state: Move): Move = {
+    ???
+  }
+
+  /*
+  Returns a new hand, having played the next best possible move
+   */
+  def playNextMove(currentHand: Hand): Hand = {
+    ???
+    /*
+    Get intermediate sets of cards
+    Get all possible moves
+    Get valid moves
+
+     */
+  }
+
+
+
 }
