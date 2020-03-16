@@ -3,6 +3,8 @@ import Suits.{Diamond, Club, Spade, Heart}
 
 object Consants {
 
+  val totalNumberOfCards = 54
+
   val numberToCardMap: Map[Int, Card] = Map(
     0 -> NormalCard(THREE, Diamond),
     1 -> NormalCard(THREE, Club),

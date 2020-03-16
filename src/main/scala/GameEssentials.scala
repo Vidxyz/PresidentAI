@@ -63,14 +63,15 @@ case class NormalCard(faceValue: Value, suit: Suit) extends Card {
 case class Hand(listOfCards: List[Card]) {
 
   override def toString: String = {
-    val size = listOfCards.size
-    var sizeSeen = 0
-    var stringValue = ""
-    while (sizeSeen < size) {
-      stringValue = stringValue + listOfCards.slice(sizeSeen, sizeSeen + 7).toString + "\n"
-      sizeSeen += 7
+    if(listOfCards.isEmpty)
+    else {
+      var sizeSeen = 0      var stringValue = ""
+      while (sizeSeen < listOfCards.size) {
+        stringValue = stringValue + listOfCards.slice(sizeSeen, sizeSeen + 7).toString + "\n"
+        sizeSeen += 7
+      }
+      stringValue
     }
-    stringValue
   }
 }
 

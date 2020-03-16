@@ -6,37 +6,46 @@ import scala.util.Random
 
 case object GameUtilities {
 
-  /*
-  Takes a partial list of cards in dealtSoFar: List[Card]
-   */
-  def dealNewHandV2(playerNumber: Int, numberOfPlayers: Int, totalNormalCards: Int, dealtSoFar: List[Card]): Hand = {
+  def generatePlayersAndDealHands(listOfNames: List[String]): List[Player] = {
+    val hands = dealHands(listOfNames.size)
+    println(hands.foreach(h => println(h)))
+   (hands zip listOfNames)
+              .map(tuple => Player(tuple._2, tuple._1, Active))
+  }
+
+  def dealHands(numberOfPlayers: Int): List[Hand] = {
     @tailrec
-    def dealNewHandHelper(currentPlayer: Int, seenSoFar: List[Int], dealtSoFar: List[Card]): List[Card] = {
-      if(seenSoFar.size == totalNormalCards) return dealtSoFar
+    def dealHandsHelper(currentPlayer: Int, playerHands: List[Hand], seenSoFar: List[Int]): List[Hand] = {
+      if(seenSoFar.size == Consants.totalNumberOfCards) return playerHands
 
-      val nextCardNum = Random.nextInt(totalNormalCards)
+      val nextCardNum = Random.nextInt(Consants.totalNumberOfCards)
 
-      if(seenSoFar.contains(nextCardNum))
-        dealNewHandHelper(currentPlayer, seenSoFar, dealtSoFar)
+      if(seenSoFar.contains(nextCardNum)) dealHandsHelper(currentPlayer, playerHands, seenSoFar)
       else {
-        dealNewHandHelper(
-          if(currentPlayer == numberOfPlayers) 1
-          else currentPlayer + 1,
-          seenSoFar :+ nextCardNum,
-          if (currentPlayer == playerNumber) dealtSoFar ++ numberToCardMap.get(nextCardNum)
-          else dealtSoFar
+        dealHandsHelper(
+          if(currentPlayer + 1 == numberOfPlayers) 0 else currentPlayer + 1,
+          playerHands
+            .zipWithIndex
+            .map(tuple =>
+              if(tuple._2 == currentPlayer) tuple._1.copy(tuple._1.listOfCards ++ numberToCardMap.get(nextCardNum))
+              else tuple._1),
+          seenSoFar :+ nextCardNum
         )
       }
+
     }
 
-    Hand(dealNewHandHelper(1, List.empty[Int], dealtSoFar))
+    val emptyPlayerHands: List[Hand] = 1.to(numberOfPlayers).toList.map(x => Hand(List.empty))
+    dealHandsHelper(0, emptyPlayerHands, List.empty)
+
   }
+
 
   /*
   Deals a new hand by randomly selecting non-repeating numbers in the range [0, 54)
   and assigning them in a round robin format to each of the players.
-
-  Return - Hand comprising of cards dealt to player1
+  // --- This is currently not being used -----
+  Return - Hand comprising of cards dealt to player1, discards all other "dealt cards"
   */
   def dealNewHand(numberOfPlayers: Int, totalNormalCards: Int): Hand = {
     @tailrec
