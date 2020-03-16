@@ -45,8 +45,8 @@ object Main extends App {
 //  val listOfPlayers = GameUtilities.createPlayers(listOfNames)
 
 
-  var AI = Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards), Active)
-  var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards), Active)
+  var AI = new Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
+  var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 
   val listOfNames = List("AI", "Computer", "Player3", "JohnDoe")
   val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames).toBuffer
@@ -59,28 +59,35 @@ object Main extends App {
   // 0 <= currentPlayerNumber < totalNumberOfPlayers
   var currentPlayerNumber = 0
 
-//  while(listOfPlayers
-//                    .map(player => player.status)
-//                    .map(playerstatus => playerstatus == Active)
-//                    .forall(bool => bool)) {
-//
-//    val currentPlayerObject = listOfPlayers(currentPlayerNumber)
-//    println("-----------------------------------------------------------------------------------------")
-//    println(currentPlayerObject.name)
-//    println("-----------------------------------------------------------------------------------------")
-//    println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
-//    val nextMove = currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
-//    println("The next move is : " + nextMove)
-//    currentState = getNextGameState(currentState, currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState))
-//    println("The current state is : " + currentState)
-//    val newHandAfterPlaying = currentPlayerObject.getNewHand(currentPlayerObject.hand, nextMove)
-//    listOfPlayers.update(currentPlayerNumber, Player(currentPlayerObject.name, newHandAfterPlaying, currentPlayerObject.status))
-//    println("-----------------------------------------------------------------------------------------")
-//    println("\n")
-//
-//    if (currentPlayerNumber + 1 == totalNumberOfPlayers) currentPlayerNumber = 0
-//    else currentPlayerNumber += 1
-//  }
+  while(listOfPlayers
+                    .map(player => player.status)
+                    .map(playerstatus => playerstatus == Active)
+                    .forall(bool => bool)) {
+
+    val currentPlayerObject = listOfPlayers(currentPlayerNumber)
+    println("-----------------------------------------------------------------------------------------")
+    println(currentPlayerObject.name)
+    println("-----------------------------------------------------------------------------------------")
+    println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
+    val nextMove: Option[Move] = currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
+    println("The next move is : " + nextMove)
+    currentState = getNextGameState(currentState, currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState))
+    println("The current state is : " + currentState)
+    val newHandAfterPlaying = currentPlayerObject.getNewHand(currentPlayerObject.hand, nextMove)
+    listOfPlayers.update(currentPlayerNumber, Player.apply(currentPlayerObject.name, newHandAfterPlaying))
+    println(listOfPlayers(currentPlayerNumber).status)
+    println("-----------------------------------------------------------------------------------------")
+    println("\n")
+
+    // Need to know which player to switch move to
+    // Incrementally, or depending on game state
+    if(currentState.cards.nonEmpty) {
+      if (currentPlayerNumber + 1 == totalNumberOfPlayers) currentPlayerNumber = 0
+      else currentPlayerNumber += 1
+    }
+
+    Thread.sleep(100)
+  }
 
 
 //  val sortedHand: Hand = Hand(sortCards(AI.hand.listOfCards))

@@ -10,7 +10,7 @@ case object GameUtilities {
     val hands = dealHands(listOfNames.size)
     println(hands.foreach(h => println(h)))
    (hands zip listOfNames)
-              .map(tuple => Player(tuple._2, tuple._1, Active))
+              .map(tuple => Player(tuple._2, tuple._1))
   }
 
   def dealHands(numberOfPlayers: Int): List[Hand] = {

@@ -63,7 +63,7 @@ case class NormalCard(faceValue: Value, suit: Suit) extends Card {
 case class Hand(listOfCards: List[Card]) {
 
   override def toString: String = {
-    if(listOfCards.isEmpty) "-"
+    if(listOfCards.isEmpty) "EMPTY"
     else {
       var sizeSeen = 0
       var stringValue = ""
