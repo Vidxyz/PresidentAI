@@ -123,6 +123,8 @@ case object GameUtilities {
   }
 
   private def isValidMove(move: Move, gameState: Move): Boolean = {
+    if(move.cards.isEmpty) return false
+
     if(move.highestCard == Joker) return true
 
     // Need max(1, n-1) 2s to be played when state.size = n
@@ -162,18 +164,23 @@ case object GameUtilities {
   }
 
   /*
-  Fetches the next best move possible, given current game state and current hand
+  Fetches the next best move possible, from list of valid moves, given current game state and current hand
   Applies heuristic value on each move, and picks the best
+  Returns Empty move is there are no valid moves to choose from
    */
-  def getNextMove(validMoves: Moves, gameState: Move): Move = {
-    val bestMoveIndex = validMoves.moves
-      .map(m => getHeuristicValue(m, gameState))
-      .zipWithIndex
-      .maxBy(_._1)
-      ._2
+  def getNextMove(validMoves: Moves, gameState: Move): Option[Move] = {
+      try {
+        Some(
+          validMoves.moves(validMoves.moves
+            .map(m => getHeuristicValue(m, gameState))
+            .zipWithIndex
+            .maxBy(_._1)
+            ._2))
+      } catch {
+        case e: UnsupportedOperationException => None
+      }
+    }
 
-    validMoves.moves(bestMoveIndex)
-  }
 
   /*
   Returns the next game state having processed the nextMove
@@ -181,9 +188,13 @@ case object GameUtilities {
   Returns gameState otherwise
   Assumption - nextMove is a validMove
    */
-  def getNextGameState(gameState: Move, nextMove: Move): Move = {
-    if(nextMove.moveFaceValue > gameState.moveFaceValue) nextMove
-    else Move(List.empty)
+  def getNextGameState(gameState: Move, nextMove: Option[Move]): Move = {
+    nextMove.getOrElse(None) match {
+      case move: Move =>
+        if(move.moveFaceValue > gameState.moveFaceValue) move
+        else Move(List.empty)
+      case None => gameState
+    }
   }
 
 }

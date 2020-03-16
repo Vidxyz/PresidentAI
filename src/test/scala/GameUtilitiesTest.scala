@@ -4,7 +4,7 @@ import org.scalatest.FunSpec
 
 class GameUtilitiesTest extends FunSpec {
 
-  describe("tests for getListsOfSimilarCards"){
+  describe("tests for getListsOfSimilarCards()"){
 
     describe("When hand is empty") {
       it("Should return empty list") {
@@ -92,6 +92,14 @@ class GameUtilitiesTest extends FunSpec {
       }
     }
 
+  }
+
+  describe("tests for getNextMove()"){
+    describe("When validMoves is empty"){
+      it("Should return an Empty Move") {
+        assert(GameUtilities.getNextMove(Moves(List.empty), Move(List.empty)) == None)
+      }
+    }
   }
 
 }
