@@ -13,8 +13,8 @@ case object GameUtilities {
   Return - Hand comprising of cards dealt to player1
   */
   def dealNewHand(numberOfPlayers: Int, totalNormalCards: Int): Hand = {
-
-    def dealNextCard(currentPlayer: Int, seenSoFar: List[Int], dealtSoFar: List[Card] ): List[Card] = {
+    @tailrec
+    def dealNextCard(currentPlayer: Int, seenSoFar: List[Int], dealtSoFar: List[Card]): List[Card] = {
       if(seenSoFar.size == totalNormalCards) return dealtSoFar
 
       val nextCardNum = Random.nextInt(totalNormalCards)
@@ -173,24 +173,5 @@ case object GameUtilities {
     if(nextMove.moveFaceValue > gameState.moveFaceValue) nextMove
     else Move(List.empty)
   }
-
-  /*
-  Returns a new hand, having played the next best possible move
-   */
-  def playNextMove(currentHand: Hand, currentState: Move): Hand = {
-    /*
-    Get intermediate sets of cards
-    Get all possible moves
-    Get valid moves
-     */
-    val sortedHand = Hand(sortCards(currentHand.listOfCards))
-    val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
-    val allMoves: Moves = getAllMoves(intermediateLists)
-    val validMoves: Moves = getValidMoves(allMoves, currentState)
-    val nextMove = getNextMove(validMoves, currentState)
-    val nextGameState = getNextGameState(currentState, nextMove)
-  }
-
-
 
 }
