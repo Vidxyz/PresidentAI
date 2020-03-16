@@ -7,8 +7,6 @@ object Main extends App {
   val numberOfPlayers = 4
   val totalNormalCards = 54
 
-  val sampleHand: Hand = GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards)
-
   val stackedHand: Hand = Hand(List(
     NormalCard(TEN, Diamond),
     NormalCard(SIX, Heart),
@@ -32,37 +30,16 @@ object Main extends App {
 //  val currentState = Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Club)))
 
 //  var AI = Player("AI", stackedHand)
-  var AI = Player("AI", sampleHand)
+  var AI = Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
+  var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 
-//  print(AI.hand)
-//  println('\n')
-//
-  val newHand: Hand = Hand(sortCards(AI.hand.listOfCards))
-  print(newHand)
+  val sortedHand: Hand = Hand(sortCards(AI.hand.listOfCards))
+  print(sortedHand)
   println("\n")
-//
-//  val intermediatsets: List[List[Card]] = getListsOfSimilarCards(newHand)
-//  print(intermediatsets)
-//  println("\n")
-//
-//  val allMoves: Moves = getAllMoves(intermediatsets)
-//  print(allMoves)
-//  println("\n")
-//
-//  val validMoves: Moves = getValidMoves(allMoves, currentState)
-//  print(validMoves)
-//  println("\n")
-//
-//  println("Game state is : " + currentState)
-//  println("\n")
-//
-//  val nextMove = getNextMove(validMoves, currentState)
-//  println("The next move is : " + nextMove)
-//  println("\n")
-//
-//  val nextGameState = getNextGameState(currentState, nextMove)
-//  println("The next game state is : " + nextGameState)
-//  println("\n")
+
+  val validMoves: Moves = getValidMoves(getAllMoves(getListsOfSimilarCards(sortedHand)), currentState)
+  print(validMoves)
+  print("\n")
 
   val nextMove = AI.playNextMove(AI.hand, currentState)
     println("The next move is : " + nextMove)

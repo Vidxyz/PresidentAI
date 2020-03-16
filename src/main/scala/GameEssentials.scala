@@ -64,8 +64,8 @@ case class Hand(listOfCards: List[Card]) {
     var sizeSeen = 0
     var stringValue = ""
     while (sizeSeen < size) {
-      stringValue = stringValue + listOfCards.slice(sizeSeen, sizeSeen + 4).toString + "\n"
-      sizeSeen += 4
+      stringValue = stringValue + listOfCards.slice(sizeSeen, sizeSeen + 7).toString + "\n"
+      sizeSeen += 7
     }
     stringValue
   }
