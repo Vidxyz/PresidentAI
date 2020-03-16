@@ -56,24 +56,30 @@ case object GameUtilities {
    */
   def getListsOfSimilarCards(hand: Hand): List[List[Card]] = {
     @tailrec
-    def getListsOfSimilarCardsHelper(lastCardSeen: Card, startIndex: Int,
+    def getListsOfSimilarCardsHelper(lastCardSeen: Option[Card], startIndex: Int,
                                         endIndex: Int, listSoFar: List[List[Card]]):
                                       List[List[Card]] = {
-      if (endIndex + 1 == hand.listOfCards.size)
+      if (endIndex == hand.listOfCards.size)
         listSoFar :+ List.empty ++ hand.listOfCards.drop(startIndex)
       else {
-        // Still on the same value, increment endIndex
-        if(lastCardSeen.value == hand.listOfCards(endIndex).value)
-          getListsOfSimilarCardsHelper(hand.listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
-        // Values are different. Slice from [start, end),
-        else
-          getListsOfSimilarCardsHelper(hand.listOfCards(endIndex), endIndex, endIndex + 1,
-            listSoFar :+ List.empty ++ hand.listOfCards.slice(startIndex, endIndex))
+        lastCardSeen.getOrElse(None) match {
+          case card: Card  =>
+            // Still on the same value, increment endIndex
+            if(card.value == hand.listOfCards(endIndex).value)
+              getListsOfSimilarCardsHelper(Some(hand.listOfCards(endIndex)), startIndex, endIndex + 1, listSoFar)
+            // Values are different. Slice from [start, end),
+            else
+              getListsOfSimilarCardsHelper(Some(hand.listOfCards(endIndex)), endIndex, endIndex + 1,
+                listSoFar :+ List.empty ++ hand.listOfCards.slice(startIndex, endIndex))
+
+          case None => getListsOfSimilarCardsHelper(Some(hand.listOfCards(endIndex)), startIndex, endIndex + 1, listSoFar)
+        }
+
       }
     }
     if(hand.listOfCards.isEmpty) List.empty
     else if(hand.listOfCards.size == 1) List(hand.listOfCards)
-    else getListsOfSimilarCardsHelper(hand.listOfCards.head, 0, 1, List.empty)
+    else getListsOfSimilarCardsHelper(None, 0, 0, List.empty)
   }
 
   /*

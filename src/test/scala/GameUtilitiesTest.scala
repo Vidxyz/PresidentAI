@@ -39,15 +39,31 @@ class GameUtilitiesTest extends FunSpec {
     }
 
     describe("When hand size is 6") {
-      describe("And the hand is comprised of a de facto set of 5 cards") {
+
+      describe("And the hand is comprised of a random set of cards") {
         it("Should return the expected response"){
           val hand = Hand(List(NormalCard(FOUR, Spade), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade),
             NormalCard(JACK, Club), NormalCard(JACK, Heart), NormalCard(ACE, Club)))
           val expectedResult = List(
             List(NormalCard(FOUR, Spade)),
             List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)),
-            List(NormalCard(JACK, Club), List(NormalCard(JACK, Heart))),
+            List(NormalCard(JACK, Club), NormalCard(JACK, Heart)),
             List(NormalCard(ACE, Club))
+          )
+          assert(GameUtilities.getListsOfSimilarCards(hand) == expectedResult)
+        }
+      }
+
+      describe("And the hand is comprised cards including 2s and Jokers") {
+        it("Should return the expected response"){
+          val hand = Hand(List(NormalCard(FOUR, Spade), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade),
+            NormalCard(JACK, Club), NormalCard(TWO, Heart), Joker))
+          val expectedResult = List(
+            List(NormalCard(FOUR, Spade)),
+            List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)),
+            List(NormalCard(JACK, Club)),
+            List(NormalCard(TWO, Heart)),
+            List(Joker)
           )
           assert(GameUtilities.getListsOfSimilarCards(hand) == expectedResult)
         }
