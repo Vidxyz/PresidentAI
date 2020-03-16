@@ -26,7 +26,7 @@ object Main extends App {
     Joker,
   ))
 
-  val currentState = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade), NormalCard(SIX, Heart), NormalCard(SIX, Club)))
+  val currentState = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade), NormalCard(SIX, Heart)))
 
   val AI = Player("AI", stackedHand)
 //  val AI = Player("AI", sampleHand)
@@ -49,6 +49,13 @@ object Main extends App {
   val validMoves: Moves = getValidMoves(allMoves, currentState)
   print(validMoves)
   println("\n")
+
+
+  val heuristic = getHeuristicValue(Move(
+    List(NormalCard(NINE, Diamond), NormalCard(NINE, Heart), NormalCard(NINE, Spade))),
+    currentState)
+
+  println(heuristic)
 
 }
 

@@ -1,4 +1,4 @@
-import Consants.numberToCardMap
+import Consants._
 import FaceValue.TWO
 
 import scala.annotation.tailrec
@@ -124,6 +124,17 @@ case object GameUtilities {
       if (numberToCardMap.find(_._2 == move.cards.last).map(_._1).getOrElse(-1) >
         numberToCardMap.find(_._2 == state.cards.last).map(_._1).getOrElse(-1)) true
       else false
+    }
+  }
+
+  /*
+  Gets a 0-1 value signifying how desirable a move is compared to given game state
+   */
+  def getHeuristicValue(move: Move, gameState: Move): Float = {
+    move.cards match {
+      case List(Joker, _*) => 0
+      case List(NormalCard(TWO, _), _*) => 0
+      case _ => 1f/(move.cards.head.intValue - gameState.cards.head.intValue)
     }
   }
 
