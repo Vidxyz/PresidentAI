@@ -53,6 +53,7 @@ case object GameUtilities {
   /*
   Generate Lists of Similar cards
   Similar cards include cards with same FaceValue but differing Suit
+  Assumption :- hand is sorted
    */
   def getListsOfSimilarCards(hand: Hand): List[List[Card]] = {
     @tailrec

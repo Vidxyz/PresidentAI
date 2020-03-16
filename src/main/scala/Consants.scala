@@ -3,7 +3,7 @@ import Suits.{Diamond, Club, Spade, Heart}
 
 object Consants {
 
-  val numberToCardMap = Map(
+  val numberToCardMap: Map[Int, Card] = Map(
     0 -> NormalCard(THREE, Diamond),
     1 -> NormalCard(THREE, Club),
     2 -> NormalCard(THREE, Heart),
@@ -72,4 +72,62 @@ object Consants {
     52 -> Joker,
     53 -> Joker
   )
+
+  val sortedHandWithAllCards: Hand = Hand(List(
+    NormalCard(THREE, Diamond),
+    NormalCard(THREE, Club),
+    NormalCard(THREE, Heart),
+    NormalCard(THREE, Spade),
+    NormalCard(FOUR, Diamond),
+    NormalCard(FOUR, Club),
+    NormalCard(FOUR, Heart),
+    NormalCard(FOUR, Spade),
+    NormalCard(FIVE, Diamond),
+    NormalCard(FIVE, Club),
+    NormalCard(FIVE, Heart),
+    NormalCard(FIVE, Spade),
+    NormalCard(SIX, Diamond),
+    NormalCard(SIX, Club),
+    NormalCard(SIX, Heart),
+    NormalCard(SIX, Spade),
+    NormalCard(SEVEN, Diamond),
+    NormalCard(SEVEN, Club),
+    NormalCard(SEVEN, Heart),
+    NormalCard(SEVEN, Spade),
+    NormalCard(EIGHT, Diamond),
+    NormalCard(EIGHT, Club),
+    NormalCard(EIGHT, Heart),
+    NormalCard(EIGHT, Spade),
+    NormalCard(NINE, Diamond),
+    NormalCard(NINE, Club),
+    NormalCard(NINE, Heart),
+    NormalCard(NINE, Spade),
+    NormalCard(TEN, Diamond),
+    NormalCard(TEN, Club),
+    NormalCard(TEN, Heart),
+    NormalCard(TEN, Spade),
+    NormalCard(JACK, Diamond),
+    NormalCard(JACK, Club),
+    NormalCard(JACK, Heart),
+    NormalCard(JACK, Spade),
+    NormalCard(QUEEN, Diamond),
+    NormalCard(QUEEN, Club),
+    NormalCard(QUEEN, Heart),
+    NormalCard(QUEEN, Spade),
+    NormalCard(KING, Diamond),
+    NormalCard(KING, Club),
+    NormalCard(KING, Heart),
+    NormalCard(KING, Spade),
+    NormalCard(ACE, Diamond),
+    NormalCard(ACE, Club),
+    NormalCard(ACE, Heart),
+    NormalCard(ACE, Spade),
+    NormalCard(TWO, Diamond),
+    NormalCard(TWO, Club),
+    NormalCard(TWO, Heart),
+    NormalCard(TWO, Spade),
+    Joker,
+    Joker,
+  ))
+
 }
