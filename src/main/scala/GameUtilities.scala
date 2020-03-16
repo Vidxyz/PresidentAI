@@ -57,7 +57,8 @@ case object GameUtilities {
   def getListsOfSimilarCards(hand: Hand): List[List[Card]] = {
     @tailrec
     def getListsOfSimilarCardsHelper(lastCardSeen: Card, startIndex: Int,
-                                        endIndex: Int, listSoFar: List[List[Card]]): List[List[Card]] = {
+                                        endIndex: Int, listSoFar: List[List[Card]]):
+                                      List[List[Card]] = {
       if (endIndex + 1 == hand.listOfCards.size)
         listSoFar :+ List.empty ++ hand.listOfCards.drop(startIndex)
       else {
