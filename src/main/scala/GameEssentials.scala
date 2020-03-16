@@ -41,6 +41,7 @@ case class NormalCard(faceValue: Value, suit: Suit) extends Card {
   override def toString: String = "<" + faceValue.toString + "," + suit.toString + ">"
   override def value: String = faceValue.toString
   override val intValue: Int = faceValue match {
+    case TWO => 2
     case THREE => 3
     case FOUR => 4
     case FIVE => 5
@@ -53,7 +54,6 @@ case class NormalCard(faceValue: Value, suit: Suit) extends Card {
     case QUEEN => 12
     case KING => 13
     case ACE => 14
-    case TWO => 15
   }
 }
 
@@ -71,7 +71,18 @@ case class Hand(listOfCards: List[Card]) {
   }
 }
 
-case class Move(cards: List[Card])
+/*
+A move is classified as a sorted List[Card] sorted as per numberToCardMap
+ */
+case class Move(cards: List[Card]) {
+  def moveFaceValue: Int = {
+    if (cards.isEmpty) 0
+    else cards.head.intValue
+  }
+  def highestCard: Card = cards.last
+  def numberOfCards: Int = cards.size
+  def begin: Boolean = cards.isEmpty
+}
 case class Moves(moves: List[Move])
 
 case class Game(currentMove: Move)

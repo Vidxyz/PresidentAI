@@ -11,22 +11,25 @@ object Main extends App {
 
   val stackedHand: Hand = Hand(List(
     NormalCard(TEN, Diamond),
-    NormalCard(JACK, Club),
-    NormalCard(ACE, Diamond),
+    NormalCard(SIX, Heart),
+    NormalCard(SIX, Spade),
     NormalCard(KING, Heart),
     NormalCard(FOUR, Spade),
     NormalCard(TEN, Club),
     NormalCard(TEN, Heart),
-    NormalCard(ACE, Heart),
-    NormalCard(TWO, Diamond),
+    NormalCard(EIGHT, Heart),
+    NormalCard(SEVEN, Diamond),
+    NormalCard(SEVEN, Heart),
     NormalCard(TWO, Heart),
     NormalCard(TWO, Spade),
-    NormalCard(TWO, Club),
     Joker,
     Joker,
   ))
 
-  val currentState = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Spade), NormalCard(SIX, Heart)))
+//  val currentState = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)))
+//  val currentState = Move(List.empty)
+  val currentState = Move(List(NormalCard(TWO, Heart)))
+//  val currentState = Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Club)))
 
   val AI = Player("AI", stackedHand)
 //  val AI = Player("AI", sampleHand)
@@ -34,11 +37,11 @@ object Main extends App {
   print(AI.hand)
   println('\n')
 
-  val newHand: Hand = sortCards(AI.hand.listOfCards)
+  val newHand: Hand = Hand(sortCards(AI.hand.listOfCards))
   print(newHand)
   println("\n")
 
-  val intermediatsets: List[List[Card]] = getListOfIntermediateSets(newHand.listOfCards)
+  val intermediatsets: List[List[Card]] = getListsOfSimilarCards(newHand)
   print(intermediatsets)
   println("\n")
 
@@ -50,13 +53,16 @@ object Main extends App {
   print(validMoves)
   println("\n")
 
+  println("Game state is : " + currentState)
+  println("\n")
 
-  val heuristic = getHeuristicValue(Move(
-    List(NormalCard(NINE, Diamond), NormalCard(NINE, Heart), NormalCard(NINE, Spade))),
-    currentState)
+  val nextMove = getNextMove(validMoves, currentState)
+  println("The next move is : " + nextMove)
+  println("\n")
 
-  println(heuristic)
-
+  val nextGameState = getNextGameState(currentState, nextMove)
+  println("The next game state is : " + nextGameState)
+  println("\n")
 }
 
 

@@ -42,33 +42,33 @@ case object GameUtilities {
   3 < 4 < 5 < ..... < K < A < 2 < JOKER
   3_Diamonds < 3_Clubs < 3_Hears < 3_Spades
    */
-  def sortCards(listOfCards: List[Card]): Hand = {
-    Hand(listOfCards.sortWith(
+  def sortCards(listOfCards: List[Card]): List[Card] = {
+    listOfCards.sortWith(
       (card1, card2) =>
         numberToCardMap.find(_._2 == card1).map(_._1).getOrElse(-1) <
           numberToCardMap.find(_._2 == card2).map(_._1).getOrElse(-1)
-    ))
+    )
   }
 
   /*
-  Makes clumped sets out of a sorted list
-  WARNING - thereis a bug here
+  Generate Lists of Similar cards
+  Similar cards include cards with same FaceValue but differing Suit
    */
-  def getListOfIntermediateSets(listOfCards: List[Card]): List[List[Card]] = {
+  def getListsOfSimilarCards(hand: Hand): List[List[Card]] = {
     @tailrec
-    def getListOfIntermediateSetsHelper(lastCardSeen: Card, startIndex: Int,
+    def getListsOfSimilarCardsHelper(lastCardSeen: Card, startIndex: Int,
                                         endIndex: Int, listSoFar: List[List[Card]]): List[List[Card]] = {
-      if (endIndex + 1 == listOfCards.size)
-        listSoFar :+ List.empty ++ listOfCards.drop(startIndex)
+      if (endIndex + 1 == hand.listOfCards.size)
+        listSoFar :+ List.empty ++ hand.listOfCards.drop(startIndex)
       else {
-        if(lastCardSeen.value == listOfCards(endIndex).value)
-          getListOfIntermediateSetsHelper(listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
+        if(lastCardSeen.value == hand.listOfCards(endIndex).value)
+          getListsOfSimilarCardsHelper(hand.listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
         else
-          getListOfIntermediateSetsHelper(listOfCards(endIndex), endIndex, endIndex + 1,
-            listSoFar :+ List.empty ++ listOfCards.slice(startIndex, endIndex))
+          getListsOfSimilarCardsHelper(hand.listOfCards(endIndex), endIndex, endIndex + 1,
+            listSoFar :+ List.empty ++ hand.listOfCards.slice(startIndex, endIndex))
       }
     }
-    getListOfIntermediateSetsHelper(listOfCards.head, 0, 1, List.empty)
+    getListsOfSimilarCardsHelper(hand.listOfCards.head, 0, 1, List.empty)
   }
 
   /*
@@ -82,8 +82,7 @@ case object GameUtilities {
 
       if (intermediateSetsOfCards(currentSetIndex).head == Joker) {
         val splitUpJokers = intermediateSetsOfCards(currentSetIndex)
-                                        .map(e => List(e))
-                                        .map(l => Move(l))
+                                        .map(e => Move(List(e)))
         createListOfMoves(currentSetIndex + 1, movesSoFar ++ splitUpJokers)
       }
       else {
@@ -105,27 +104,39 @@ case object GameUtilities {
   1. No special logic for 3s
    */
   def getValidMoves(allMoves: Moves, state: Move): Moves = {
-    Moves(allMoves.moves
+    if (state.begin) allMoves
+    else Moves(allMoves
+                  .moves
                   .filter(move => isValidMove(move, state)))
   }
 
-  private def isValidMove(move: Move, state: Move): Boolean = {
-    if(move.cards.last == Joker) return true
+  private def isValidMove(move: Move, gameState: Move): Boolean = {
+    if(move.highestCard == Joker) return true
 
     // Need max(1, n-1) 2s to be played when state.size = n
-    if(move.cards.head.value == "TWO") {
-      if(state.cards.size - move.cards.size == 1) return true
-      else return false
+    if(move.moveFaceValue == 2) {
+      gameState.moveFaceValue match {
+        case 2 => return move.numberOfCards == gameState.numberOfCards &&
+                          checkIfBetter(move, gameState)
+        case _ => gameState.numberOfCards match {
+                    case 1 => return move.numberOfCards == 1
+                    case 2 => return move.numberOfCards == 1
+                    case other => return move.numberOfCards == other - 1
+                  }
+      }
+
     }
 
-    if(move.cards.size != state.cards.size) false
-    // Else check value comparison
-    else {
-      if (numberToCardMap.find(_._2 == move.cards.last).map(_._1).getOrElse(-1) >
-        numberToCardMap.find(_._2 == state.cards.last).map(_._1).getOrElse(-1)) true
-      else false
-    }
+    if(move.numberOfCards != gameState.numberOfCards) false
+
+    // This only happens when the Move in question doesn't involve 2s/JOKERs and is of the same numberOfCards
+    else checkIfBetter(move, gameState)
   }
+
+  // Returns true if move1 is "better" than move2 :- Higher value in numberToCardMap
+  private def checkIfBetter(move1: Move, move2: Move) =
+    numberToCardMap.find(_._2 == move1.highestCard).map(_._1).getOrElse(-1) >
+    numberToCardMap.find(_._2 == move2.highestCard).map(_._1).getOrElse(-1)
 
   /*
   Gets a 0-1 value signifying how desirable a move is compared to given game state
@@ -134,28 +145,50 @@ case object GameUtilities {
     move.cards match {
       case List(Joker, _*) => 0
       case List(NormalCard(TWO, _), _*) => 0
-      case _ => 1f/(move.cards.head.intValue - gameState.cards.head.intValue)
+      case _ => 1f/(move.moveFaceValue - gameState.moveFaceValue)
     }
   }
 
   /*
   Fetches the next best move possible, given current game state and current hand
+  Applies heuristic value on each move, and picks the best
    */
-  def getNextMove(validMoves: Moves, state: Move): Move = {
-    ???
+  def getNextMove(validMoves: Moves, gameState: Move): Move = {
+    val bestMoveIndex = validMoves.moves
+      .map(m => getHeuristicValue(m, gameState))
+      .zipWithIndex
+      .maxBy(_._1)
+      ._2
+
+    validMoves.moves(bestMoveIndex)
+  }
+
+  /*
+  Returns the next game state having processed the nextMove
+  Returns Move(List.empty) if it is a suit burn or a joker, ie a valid move with same moveFaceValue
+  Returns gameState otherwise
+  Assumption - nextMove is a validMove
+   */
+  def getNextGameState(gameState: Move, nextMove: Move): Move = {
+    if(nextMove.moveFaceValue > gameState.moveFaceValue) nextMove
+    else Move(List.empty)
   }
 
   /*
   Returns a new hand, having played the next best possible move
    */
-  def playNextMove(currentHand: Hand): Hand = {
-    ???
+  def playNextMove(currentHand: Hand, currentState: Move): Hand = {
     /*
     Get intermediate sets of cards
     Get all possible moves
     Get valid moves
-
      */
+    val sortedHand = Hand(sortCards(currentHand.listOfCards))
+    val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
+    val allMoves: Moves = getAllMoves(intermediateLists)
+    val validMoves: Moves = getValidMoves(allMoves, currentState)
+    val nextMove = getNextMove(validMoves, currentState)
+    val nextGameState = getNextGameState(currentState, nextMove)
   }
 
 
