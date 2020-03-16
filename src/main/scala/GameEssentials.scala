@@ -35,7 +35,7 @@ object FaceValue {
 }
 
 case object Joker extends Card {
-  override def toString: String = "JOKER"
+  override def toString: String = "<JOKER>"
   override def value: String = "JOKER"
   override val intValue: Int = -1
 }

@@ -62,14 +62,18 @@ case object GameUtilities {
       if (endIndex + 1 == hand.listOfCards.size)
         listSoFar :+ List.empty ++ hand.listOfCards.drop(startIndex)
       else {
+        // Still on the same value, increment endIndex
         if(lastCardSeen.value == hand.listOfCards(endIndex).value)
           getListsOfSimilarCardsHelper(hand.listOfCards(endIndex), startIndex, endIndex + 1, listSoFar)
+        // Values are different. Slice from [start, end),
         else
           getListsOfSimilarCardsHelper(hand.listOfCards(endIndex), endIndex, endIndex + 1,
             listSoFar :+ List.empty ++ hand.listOfCards.slice(startIndex, endIndex))
       }
     }
-    getListsOfSimilarCardsHelper(hand.listOfCards.head, 0, 1, List.empty)
+    if(hand.listOfCards.isEmpty) List.empty
+    else if(hand.listOfCards.size == 1) List(hand.listOfCards)
+    else getListsOfSimilarCardsHelper(hand.listOfCards.head, 0, 1, List.empty)
   }
 
   /*
