@@ -7,6 +7,32 @@ import scala.util.Random
 case object GameUtilities {
 
   /*
+  Takes a partial list of cards in dealtSoFar: List[Card]
+   */
+  def dealNewHandV2(playerNumber: Int, numberOfPlayers: Int, totalNormalCards: Int, dealtSoFar: List[Card]): Hand = {
+    @tailrec
+    def dealNewHandHelper(currentPlayer: Int, seenSoFar: List[Int], dealtSoFar: List[Card]): List[Card] = {
+      if(seenSoFar.size == totalNormalCards) return dealtSoFar
+
+      val nextCardNum = Random.nextInt(totalNormalCards)
+
+      if(seenSoFar.contains(nextCardNum))
+        dealNewHandHelper(currentPlayer, seenSoFar, dealtSoFar)
+      else {
+        dealNewHandHelper(
+          if(currentPlayer == numberOfPlayers) 1
+          else currentPlayer + 1,
+          seenSoFar :+ nextCardNum,
+          if (currentPlayer == playerNumber) dealtSoFar ++ numberToCardMap.get(nextCardNum)
+          else dealtSoFar
+        )
+      }
+    }
+
+    Hand(dealNewHandHelper(1, List.empty[Int], dealtSoFar))
+  }
+
+  /*
   Deals a new hand by randomly selecting non-repeating numbers in the range [0, 54)
   and assigning them in a round robin format to each of the players.
 
@@ -14,15 +40,15 @@ case object GameUtilities {
   */
   def dealNewHand(numberOfPlayers: Int, totalNormalCards: Int): Hand = {
     @tailrec
-    def dealNextCard(currentPlayer: Int, seenSoFar: List[Int], dealtSoFar: List[Card]): List[Card] = {
+    def dealNewHandHelper(currentPlayer: Int, seenSoFar: List[Int], dealtSoFar: List[Card]): List[Card] = {
       if(seenSoFar.size == totalNormalCards) return dealtSoFar
 
       val nextCardNum = Random.nextInt(totalNormalCards)
 
       if(seenSoFar.contains(nextCardNum))
-        dealNextCard(currentPlayer, seenSoFar, dealtSoFar)
+        dealNewHandHelper(currentPlayer, seenSoFar, dealtSoFar)
       else {
-        dealNextCard(
+        dealNewHandHelper(
           if(currentPlayer == numberOfPlayers) 1
           else currentPlayer + 1,
           seenSoFar :+ nextCardNum,
@@ -32,7 +58,7 @@ case object GameUtilities {
       }
     }
 
-    Hand(dealNextCard(1, List.empty[Int], List.empty[Card]))
+    Hand(dealNewHandHelper(1, List.empty[Int], List.empty[Card]))
   }
 
   /*
