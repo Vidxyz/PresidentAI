@@ -2,6 +2,8 @@ import FaceValue._
 import Suits._
 import org.scalatest.FunSpec
 
+import scala.util.Random
+
 class GameUtilitiesTest extends FunSpec {
 
   describe("tests for getListsOfSimilarCards()"){
@@ -294,6 +296,61 @@ class GameUtilitiesTest extends FunSpec {
         assert(dealtHands.map(hand => hand.listOfCards.size).contains(0))
       }
     }
+
+  }
+
+  describe("tests for sortCards") {
+    // Test sorting 0 cards
+    // Test sorting 1 card
+    // Test sorting 2 cards
+    // Test sorting 10 cards
+    // Test sorting 54 cards
+    describe("When list of cards is empty") {
+      it("should return empty list") {
+        assert(GameUtilities.sortCards(List.empty) == List.empty)
+      }
+    }
+
+    describe("When list of card consists only of one card"){
+      it("should return the same list") {
+        val sampleList = List(NormalCard(EIGHT, Heart))
+        assert(GameUtilities.sortCards(sampleList) == sampleList)
+      }
+    }
+
+    describe("When list of card consists only of exactly 2 cards"){
+      it("should return a list with the higher card at the tail.head") {
+        val sampleList = List(NormalCard(EIGHT, Heart), NormalCard(FOUR, Diamond))
+        assert(GameUtilities.sortCards(sampleList) == sampleList.reverse)
+        assert(GameUtilities.sortCards(sampleList.reverse) == sampleList.reverse)
+      }
+    }
+
+    describe("When list of card consists only of an arbitrary set of 10 cards"){
+      it("should return a sorted list ") {
+        val sortedList = List(
+          NormalCard(FOUR, Club),
+          NormalCard(SIX, Club),
+          NormalCard(SEVEN, Heart),
+          NormalCard(SEVEN, Spade),
+          NormalCard(NINE, Diamond),
+          NormalCard(JACK, Diamond),
+          NormalCard(QUEEN, Club),
+          NormalCard(QUEEN, Spade),
+          NormalCard(TWO, Diamond),
+          Joker,
+        )
+        assert(GameUtilities.sortCards(Random.shuffle(sortedList)) == sortedList)
+      }
+    }
+
+    describe("When list of card consists only of full deck (54 cards)"){
+      it("should return a sorted list ") {
+        assert(GameUtilities.sortCards(Random.shuffle(Consants.sortedHandWithAllCards.listOfCards))
+          == Consants.sortedHandWithAllCards.listOfCards)
+      }
+    }
+
 
   }
 

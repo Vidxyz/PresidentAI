@@ -101,10 +101,10 @@ case object GameUtilities {
   }
 
 
+  @Deprecated
   /*
   Deals a new hand by randomly selecting non-repeating numbers in the range [0, 54)
   and assigning them in a round robin format to each of the players.
-  // --- This is currently not being used -----
   Return - Hand comprising of cards dealt to player1, discards all other "dealt cards"
   */
   def dealNewHand(numberOfPlayers: Int, totalNormalCards: Int): Hand = {
