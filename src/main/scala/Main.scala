@@ -2,9 +2,14 @@ import FaceValue._
 import Suits._
 import GameUtilities._
 
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 object Main extends App {
+
+  implicit class NonNegativeInt(x: Int) extends {
+    def nonNegative: Int = {
+      Math.max(0, this.x)
+    }
+  }
 
   val numberOfPlayers = 6
   val totalNormalCards = 54
@@ -64,10 +69,14 @@ object Main extends App {
                     .map(playerstatus => playerstatus == Active)
                     .count(_ == true) > 1) {
 
-    val currentPlayerObject = listOfPlayers(currentPlayerNumber)
+    val currentPlayerObject = listOfPlayers(currentPlayerNumber.nonNegative)
+//    val currentPlayerObject = listOfPlayers(currentPlayerNumber)
 
     // To avoid and infinite loop of None moves, we restore currentState to empty if it is our turn and we played the last move too
-    if(currentPlayerObject.name == lastMovePlayedBy || !listOfPlayers.map(player => player.name).contains(lastMovePlayedBy) && lastMovePlayedBy != "") {
+    // This implementation always discards the LAST CARD played by a player on their LAST turn (clears the state)
+    // TODO - Bugfix here
+    if(currentPlayerObject.name == lastMovePlayedBy ||
+      (!listOfPlayers.map(player => player.name).contains(lastMovePlayedBy) && lastMovePlayedBy != "")) {
       println("Clearing state due to passing by other players")
       currentState = Move(List.empty)
     }
@@ -76,21 +85,21 @@ object Main extends App {
     println(currentPlayerObject.name)
     println("------------------------")
     println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
+
     val nextMove: Option[Move] = currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
     println("The next move is : " + nextMove)
 
-    if(nextMove.isDefined) lastMovePlayedBy = listOfPlayers(currentPlayerNumber).name
+    if(nextMove.isDefined) lastMovePlayedBy = listOfPlayers(currentPlayerNumber.nonNegative).name
 
     currentState = getNextGameState(currentState, currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState))
     println("The current state is : " + currentState)
 
     val newHandAfterPlaying = currentPlayerObject.getNewHand(currentPlayerObject.hand, nextMove)
-    listOfPlayers.update(currentPlayerNumber, Player(currentPlayerObject.name, newHandAfterPlaying))
+    listOfPlayers.update(currentPlayerNumber.nonNegative, Player(currentPlayerObject.name, newHandAfterPlaying))
 
-    if(listOfPlayers(currentPlayerNumber).status == Complete) {
-      println(listOfPlayers(currentPlayerNumber).name + " ******* HAS COMPLETED *********")
-      println("currentPlayerNumber is still : " + currentPlayerNumber)
-      listOfPlayers.remove(currentPlayerNumber)
+    if(listOfPlayers(currentPlayerNumber.nonNegative).status == Complete) {
+      println(listOfPlayers(currentPlayerNumber.nonNegative).name + " has finished!")
+      listOfPlayers.remove(currentPlayerNumber.nonNegative)
       currentPlayerNumber -= 1
     }
 
@@ -111,7 +120,7 @@ object Main extends App {
       else currentPlayerNumber += 1
     }
 
-    Thread.sleep(10)
+//    Thread.sleep(10)
   }
 
 
