@@ -46,7 +46,7 @@ case class Round(gameState: Move,
   /*
  Since name is unique, this should only return a list of size 1
   */
-  def getIndexOf(name: String) = {
+  def getIndexOf(name: String): Int = {
     listOfPlayers
       .zipWithIndex
       .filter {
@@ -250,11 +250,11 @@ case object GameUtilities {
   /*
   Gets a 0-1 value signifying how desirable a move is compared to given game state
    */
-  def getHeuristicValue(move: Move, gameState: Move): Float = {
+  def getHeuristicValue(move: Move, gameState: Move): Double = {
     move.cards match {
       case List(Joker, _*) => 0
       case List(NormalCard(TWO, _), _*) => 0
-      case _ => (0.5f * (1f/(move.moveFaceValue - gameState.moveFaceValue))) + (0.5f * move.cards.size/Consants.maxMoveSize)
+      case _ => (0.5d * (1d/(move.moveFaceValue - gameState.moveFaceValue))) + (0.5d * move.cards.size/Consants.maxMoveSize)
     }
   }
 
@@ -281,7 +281,7 @@ case object GameUtilities {
   Returns the next game state having processed the nextMove
   Returns Move(List.empty) if it is a suit burn or a joker, ie a valid move with same moveFaceValue
   Returns gameState otherwise
-  Assumption - nextMove is a validMove
+  Assumption - nextMove is a validMove - this includes the (n-1) restriction for 2s as a special card
    */
   def getNextGameState(gameState: Move, nextValidMove: Option[Move]): Move = {
     nextValidMove.getOrElse(None) match {

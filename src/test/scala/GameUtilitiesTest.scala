@@ -95,9 +95,87 @@ class GameUtilitiesTest extends FunSpec {
   }
 
   describe("tests for getNextMove()"){
+
     describe("When validMoves is empty"){
       it("Should return an Empty Move") {
         assert(GameUtilities.getNextMove(Moves(List.empty), Move(List.empty)) == None)
+      }
+    }
+
+  }
+
+  describe("tests for getNextGameState") {
+    // test single, double, triple
+    // test suit burns
+    // test two's
+    // test jokers
+    // None moves
+    describe("When gameState is a single card") {
+
+      it("Should be a suit burn") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Club))), Some(Move(List(NormalCard(SEVEN, Spade))))) == Move(List.empty))
+      }
+
+      it("Should be replaced by a higher single card") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Club))), Some(Move(List(NormalCard(JACK, Diamond))))) == Move(List(NormalCard(JACK, Diamond))))
+      }
+
+      it("Should be a burn when a single 2 is played") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Club))), Some(Move(List(NormalCard(TWO, Club))))) == Move(List.empty))
+      }
+
+      it("Should be a burn when a single Joker is played") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Club))), Some(Move(List(Joker)))) == Move(List.empty))
+      }
+    }
+
+    describe("When gameState is a double (Double 6s)") {
+      it("Should be a suit burn") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
+          Some(Move(List(NormalCard(SIX, Heart), NormalCard(SIX, Spade))))) == Move(List.empty))
+      }
+
+      it("Should be replaced by a higher double (Double 7s") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
+          Some(Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))))) == Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))))
+      }
+
+      it("Should be a burn when a single 2 is played") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
+          Some(Move(List(NormalCard(TWO, Heart))))) == Move(List.empty))
+      }
+
+      it("Should be a burn when a single Joker is played") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
+          Some(Move(List(Joker)))) == Move(List.empty))
+      }
+    }
+
+    describe("When gameState is a triple (Triple 7s)") {
+
+      // No suit burns yet because no wildcard 3s
+
+      it("Should be replaced by a higher triple (Triple 9s") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart))),
+          Some(Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Heart), NormalCard(NINE, Spade))))) ==
+          Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Heart), NormalCard(NINE, Spade))))
+      }
+
+      it("Should be a burn when a two 2s is played") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart))),
+          Some(Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade))))) == Move(List.empty))
+      }
+
+      it("Should be a burn when a single Joker is played") {
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Spade))),
+          Some(Move(List(Joker)))) == Move(List.empty))
+      }
+    }
+
+    describe("When nextValidMove is None") {
+      it("should return the gameState itself") {
+        val gameState = Move(List(NormalCard(KING, Diamond), NormalCard(KING, Spade)))
+        assert(GameUtilities.getNextGameState(gameState, None) == gameState)
       }
     }
   }

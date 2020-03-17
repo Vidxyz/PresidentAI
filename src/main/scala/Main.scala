@@ -67,7 +67,7 @@ object Main extends App {
 
     // To avoid and infinite loop of None moves, we restore currentState to empty if it is our turn and we played the last move too
     if(/*round.checkIfLastMovePlayedBy(currentPlayerObject.name) || */round.hasEveryonePassed) {
-      println("Clearing state due to passing by other players")
+      println("Clearing state due to passing by other players. RoundPassStatus list is")
       println(round.roundPassStatus)
       currentState = Move(List.empty)
 
@@ -81,20 +81,18 @@ object Main extends App {
         nextPlayerIndex, listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
     }
 
-
     val currentPlayerObject = listOfPlayers(round.currentPlayerTurn)
 
-
-    println("-------------------------")
     println(currentPlayerObject.name)
     println("------------------------")
+    println("Hand")
     println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
 
     val nextMove: Option[Move] =
     // If player has not skipped turn this round already, then they get to play
     if(!round.hasAlreadySkippedTurn(currentPlayerObject.name)) currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
     else {
-      println("SKIPPING TURN BECAUSE ALREADY PASSED")
+      println("SKIPPING TURN BECAUSE ALREADY PASSED IN THIS ROUND")
       None
     }
     println("The next move is : " + nextMove)
@@ -116,7 +114,7 @@ object Main extends App {
 
     currentState = getNextGameState(currentState, nextMove)
 
-    // Reset noPassList if currentState has become Empty
+    // Reset roundPassStatus list if currentState has become Empty
     // This can only happen when it is a suit-burn/2/Joker right now
     if(currentState.cards.isEmpty)
       round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
@@ -136,7 +134,6 @@ object Main extends App {
     }
 
 
-    println("-------------------------")
     println("\n")
 
     // Need to know which player to switch move to
