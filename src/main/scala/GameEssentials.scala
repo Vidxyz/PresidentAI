@@ -80,6 +80,8 @@ case class Hand(listOfCards: List[Card]) {
 A move is classified as a sorted List[Card] sorted as per numberToCardMap
  */
 case class Move(cards: List[Card]) {
+  override def toString: String = if(cards.nonEmpty) "Move(" + cards + ")" else "EMPTY"
+
   def moveFaceValue: Int = {
     if (cards.isEmpty) 0
     else cards.head.intValue
