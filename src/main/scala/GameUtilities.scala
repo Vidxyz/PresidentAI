@@ -42,6 +42,21 @@ case class Round(gameState: Move,
       }
       .head
   }
+
+  /*
+ Since name is unique, this should only return a list of size 1
+  */
+  def getIndexOf(name: String) = {
+    listOfPlayers
+      .zipWithIndex
+      .filter {
+        case (player, _) => player.name == name
+      }
+      .map {
+        case (_, index) => index
+      }
+      .head
+  }
 }
 
 object Round {

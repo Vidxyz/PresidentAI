@@ -65,17 +65,25 @@ object Main extends App {
                     .map(playerstatus => playerstatus == Active)
                     .count(_ == true) > 1) {
 
-    val currentPlayerObject = listOfPlayers(round.currentPlayerTurn)
-
     // To avoid and infinite loop of None moves, we restore currentState to empty if it is our turn and we played the last move too
     if(/*round.checkIfLastMovePlayedBy(currentPlayerObject.name) || */round.hasEveryonePassed) {
       println("Clearing state due to passing by other players")
       println(round.roundPassStatus)
       currentState = Move(List.empty)
-      round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
-//      maxAllowedSkips = listOfPlayers.size - 1
-//      numberOfSkips = 0
+
+      // This fails when player exited on a burn, as their index cannot be found to be last person to have played
+      val nextPlayerIndex =  try {
+        round.getIndexOf(round.lastMovePlayedBy)
+      } catch {
+        case e: Exception => round.currentPlayerTurn
+      }
+      round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size,
+        nextPlayerIndex, listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
     }
+
+
+    val currentPlayerObject = listOfPlayers(round.currentPlayerTurn)
+
 
     println("-------------------------")
     println(currentPlayerObject.name)
@@ -115,7 +123,8 @@ object Main extends App {
     else
       round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus)
 
-    println("The pass status is : " + round.roundPassStatus)
+    println("The current round state is : " + round.gameState)
+//    println("The pass status is : " + round.roundPassStatus)
 
     val newHandAfterPlaying = currentPlayerObject.getNewHand(currentPlayerObject.hand, nextMove)
     listOfPlayers.update(round.currentPlayerTurn, Player(currentPlayerObject.name, newHandAfterPlaying))
