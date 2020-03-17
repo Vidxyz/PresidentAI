@@ -102,6 +102,50 @@ class GameUtilitiesTest extends FunSpec {
       }
     }
 
+    // Test for the following
+    // Lowest possible valid move amongst all singles
+    // Lowest possible valid move amongst all doubles
+    // Lowest possible valid move amongst all triples
+    // Lowest possible valid move amongst all quads
+    // Picks twos only if no other cards to pick
+    // Picks joker only if nothing else to pick
+    // Picks +1 higher double than a -1 lower single
+    // Picks
+    describe("When gameState is Empty") {
+
+      describe("When there is a slightly higher double than a lower single") {
+        it("Should pick the slightly higher double") {
+          val double6s = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)))
+          val validMoves: Moves = Moves(List(
+            Move(List(NormalCard(FIVE, Spade))),
+            double6s
+          ))
+          val gameState = Move(List.empty)
+          assert(GameUtilities.getNextMove(validMoves, gameState).contains(double6s))
+        }
+      }
+
+      describe("When there is a slightly higher triple than a lower double") {
+        it("Should pick the slightly higher double") {
+          val double5s = Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Spade)))
+          val triple6s = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club), NormalCard(SIX, Heart)))
+          val validMoves: Moves = Moves(List(double5s, triple6s))
+          val gameState = Move(List.empty)
+          assert(GameUtilities.getNextMove(validMoves, gameState).contains(triple6s))
+        }
+      }
+
+      describe("When there is a slightly higher quad than a lower triple") {
+        it("Should pick the slightly higher quad") {
+          val triple5s = Move(List(NormalCard(FIVE, Diamond), NormalCard(FIVE, Club), NormalCard(FIVE, Heart)))
+          val quad8s = Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade)))
+          val validMoves: Moves = Moves(List(triple5s, quad8s))
+          val gameState = Move(List.empty)
+          assert(GameUtilities.getNextMove(validMoves, gameState).contains(quad8s))
+        }
+      }
+
+    }
   }
 
   describe("tests for getNextGameState") {
@@ -112,63 +156,68 @@ class GameUtilitiesTest extends FunSpec {
     // None moves
     describe("When gameState is a single card") {
 
+      val single7 = Move(List(NormalCard(SEVEN, Club)))
+
       it("Should be a suit burn") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Club))), Some(Move(List(NormalCard(SEVEN, Spade))))) == Move(List.empty))
+        val better7 = Move(List(NormalCard(SEVEN, Spade)))
+        assert(GameUtilities.getNextGameState(single7, Some(better7)) == Move(List.empty))
       }
 
       it("Should be replaced by a higher single card") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Club))), Some(Move(List(NormalCard(JACK, Diamond))))) == Move(List(NormalCard(JACK, Diamond))))
+        val higherJack = Move(List(NormalCard(JACK, Diamond)))
+        assert(GameUtilities.getNextGameState(single7, Some(higherJack)) == higherJack)
       }
 
       it("Should be a burn when a single 2 is played") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Club))), Some(Move(List(NormalCard(TWO, Club))))) == Move(List.empty))
+        assert(GameUtilities.getNextGameState(single7, Some(Move(List(NormalCard(TWO, Club))))) == Move(List.empty))
       }
 
       it("Should be a burn when a single Joker is played") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Club))), Some(Move(List(Joker)))) == Move(List.empty))
+        assert(GameUtilities.getNextGameState(single7, Some(Move(List(Joker)))) == Move(List.empty))
       }
     }
 
     describe("When gameState is a double (Double 6s)") {
+
+      val double6s = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)))
+
       it("Should be a suit burn") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
-          Some(Move(List(NormalCard(SIX, Heart), NormalCard(SIX, Spade))))) == Move(List.empty))
+        val better6s = Move(List(NormalCard(SIX, Heart), NormalCard(SIX, Spade)))
+        assert(GameUtilities.getNextGameState(double6s, Some(better6s)) == Move(List.empty))
       }
 
       it("Should be replaced by a higher double (Double 7s") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
-          Some(Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))))) == Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))))
+        val double7s = Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+        assert(GameUtilities.getNextGameState(double6s, Some(double7s)) == double7s)
       }
 
       it("Should be a burn when a single 2 is played") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
-          Some(Move(List(NormalCard(TWO, Heart))))) == Move(List.empty))
+        assert(GameUtilities.getNextGameState(double6s, Some(Move(List(NormalCard(TWO, Heart))))) == Move(List.empty))
       }
 
       it("Should be a burn when a single Joker is played") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
-          Some(Move(List(Joker)))) == Move(List.empty))
+        assert(GameUtilities.getNextGameState(double6s, Some(Move(List(Joker)))) == Move(List.empty))
       }
     }
 
     describe("When gameState is a triple (Triple 7s)") {
 
       // No suit burns yet because no wildcard 3s
+      val triple7s = Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))
 
       it("Should be replaced by a higher triple (Triple 9s") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart))),
-          Some(Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Heart), NormalCard(NINE, Spade))))) ==
-          Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Heart), NormalCard(NINE, Spade))))
+        val triple9s = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Heart), NormalCard(NINE, Spade)))
+        assert(GameUtilities.getNextGameState(triple7s, Some(triple9s)) == triple9s)
       }
 
       it("Should be a burn when a two 2s is played") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart))),
-          Some(Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade))))) == Move(List.empty))
+        val double2s = Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade)))
+        assert(GameUtilities.getNextGameState(triple7s, Some(double2s)) == Move(List.empty))
       }
 
       it("Should be a burn when a single Joker is played") {
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Spade))),
-          Some(Move(List(Joker)))) == Move(List.empty))
+        val joker = Move(List(Joker))
+        assert(GameUtilities.getNextGameState(triple7s, Some(joker)) == Move(List.empty))
       }
     }
 
