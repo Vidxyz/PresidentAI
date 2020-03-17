@@ -222,11 +222,13 @@ case object GameUtilities {
   Returns gameState otherwise
   Assumption - nextMove is a validMove
    */
-  def getNextGameState(gameState: Move, nextMove: Option[Move]): Move = {
-    nextMove.getOrElse(None) match {
+  def getNextGameState(gameState: Move, nextValidMove: Option[Move]): Move = {
+    nextValidMove.getOrElse(None) match {
       case move: Move =>
-        if(move.moveFaceValue > gameState.moveFaceValue) move
-        else Move(List.empty)
+        if (move.moveFaceValue == 2) Move(List.empty) // 2s
+        else if (move.moveFaceValue == -1) Move(List.empty) // Joker
+        else if(move.moveFaceValue > gameState.moveFaceValue) move
+        else Move(List.empty) // Suit Burn
       case None => gameState
     }
   }

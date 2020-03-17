@@ -44,7 +44,7 @@ object Main extends App {
 //  val listOfPlayers = GameUtilities.createPlayers(listOfNames)
 
 
-  var AI =Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
+  var AI = Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
   var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 
   val listOfNames = List("Player1", "Player2", "Player3", "Player4")
@@ -57,6 +57,8 @@ object Main extends App {
   // 0 <= currentPlayerNumber < totalNumberOfPlayers
   var currentPlayerNumber = 0
   var lastMovePlayedBy = ""
+  var maxAllowedSkips = listOfPlayers.size - 1
+  var numberOfSkips = 0
 
   while(listOfPlayers
                     .map(player => player.status)
@@ -67,12 +69,11 @@ object Main extends App {
 //    val currentPlayerObject = listOfPlayers(currentPlayerNumber)
 
     // To avoid and infinite loop of None moves, we restore currentState to empty if it is our turn and we played the last move too
-    // This implementation always discards the LAST CARD played by a player on their LAST turn (clears the state)
-    // TODO - Bugfix here
-    if(currentPlayerObject.name == lastMovePlayedBy ||
-      (!listOfPlayers.map(player => player.name).contains(lastMovePlayedBy) && lastMovePlayedBy != "")) {
+    if(currentPlayerObject.name == lastMovePlayedBy || maxAllowedSkips == numberOfSkips) {
       println("Clearing state due to passing by other players")
       currentState = Move(List.empty)
+      maxAllowedSkips = listOfPlayers.size - 1
+      numberOfSkips = 0
     }
 
     println("-------------------------")
@@ -84,6 +85,7 @@ object Main extends App {
     println("The next move is : " + nextMove)
 
     if(nextMove.isDefined) lastMovePlayedBy = listOfPlayers(currentPlayerNumber).name
+    else numberOfSkips += 1
 
     currentState = getNextGameState(currentState, currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState))
     println("The current state is : " + currentState)
