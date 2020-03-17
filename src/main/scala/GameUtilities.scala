@@ -7,8 +7,7 @@ import scala.util.Random
 case object GameUtilities {
 
   def generatePlayersAndDealHands(listOfNames: List[String]): List[Player] = {
-    val hands = dealHands(listOfNames.size)
-    println(hands.foreach(h => println(h)))
+    val hands: List[Hand] = dealHands(listOfNames.size)
    (hands zip listOfNames)
               .map(tuple => Player(tuple._2, tuple._1))
   }
