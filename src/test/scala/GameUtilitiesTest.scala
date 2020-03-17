@@ -229,4 +229,72 @@ class GameUtilitiesTest extends FunSpec {
     }
   }
 
+  describe("tests for dealHands") {
+    // Test that one person gets all the cards
+    // Test 2 people getting non overlapping cards
+    // Test 3 people same
+    // Test 4 people uneven number of total cards
+    // Test that 54 players get 1 card each
+    // Test that 55+ players have at least 1 hand that is completely empty
+
+    describe("When there are 2 players") {
+      it("Each should be equal in size"){
+        val dealtHands = GameUtilities.dealHands(2)
+        assert(dealtHands.map(h => h.listOfCards.size).forall(s => s == dealtHands.head.listOfCards.size))
+      }
+      it("Should contain unique cards in each hand except for Jokers") {
+        val dealtHands = GameUtilities.dealHands(2)
+        val hand1 = dealtHands.head
+        val hand2 = dealtHands.tail.head
+        assert(hand1.listOfCards.filter(card => !(card == Joker)).forall(card => !(hand2.listOfCards.contains(card))))
+        assert(hand2.listOfCards.filter(card => !(card == Joker)).forall(card => !(hand1.listOfCards.contains(card))))
+      }
+    }
+
+    describe("When there are 3 players") {
+      it("Each should be equal in size"){
+        val dealtHands = GameUtilities.dealHands(3)
+        assert(dealtHands.map(h => h.listOfCards.size).forall(s => s == dealtHands.head.listOfCards.size))
+      }
+      it("Should contain unique cards in each hand except for Jokers") {
+        val dealtHands = GameUtilities.dealHands(3)
+        val hand1 = dealtHands.head
+        val hand2 = dealtHands(1)
+        val hand3 = dealtHands(2)
+        assert(hand1.listOfCards
+          .filter(card => !(card == Joker))
+          .forall(card => !(hand2.listOfCards.contains(card)) && !(hand3.listOfCards.contains(card))))
+        assert(hand2.listOfCards
+          .filter(card => !(card == Joker))
+          .forall(card => !(hand1.listOfCards.contains(card)) && !(hand3.listOfCards.contains(card))))
+        assert(hand3.listOfCards
+          .filter(card => !(card == Joker))
+          .forall(card => !(hand1.listOfCards.contains(card)) && !(hand2.listOfCards.contains(card))))
+      }
+    }
+
+    describe("When there are 4 players") {
+      it("Two hands should be of equal size, other two hands of equal size (13,13,14,14)") {
+        val dealtHands = GameUtilities.dealHands(4)
+        assert(dealtHands.map(h => h.listOfCards.size).count(s => s == 13) == 2)
+        assert(dealtHands.map(h => h.listOfCards.size).count(s => s == 14) == 2)
+      }
+    }
+
+    describe("When there are 54 players") {
+      it("Each hand should have exactly one card in it") {
+        val dealtHands = GameUtilities.dealHands(54)
+        assert(dealtHands.map(hand => hand.listOfCards.size).forall(s => s == 1))
+      }
+    }
+
+    describe("When there are 55 players") {
+      it("At least one hand should be empty") {
+        val dealtHands = GameUtilities.dealHands(55)
+        assert(dealtHands.map(hand => hand.listOfCards.size).contains(0))
+      }
+    }
+
+  }
+
 }
