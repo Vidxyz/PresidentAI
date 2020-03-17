@@ -179,8 +179,10 @@ case object GameUtilities {
   }
 
   /*
-  Parse current listOfCards to make a set of valid moves
-  Shortcoming - JOKERs will also be paired up into 1s/2s - Gotta make this work out
+  Generate all possible combinations of moves that can be played from give intermediate list
+  Restriction :-
+   - Jokers can only be played one-a-turn
+   - However since it is a burn you can play next joker again immediately
    */
   def getAllMoves(intermediateSetsOfCards: List[List[Card]]): Moves = {
     @tailrec
