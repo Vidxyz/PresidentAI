@@ -5,12 +5,6 @@ import GameUtilities._
 
 object Main extends App {
 
-  implicit class NonNegativeInt(x: Int) extends {
-    def nonNegative: Int = {
-      Math.max(0, this.x)
-    }
-  }
-
   val numberOfPlayers = 6
   val totalNormalCards = 54
 
@@ -69,7 +63,7 @@ object Main extends App {
                     .map(playerstatus => playerstatus == Active)
                     .count(_ == true) > 1) {
 
-    val currentPlayerObject = listOfPlayers(currentPlayerNumber.nonNegative)
+    val currentPlayerObject = listOfPlayers(currentPlayerNumber)
 //    val currentPlayerObject = listOfPlayers(currentPlayerNumber)
 
     // To avoid and infinite loop of None moves, we restore currentState to empty if it is our turn and we played the last move too
@@ -89,17 +83,17 @@ object Main extends App {
     val nextMove: Option[Move] = currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
     println("The next move is : " + nextMove)
 
-    if(nextMove.isDefined) lastMovePlayedBy = listOfPlayers(currentPlayerNumber.nonNegative).name
+    if(nextMove.isDefined) lastMovePlayedBy = listOfPlayers(currentPlayerNumber).name
 
     currentState = getNextGameState(currentState, currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState))
     println("The current state is : " + currentState)
 
     val newHandAfterPlaying = currentPlayerObject.getNewHand(currentPlayerObject.hand, nextMove)
-    listOfPlayers.update(currentPlayerNumber.nonNegative, Player(currentPlayerObject.name, newHandAfterPlaying))
+    listOfPlayers.update(currentPlayerNumber, Player(currentPlayerObject.name, newHandAfterPlaying))
 
-    if(listOfPlayers(currentPlayerNumber.nonNegative).status == Complete) {
-      println(listOfPlayers(currentPlayerNumber.nonNegative).name + " has finished!")
-      listOfPlayers.remove(currentPlayerNumber.nonNegative)
+    if(listOfPlayers(currentPlayerNumber).status == Complete) {
+      println(listOfPlayers(currentPlayerNumber).name + " has finished!")
+      listOfPlayers.remove(currentPlayerNumber)
       currentPlayerNumber -= 1
     }
 
@@ -115,7 +109,8 @@ object Main extends App {
     // If everyone passes, then the person who played last gets to play first
     // If everyone passes, and the person who played last is out, then the next person in line gets to start
     // Need to maintain this ordering somehow
-    if(currentState.cards.nonEmpty)  {
+    if(currentState.cards.nonEmpty ||
+      (!listOfPlayers.map(player => player.name).contains(lastMovePlayedBy) && lastMovePlayedBy != ""))  {
       if (currentPlayerNumber + 1 == listOfPlayers.size) currentPlayerNumber = 0
       else currentPlayerNumber += 1
     }
