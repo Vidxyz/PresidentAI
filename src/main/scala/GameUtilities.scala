@@ -4,6 +4,52 @@ import FaceValue.TWO
 import scala.annotation.tailrec
 import scala.util.Random
 
+case class Round(gameState: Move,
+                 lastMovePlayedBy: String,
+                 totalNumberOfPlayers: Int,
+                 currentPlayerTurn: Int,
+                 listOfPlayers: List[Player],
+                 roundPassStatus: List[Boolean]) {
+
+  /*
+  Return TRUE iff everyone has passed, except for the person who played the last move
+  Returns FALSE otherwise
+   */
+  def hasEveryonePassed: Boolean = {
+    (listOfPlayers zip roundPassStatus)
+      .filter(tuple => tuple match {
+        case (player, _passStatus) => !(player.name == lastMovePlayedBy)
+      })
+      .foldLeft(true)((acc, tuple1) => acc && tuple1._2)
+  }
+
+  def checkIfLastMovePlayedBy(name: String): Boolean = name == lastMovePlayedBy
+
+  def playerFinishedTheirTurnOnABurn: Boolean =
+    !this.listOfPlayers.map(player => player.name).contains(this.lastMovePlayedBy) && this.lastMovePlayedBy != ""
+
+  /*
+  Since name is unique, this should only return a list of size 1
+   */
+  def hasAlreadySkippedTurn(name: String): Boolean = {
+    (listOfPlayers zip roundPassStatus)
+      .filter(tuple => tuple match {
+        case (player, _passStatus) => player.name == name
+      })
+      .map {
+        case (_, status) =>
+          status
+      }
+      .head
+  }
+}
+
+object Round {
+  def getNoPassList(numberOfPlayers: Int): List[Boolean] = {
+    (1 to numberOfPlayers).toList.map(_ => false)
+  }
+}
+
 case object GameUtilities {
 
   def generatePlayersAndDealHands(listOfNames: List[String]): List[Player] = {
@@ -156,7 +202,7 @@ case object GameUtilities {
                   .filter(move => isValidMove(move, state)))
   }
 
-  private def isValidMove(move: Move, gameState: Move): Boolean = {
+  def isValidMove(move: Move, gameState: Move): Boolean = {
     if(move.cards.isEmpty) return false
 
     if(move.highestCard == Joker) return true
@@ -182,7 +228,7 @@ case object GameUtilities {
   }
 
   // Returns true if move1 is "better" than move2 :- Higher value in numberToCardMap
-  private def checkIfBetter(move1: Move, move2: Move) =
+  def checkIfBetter(move1: Move, move2: Move): Boolean =
     numberToCardMap.find(_._2 == move1.highestCard).map(_._1).getOrElse(-1) >
     numberToCardMap.find(_._2 == move2.highestCard).map(_._1).getOrElse(-1)
 

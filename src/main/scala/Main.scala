@@ -2,7 +2,6 @@ import FaceValue._
 import Suits._
 import GameUtilities._
 
-
 object Main extends App {
 
   val numberOfPlayers = 6
@@ -55,25 +54,27 @@ object Main extends App {
 
   // Player who's next turn it is to play
   // 0 <= currentPlayerNumber < totalNumberOfPlayers
-  var currentPlayerNumber = 0
-  var lastMovePlayedBy = ""
   var maxAllowedSkips = listOfPlayers.size - 1
   var numberOfSkips = 0
+
+  var round = Round(currentState, "", listOfPlayers.size, 0,
+    listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
 
   while(listOfPlayers
                     .map(player => player.status)
                     .map(playerstatus => playerstatus == Active)
                     .count(_ == true) > 1) {
 
-    val currentPlayerObject = listOfPlayers(currentPlayerNumber)
-//    val currentPlayerObject = listOfPlayers(currentPlayerNumber)
+    val currentPlayerObject = listOfPlayers(round.currentPlayerTurn)
 
     // To avoid and infinite loop of None moves, we restore currentState to empty if it is our turn and we played the last move too
-    if(currentPlayerObject.name == lastMovePlayedBy || maxAllowedSkips == numberOfSkips) {
+    if(/*round.checkIfLastMovePlayedBy(currentPlayerObject.name) || */round.hasEveryonePassed) {
       println("Clearing state due to passing by other players")
+      println(round.roundPassStatus)
       currentState = Move(List.empty)
-      maxAllowedSkips = listOfPlayers.size - 1
-      numberOfSkips = 0
+      round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
+//      maxAllowedSkips = listOfPlayers.size - 1
+//      numberOfSkips = 0
     }
 
     println("-------------------------")
@@ -81,23 +82,50 @@ object Main extends App {
     println("------------------------")
     println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
 
-    val nextMove: Option[Move] = currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
+    val nextMove: Option[Move] =
+    // If player has not skipped turn this round already, then they get to play
+    if(!round.hasAlreadySkippedTurn(currentPlayerObject.name)) currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
+    else {
+      println("SKIPPING TURN BECAUSE ALREADY PASSED")
+      None
+    }
     println("The next move is : " + nextMove)
 
-    if(nextMove.isDefined) lastMovePlayedBy = listOfPlayers(currentPlayerNumber).name
-    else numberOfSkips += 1
+    if(nextMove.isDefined){
+      round = Round(currentState, currentPlayerObject.name, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus)
+    }
+    // This means that the user is passing, nextMove is not defined
+    else {
+      println("SKIPPING TURN")
+      val newPassList = (round.listOfPlayers zip round.roundPassStatus)
+                                    .map {
+                                      case (player, status) =>
+                                        if (player.name == listOfPlayers(round.currentPlayerTurn).name) true
+                                        else status
+                                    }
+      round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, newPassList)
+    }
 
-    currentState = getNextGameState(currentState, currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState))
-    println("The current state is : " + currentState)
+    currentState = getNextGameState(currentState, nextMove)
+
+    // Reset noPassList if currentState has become Empty
+    // This can only happen when it is a suit-burn/2/Joker right now
+    if(currentState.cards.isEmpty)
+      round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
+    else
+      round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus)
+
+    println("The pass status is : " + round.roundPassStatus)
 
     val newHandAfterPlaying = currentPlayerObject.getNewHand(currentPlayerObject.hand, nextMove)
-    listOfPlayers.update(currentPlayerNumber, Player(currentPlayerObject.name, newHandAfterPlaying))
+    listOfPlayers.update(round.currentPlayerTurn, Player(currentPlayerObject.name, newHandAfterPlaying))
 
-    if(listOfPlayers(currentPlayerNumber).status == Complete) {
-      println(listOfPlayers(currentPlayerNumber).name + " has finished!")
-      listOfPlayers.remove(currentPlayerNumber)
-      currentPlayerNumber -= 1
+    if(listOfPlayers(round.currentPlayerTurn).status == Complete) {
+      println(listOfPlayers(round.currentPlayerTurn).name + " has finished!")
+      listOfPlayers.remove(round.currentPlayerTurn)
+      round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn - 1, listOfPlayers.toList, round.roundPassStatus)
     }
+
 
     println("-------------------------")
     println("\n")
@@ -107,14 +135,15 @@ object Main extends App {
     // Also need to skip over those that are complete
     // Only change hands if currentState is NON-EMPTY
     // Empty state signifies a BURN has just taken place, the currentPlayer in question does not change
-
+    // -----
     // If everyone passes, then the person who played last gets to play first
     // If everyone passes, and the person who played last is out, then the next person in line gets to start
     // Need to maintain this ordering somehow
-    if(currentState.cards.nonEmpty ||
-      (!listOfPlayers.map(player => player.name).contains(lastMovePlayedBy) && lastMovePlayedBy != ""))  {
-      if (currentPlayerNumber + 1 == listOfPlayers.size) currentPlayerNumber = 0
-      else currentPlayerNumber += 1
+    if(currentState.cards.nonEmpty || round.playerFinishedTheirTurnOnABurn)  {
+      if (round.currentPlayerTurn + 1 == listOfPlayers.size)
+        round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, 0, listOfPlayers.toList, round.roundPassStatus)
+      else
+        round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn + 1, listOfPlayers.toList, round.roundPassStatus)
     }
 
 //    Thread.sleep(10)
