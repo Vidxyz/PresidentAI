@@ -193,7 +193,7 @@ case object GameUtilities {
     move.cards match {
       case List(Joker, _*) => 0
       case List(NormalCard(TWO, _), _*) => 0
-      case _ => 1f/(move.moveFaceValue - gameState.moveFaceValue)
+      case _ => (0.5f * (1f/(move.moveFaceValue - gameState.moveFaceValue))) + (0.5f * move.cards.size/Consants.maxMoveSize)
     }
   }
 

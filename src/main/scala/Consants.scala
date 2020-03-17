@@ -5,6 +5,8 @@ object Consants {
 
   val totalNumberOfCards = 54
 
+  val maxMoveSize = 4
+
   val numberToCardMap: Map[Int, Card] = Map(
     0 -> NormalCard(THREE, Diamond),
     1 -> NormalCard(THREE, Club),
