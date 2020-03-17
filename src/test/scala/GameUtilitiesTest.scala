@@ -327,6 +327,22 @@ class GameUtilitiesTest extends FunSpec {
 
   }
 
+  describe("tests for getValidMoves") {
+
+  }
+
+  describe("tests for isValidMove") {
+
+  }
+
+  describe("tests for checkIfBetter") {
+
+  }
+
+  describe("tests for getHeuristicValue") {
+
+  }
+
   describe("tests for getNextMove()"){
 
     describe("When validMoves is empty"){
