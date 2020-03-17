@@ -45,12 +45,11 @@ object Main extends App {
 //  val listOfPlayers = GameUtilities.createPlayers(listOfNames)
 
 
-  var AI = new Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
+  var AI =Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
   var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 
-  val listOfNames = List("AI", "Computer", "Player3", "JohnDoe")
+  val listOfNames = List("AI", "Computer", "Player3")
   val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames).toBuffer
-  val totalNumberOfPlayers = listOfPlayers.size
 
   println("The starting state is : " + currentState)
   println("\n")
@@ -58,11 +57,12 @@ object Main extends App {
   // Player who's next turn it is to play
   // 0 <= currentPlayerNumber < totalNumberOfPlayers
   var currentPlayerNumber = 0
+  var lastMovePlayedByPlayerWithIndex = -1
 
   while(listOfPlayers
                     .map(player => player.status)
                     .map(playerstatus => playerstatus == Active)
-                    .forall(bool => bool)) {
+                    .count(_ == true) > 1) {
 
     val currentPlayerObject = listOfPlayers(currentPlayerNumber)
     println("-----------------------------------------------------------------------------------------")
@@ -71,22 +71,40 @@ object Main extends App {
     println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
     val nextMove: Option[Move] = currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
     println("The next move is : " + nextMove)
+
+    if(nextMove.isDefined) lastMovePlayedByPlayerWithIndex = currentPlayerNumber
+
     currentState = getNextGameState(currentState, currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState))
     println("The current state is : " + currentState)
+
     val newHandAfterPlaying = currentPlayerObject.getNewHand(currentPlayerObject.hand, nextMove)
     listOfPlayers.update(currentPlayerNumber, Player.apply(currentPlayerObject.name, newHandAfterPlaying))
-    println(listOfPlayers(currentPlayerNumber).status)
+
+    if(listOfPlayers(currentPlayerNumber).status == Complete) {
+      println(listOfPlayers(currentPlayerNumber).name + " HAS COMPLETED ****************")
+      println("currentPlayerNumber is still : " + currentPlayerNumber)
+      listOfPlayers.remove(currentPlayerNumber)
+    }
+
     println("-----------------------------------------------------------------------------------------")
     println("\n")
 
     // Need to know which player to switch move to
     // Incrementally, or depending on game state
-    if(currentState.cards.nonEmpty) {
-      if (currentPlayerNumber + 1 == totalNumberOfPlayers) currentPlayerNumber = 0
+    // Also need to skip over those that are complete
+    // Only change hands if currentState is NON-EMPTY
+    // Empty state signifies a BURN has just taken place, the currentPlayer in question does not change
+
+    // If everyone passes, then the person who played last gets to play first
+    // If everyone passes, and the person who played last is out, then the next person in line gets to start
+    // Need to maintain this ordering somehow
+
+    if(currentState.cards.nonEmpty)  {
+      if (currentPlayerNumber + 1 >= listOfPlayers.size) currentPlayerNumber = 0
       else currentPlayerNumber += 1
     }
 
-    Thread.sleep(100)
+    Thread.sleep(10)
   }
 
 
