@@ -6,7 +6,7 @@ import scala.util.Random
 
 class GameUtilitiesTest extends FunSpec {
 
-  describe("tests for dealHands") {
+  describe("tests for dealHands()") {
     // Test that one person gets all the cards
     // Test 2 people getting non overlapping cards
     // Test 3 people same
@@ -74,7 +74,7 @@ class GameUtilitiesTest extends FunSpec {
 
   }
 
-  describe("tests for sortCards") {
+  describe("tests for sortCards()") {
     // Test sorting 0 cards
     // Test sorting 1 card
     // Test sorting 2 cards
@@ -219,7 +219,7 @@ class GameUtilitiesTest extends FunSpec {
 
   }
 
-  describe("tests for getAllMoves") {
+  describe("tests for getAllMoves()") {
 
     describe("When input intermediate list is empty"){
       it("should return Moves(List.empty)") {
@@ -237,7 +237,7 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       describe("When the list comprises of two similar card") {
-        it("should return a two moves") {
+        it("should return 4 moves") {
           assert(GameUtilities.getAllMoves(List(
             List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Spade))
             ))
@@ -251,7 +251,7 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       describe("When the list comprises of three similar card") {
-        it("should return a two moves") {
+        it("should return 7 moves") {
           assert(GameUtilities.getAllMoves(List(
             List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))
           ))
@@ -264,6 +264,32 @@ class GameUtilitiesTest extends FunSpec {
               Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Spade))),
               Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
               Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+            )))
+        }
+      }
+
+      describe("When the list comprises of four similar card") {
+        it("should return 15 moves") {
+          assert(GameUtilities.getAllMoves(List(
+            List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))
+          ))
+            ==
+            Moves(List(
+              Move(List(NormalCard(SEVEN, Diamond))),
+              Move(List(NormalCard(SEVEN, Club))),
+              Move(List(NormalCard(SEVEN, Heart))),
+              Move(List(NormalCard(SEVEN, Spade))),
+              Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club))),
+              Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Heart))),
+              Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Spade))),
+              Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart))),
+              Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Spade))),
+              Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+              Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart))),
+              Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Spade))),
+              Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+              Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+              Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
             )))
         }
       }
@@ -327,19 +353,76 @@ class GameUtilitiesTest extends FunSpec {
 
   }
 
-  describe("tests for getValidMoves") {
+  describe("tests for getValidMoves()") {
+    /*
+    Test the following
+    1. Empty gameState
+    2. Single card on top - Get all singles + single 2s + Joker
+    3. Double card on top -  Get all doubles + single 2s + Joker
+    4. Triple card on top - get all triples + double 2s + Joker
+    5. Quad on top - get all quads + triple 2s + Joker
+     */
+    val allMoves = Moves(List(
+      Move(List(NormalCard(FIVE, Diamond))),
+      Move(List(NormalCard(NINE, Spade))),
+      Move(List(NormalCard(JACK, Heart))),
+      Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
+      Move(List(NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart))),
+      Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart))),
+      Move(List(NormalCard(QUEEN, Diamond), NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart))),
+      Move(List(NormalCard(TEN, Diamond), NormalCard(TEN, Club), NormalCard(TEN, Heart), NormalCard(TEN,Spade))),
+      Move(List(NormalCard(TWO, Club))),
+      Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart))),
+      Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+      Move(List(Joker))
+    ))
+
+    describe("When gameState is empty") {
+      it("Should return allMoves as valid moves") {
+        assert(GameUtilities.getValidMoves(allMoves, Move(List.empty)) == allMoves)
+      }
+    }
+
+    describe("When gameState is a single card") {
+      it("Should return only singles, single 2s and Jokers") {
+        assert(GameUtilities.getValidMoves(allMoves, Move(List(NormalCard(FOUR, Heart))))
+          == Moves(allMoves.moves.slice(0, 3) :+ allMoves.moves(8) :+ allMoves.moves.last))
+      }
+    }
+
+    describe("When gameState is a double card") {
+      it("Should return only doubles, single 2s and Jokers") {
+        assert(GameUtilities.getValidMoves(allMoves, Move(List(NormalCard(FOUR, Heart), NormalCard(FOUR, Spade))))
+          == Moves(allMoves.moves.slice(3, 5) :+ allMoves.moves(8) :+ allMoves.moves.last))
+      }
+    }
+
+    describe("When gameState is a triple card") {
+      it("Should return only triples, double 2s and Jokers") {
+        assert(GameUtilities.getValidMoves(allMoves,
+          Move(List(NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade))))
+          == Moves(allMoves.moves.slice(5, 7) :+ allMoves.moves(9) :+ allMoves.moves.last))
+      }
+    }
+
+    describe("When gameState is quadruple card") {
+      it("Should return only quadruples, triple 2s and Jokers") {
+        assert(GameUtilities.getValidMoves(allMoves,
+          Move(List(NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade))))
+          == Moves(List.empty :+ allMoves.moves(7) :+ allMoves.moves(10) :+ allMoves.moves.last))
+      }
+    }
+  }
+
+  describe("tests for isValidMove()") {
 
   }
 
-  describe("tests for isValidMove") {
+  describe("tests for checkIfBetter()") {
 
   }
 
-  describe("tests for checkIfBetter") {
-
-  }
-
-  describe("tests for getHeuristicValue") {
+  describe("tests for getHeuristicValue()") {
 
   }
 
@@ -397,7 +480,7 @@ class GameUtilitiesTest extends FunSpec {
     }
   }
 
-  describe("tests for getNextGameState") {
+  describe("tests for getNextGameState()") {
     // test single, double, triple
     // test suit burns
     // test two's
