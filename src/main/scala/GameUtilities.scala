@@ -255,12 +255,13 @@ case object GameUtilities {
 
   /*
   Gets a 0-1 value signifying how desirable a move is compared to given game state
+  Assumption :- validMove is a valid move given the current gameState
    */
-  def getHeuristicValue(move: Move, gameState: Move): Double = {
-    move.cards match {
+  def getHeuristicValue(validMove: Move, gameState: Move): Double = {
+    validMove.cards match {
       case List(Joker, _*) => 0
       case List(NormalCard(TWO, _), _*) => 0
-      case _ => (0.5d * (1d/(move.moveFaceValue - gameState.moveFaceValue))) + (0.5d * move.cards.size/Consants.maxMoveSize)
+      case _ => (0.5d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue))) + (0.5d * validMove.cards.size/Consants.maxMoveSize)
     }
   }
 

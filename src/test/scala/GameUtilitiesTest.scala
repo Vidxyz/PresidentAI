@@ -595,6 +595,55 @@ class GameUtilitiesTest extends FunSpec {
 
   describe("tests for getHeuristicValue()") {
 
+    describe("When move involves a Joker") {
+      it("should return 0") {
+        assert(GameUtilities.getHeuristicValue(Move(List(Joker)), Move(List.empty)) == 0)
+      }
+    }
+
+    describe("When move involves a 2") {
+      describe("When it is a single 2") {
+        it("should return 0") {
+          assert(GameUtilities.getHeuristicValue(
+            Move(List(NormalCard(TWO, Diamond))),
+            Move(List.empty)) == 0)
+        }
+      }
+      describe("When it is double 2s") {
+        it("should return 0") {
+          assert(GameUtilities.getHeuristicValue(
+            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart))),
+            Move(List.empty)) == 0)
+        }
+      }
+      describe("When it is triple 2s") {
+        it("should return 0") {
+          assert(GameUtilities.getHeuristicValue(
+            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List.empty)) == 0)
+        }
+      }
+    }
+
+    describe("When gameState is Empty") {
+
+    }
+
+    describe("When gameState is a single") {
+
+    }
+
+    describe("When gameState is a double") {
+
+    }
+
+    describe("When gameState is a triple") {
+
+    }
+
+    describe("When gameState is a quadruple") {
+
+    }
   }
 
   describe("tests for getNextMove()"){
