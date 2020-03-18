@@ -87,7 +87,7 @@ case class Move(cards: List[Card]) {
     else cards.head.intValue
   }
   def highestCard: Card = cards.last
-  def numberOfCards: Int = cards.size
+  def parity: Int = cards.size
 }
 case class Moves(moves: List[Move])
 

@@ -221,24 +221,25 @@ case object GameUtilities {
 
   def isValidMove(move: Move, gameState: Move): Boolean = {
     if(move.cards.isEmpty) return false
-    if(gameState.cards.isEmpty) return false
+    if(gameState.cards.isEmpty) return true
+    if(gameState.highestCard == Joker) return false
     if(move.highestCard == Joker) return true
 
     // Need max(1, n-1) 2s to be played when state.size = n
     if(move.moveFaceValue == 2) {
       gameState.moveFaceValue match {
-        case 2 => return move.numberOfCards == gameState.numberOfCards &&
-                          checkIfBetter(move, gameState)
-        case _ => gameState.numberOfCards match {
-                    case 1 => return move.numberOfCards == 1
-                    case 2 => return move.numberOfCards == 1
-                    case other => return move.numberOfCards == other - 1
+          // If gameState is a two, then you need to play same number of twos on top
+          case 2 => return move.parity == gameState.parity && checkIfBetter(move, gameState)
+          case _ => gameState.parity match {
+                    case 1 => return move.parity == 1
+                    case 2 => return move.parity == 1
+                    case other => return move.parity == other - 1
                   }
       }
 
     }
 
-    if(move.numberOfCards != gameState.numberOfCards) false
+    if(move.parity != gameState.parity) false
 
     // This only happens when the Move in question doesn't involve 2s/JOKERs and is of the same numberOfCards
     else checkIfBetter(move, gameState)
@@ -257,6 +258,7 @@ case object GameUtilities {
   Gets a 0-1 value signifying how desirable a move is compared to given game state
   Assumption :- validMove is a valid move given the current gameState
    */
+  // TODO - the weighting on doubles/triples/quads over singles is too one-sided. Needs to be skewed empirically
   def getHeuristicValue(validMove: Move, gameState: Move): Double = {
     validMove.cards match {
       case List(Joker, _*) => 0

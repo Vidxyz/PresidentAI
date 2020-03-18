@@ -1,4 +1,3 @@
-import Consants.numberToCardMap
 import FaceValue._
 import Suits._
 import org.scalatest.FunSpec
@@ -417,7 +416,279 @@ class GameUtilitiesTest extends FunSpec {
   }
 
   describe("tests for isValidMove()") {
+    // 4 base cases
+    // One case where parity(move) != parity(gameState)
+    // other special two cases
+    describe("When move is empty") {
+      it("Should return false") {
+        assert(!GameUtilities.isValidMove(Move(List.empty), Move(List.empty)))
+      }
+    }
 
+    describe("When gameState is empty") {
+      it("Should return true for a single") {
+        assert(GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Spade))), Move(List.empty)))
+      }
+      it("Should return true for a double") {
+        assert(GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+          Move(List.empty)))
+      }
+      it("Should return true for a triple") {
+        assert(GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+          Move(List.empty)))
+      }
+      it("Should return true for a quad") {
+        assert(GameUtilities.isValidMove(
+          Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+          Move(List.empty)))
+      }
+      it("Should return true for a single2") {
+        assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Spade))),
+          Move(List.empty)))
+      }
+      it("Should return true for a double2") {
+        assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Spade))),
+          Move(List.empty)))
+      }
+      it("Should return true for a triple2") {
+        assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+          Move(List.empty)))
+      }
+      it("Should return true for a quadruple2") {
+        assert(GameUtilities.isValidMove(
+          Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+          Move(List.empty)))
+      }
+      it("Should return true for a Joker") {
+        assert(GameUtilities.isValidMove(Move(List(Joker)), Move(List.empty)))
+      }
+    }
+
+    describe("When gameState is Joker") {
+      it("Should return false") {
+        assert(!GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Spade))), Move(List(Joker))))
+      }
+    }
+
+    describe("When move is Joker") {
+      it("Should return true for a single") {
+        assert(GameUtilities.isValidMove(Move(List(Joker)),
+          Move(List(NormalCard(ACE, Diamond)))))
+      }
+      it("Should return true for a double") {
+        assert(GameUtilities.isValidMove(Move(List(Joker)),
+          Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart)))))
+      }
+      it("Should return true for a triple") {
+        assert(GameUtilities.isValidMove(Move(List(Joker)),
+          Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart), NormalCard(ACE, Club)))))
+      }
+      it("Should return true for a quadruple") {
+        assert(GameUtilities.isValidMove(Move(List(Joker)),
+          Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart), NormalCard(ACE, Club), NormalCard(ACE, Spade)))))
+      }
+      it("Should return true for a single2") {
+        assert(GameUtilities.isValidMove(Move(List(Joker)),
+          Move(List(NormalCard(TWO, Diamond)))))
+      }
+      it("Should return true for a double2s") {
+        assert(GameUtilities.isValidMove(Move(List(Joker)),
+          Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart)))))
+      }
+      it("Should return true for a triple2s") {
+        assert(GameUtilities.isValidMove(Move(List(Joker)),
+          Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Club)))))
+      }
+      it("Should return true for a quad2s") {
+        assert(GameUtilities.isValidMove(Move(List(Joker)),
+          Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Club), NormalCard(TWO, Spade)))))
+      }
+    }
+
+    describe("When move involves a two in it") {
+      // Single two against single card
+      // Single two against double card
+      // Two 2s against triple card
+      // Three 2s against quadruple cards
+      // Single higher two against single 2
+      // Better pair2s should burn lower pair2s
+      describe("When move involves a single 2") {
+        it("should return true when gameState is a high single") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club))), Move(List(NormalCard(ACE, Spade)))))
+        }
+        it("should return true when gameState is a high double") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club))),
+            Move(List(NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
+        }
+        it("should return true when gameState is a two of lesser suit (Suit burn)") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club))), Move(List(NormalCard(TWO, Diamond)))))
+        }
+        it("should return false when gameState is a two of lesser suit (No Suit burn)") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond))), Move(List(NormalCard(TWO, Club)))))
+        }
+        it("should return false when gameState is a double2") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond))),
+            Move(List(NormalCard(TWO, Club), NormalCard(TWO, Spade)))))
+        }
+        it("should return false when gameState is a triple") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))))
+        }
+        it("should return false when gameState is a quadruple") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+        }
+      }
+
+      describe("When move involves two 2s") {
+        it("should return true when gameState is a high triple") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club))),
+            Move(List(NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
+        }
+        it("should return true when gameState is two 2s of lesser suit (Suit burn)") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club)))))
+        }
+        it("should return false when gameState is two 2s of lesser suit (No Suit burn)") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart))),
+            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Spade)))))
+        }
+        it("should return false when gameState is a triple2") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Diamond))),
+            Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade)))))
+        }
+        it("should return false when gameState is a single2") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart))),
+            Move(List(NormalCard(TWO, Club)))))
+        }
+        it("should return false when gameState is a single") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond)))))
+        }
+        it("should return false when gameState is a double") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club)))))
+        }
+        it("should return false when gameState is a quadruple") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+        }
+      }
+
+      describe("When move involves three 2s") {
+        it("should return true when gameState is a high quadruple") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club))),
+            Move(List(NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
+        }
+        // No suit burns
+        it("should return false when gameState is a single2") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(TWO, Club)))))
+        }
+        it("should return false when gameState is a double2") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(TWO, Club), NormalCard(TWO, Club)))))
+        }
+        it("should return false when gameState is a quad2") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade)))))
+        }
+        it("should return false when gameState is a single") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond)))))
+        }
+        it("should return false when gameState is a double") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club)))))
+        }
+        it("should return false when gameState is a triple") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))))
+        }
+      }
+
+    }
+
+    describe("When move involves regular cards with a defined gameState of certain parity") {
+
+      describe("When gameState is a single") {
+        it("Should return true if move is a higher single") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Club))), Move(List(NormalCard(SIX, Spade)))))
+        }
+        it("Should return true if move is a higher single of the same value (suit burn)") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Club))), Move(List(NormalCard(SEVEN, Diamond)))))
+        }
+        it("Should return false if move is a lower single") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Club))), Move(List(NormalCard(SEVEN, Spade)))))
+        }
+        it("Should return false if move is not a single") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Club), NormalCard(SIX, Spade))),
+            Move(List(NormalCard(SEVEN, Spade)))))
+        }
+      }
+
+      describe("When gameState is a double") {
+        it("Should return true if move is a higher double") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart))),
+            Move(List(NormalCard(SIX, Heart), NormalCard(SIX, Spade)))))
+        }
+        it("Should return true if move is a double single of the same value (suit burn)") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club)))))
+        }
+        it("Should return false if move is a lower double") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Club), NormalCard(SIX, Heart))),
+            Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+        }
+        it("Should return false if move is not a double") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Club))),
+            Move(List(NormalCard(SIX, Heart), NormalCard(SIX, Spade)))))
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Club), NormalCard(SIX, Heart), NormalCard(SIX, Spade))),
+            Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+        }
+      }
+
+      describe("When gameState is a triple") {
+        it("Should return true if move is a higher triple") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+            Move(List(NormalCard(SIX, Club), NormalCard(SIX, Heart), NormalCard(SIX, Spade)))))
+        }
+        // No suit burns for triples... yet
+        it("Should return false if move is a lower triple") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Club), NormalCard(SIX, Heart), NormalCard(SIX, Spade))),
+            Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+        }
+        it("Should return false if move is not a triple") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Club))),
+            Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Club), NormalCard(SIX, Heart))),
+            Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club), NormalCard(SIX, Heart), NormalCard(SIX, Spade))),
+            Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+        }
+      }
+
+      describe("When gameState is a quadruple") {
+        it("Should return true if move is a higher quadruple") {
+          assert(GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade))),
+            Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club), NormalCard(SIX, Heart), NormalCard(SIX, Spade)))))
+        }
+        // No suit burns for triples... yet
+        it("Should return false if move is a lower quadruple") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club), NormalCard(SIX, Heart), NormalCard(SIX, Spade))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+        }
+        it("Should return false if move is not a quadruple") {
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Club))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Club), NormalCard(SIX, Heart))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+          assert(!GameUtilities.isValidMove(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club), NormalCard(SIX, Heart))),
+            Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
+        }
+      }
+
+    }
   }
 
   describe("tests for checkIfBetter()") {
