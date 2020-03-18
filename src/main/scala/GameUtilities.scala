@@ -212,16 +212,16 @@ case object GameUtilities {
   Current limitations :-
   1. No special logic for 3s
    */
-  def getValidMoves(allMoves: Moves, state: Move): Moves = {
-    if (state.begin) allMoves
+  def getValidMoves(allMoves: Moves, gameState: Move): Moves = {
+    if (gameState.cards.isEmpty) allMoves
     else Moves(allMoves
                   .moves
-                  .filter(move => isValidMove(move, state)))
+                  .filter(move => isValidMove(move, gameState)))
   }
 
   def isValidMove(move: Move, gameState: Move): Boolean = {
     if(move.cards.isEmpty) return false
-
+    if(gameState.cards.isEmpty) return false
     if(move.highestCard == Joker) return true
 
     // Need max(1, n-1) 2s to be played when state.size = n
@@ -245,6 +245,10 @@ case object GameUtilities {
   }
 
   // Returns true if move1 is "better" than move2 :- Higher value in numberToCardMap
+  // Assumptions :-
+  // 1. move1 and move2 are not EMPTY moves
+  // 2. move1 and move2 have same parity - same size of cards
+  //    - only exception to the above is 2s and JOKERs
   def checkIfBetter(move1: Move, move2: Move): Boolean =
     numberToCardMap.find(_._2 == move1.highestCard).map(_._1).getOrElse(-1) >
     numberToCardMap.find(_._2 == move2.highestCard).map(_._1).getOrElse(-1)

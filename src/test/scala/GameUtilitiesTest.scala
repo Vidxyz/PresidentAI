@@ -1,3 +1,4 @@
+import Consants.numberToCardMap
 import FaceValue._
 import Suits._
 import org.scalatest.FunSpec
@@ -101,7 +102,7 @@ class GameUtilitiesTest extends FunSpec {
       }
     }
 
-    describe("When list of card consists only of an arbitrary set of 10 cards"){
+    describe("When list of card consists only of an arbitrary set of 11 cards"){
       it("should return a sorted list ") {
         val sortedList = List(
           NormalCard(FOUR, Club),
@@ -114,6 +115,7 @@ class GameUtilitiesTest extends FunSpec {
           NormalCard(QUEEN, Spade),
           NormalCard(TWO, Diamond),
           Joker,
+          Joker
         )
         assert(GameUtilities.sortCards(Random.shuffle(sortedList)) == sortedList)
       }
@@ -419,6 +421,175 @@ class GameUtilitiesTest extends FunSpec {
   }
 
   describe("tests for checkIfBetter()") {
+    // Check if true for card that is better
+    // Check if true for suit burn
+    // Check if false for  card that is worse
+    // Check for  same  card
+    // Check  for one empty card
+    // Check  for both empty cards
+    // check lowest 2 better than highest normal card
+    // Check 2 suit burn
+    // check joker higher than everything
+    // 2 jokers case
+    describe("When moves in question comprise of single cards") {
+
+      describe("When move1 is 8-Heart and move2 is 7-spade") {
+        it("Should return true") {
+          assert(GameUtilities.checkIfBetter(Move(List(NormalCard(EIGHT, Heart))),
+            Move(List(NormalCard(SEVEN, Spade)))))
+        }
+      }
+
+      describe("When move1 is 8-Heart and move2 is 8-Club") {
+        it("Should return true") {
+          assert(GameUtilities.checkIfBetter(Move(List(NormalCard(EIGHT, Heart))),
+            Move(List(NormalCard(EIGHT, Club)))))
+        }
+      }
+
+      describe("When move1 is 7-Heart and move2 is 8-spade") {
+        it("Should return false") {
+          assert(!GameUtilities.checkIfBetter(Move(List(NormalCard(SEVEN, Heart))),
+            Move(List(NormalCard(EIGHT, Spade)))))
+        }
+      }
+
+      describe("When move1 is 8-Heart and move2 is ALSO 8-heart") {
+        it("Should return false") {
+          assert(!GameUtilities.checkIfBetter(Move(List(NormalCard(EIGHT, Heart))),
+            Move(List(NormalCard(EIGHT, Heart)))))
+        }
+      }
+
+      describe("When move1 is 2-diamond and move2 is Ace-Spade") {
+        it("Should return true") {
+          assert(GameUtilities.checkIfBetter(Move(List(NormalCard(TWO, Diamond))), Move(List(NormalCard(ACE, Spade)))))
+        }
+      }
+
+      describe("When move1 is 2-spade and move2 is 2-Heart") {
+        it("Should return true") {
+          assert(GameUtilities.checkIfBetter(Move(List(NormalCard(TWO, Spade))), Move(List(NormalCard(TWO, Heart)))))
+        }
+      }
+
+      describe("When move1 is Joker and move2 is 2-Spade") {
+        it("Should return true") {
+          assert(GameUtilities.checkIfBetter(Move(List(Joker)), Move(List(NormalCard(TWO, Spade)))))
+        }
+      }
+
+      describe("When move1 is Joker and move2 is ALSO Joker") {
+        it("Should return false") {
+          assert(!GameUtilities.checkIfBetter(Move(List(Joker)), Move(List(Joker))))
+        }
+      }
+    }
+
+    describe("When moves in question comprise of doubles"){
+      // Better double
+      // Worse double
+      // Single 2  > Double
+      // Joker > any double
+      describe("When move1 is double8s and move2 is double6s") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT,Club))),
+            Move(List(NormalCard(SIX, Diamond), NormalCard(SIX,Club)))))
+        }
+      }
+
+      describe("When move1 is doubl68s and move2 is double8s") {
+        it("should return false"){
+          assert(!GameUtilities.checkIfBetter(
+            Move(List(NormalCard(SIX, Diamond), NormalCard(SIX,Club))),
+            Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT,Club)))))
+        }
+      }
+
+      describe("When move1 is single2 and move2 is doubleAces") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(NormalCard(TWO, Diamond))),
+            Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club)))))
+        }
+      }
+
+      describe("When move1 is Joker and move2 is doubleAces") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(Joker)),
+            Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club)))))
+        }
+      }
+    }
+
+    describe("When moves in question comprise of triples"){
+      // higher triple
+      // two 2s higher than triple
+      // suit burn on twos
+      // joker > any triple
+      describe("When move1 is tripleAces and move2 is triple9s") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club), NormalCard(ACE,Heart))),
+            Move(List(NormalCard(NINE, Club), NormalCard(NINE, Heart), NormalCard(NINE, Spade)))))
+        }
+      }
+
+      describe("When move1 is two2s and move2 is tripleAces") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO,Club))),
+            Move(List(NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
+        }
+      }
+
+      describe("When move1 is two2s and move2 is two2s of lower suit") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO,Spade))),
+            Move(List(NormalCard(TWO, Club), NormalCard(TWO,Heart)))))
+        }
+      }
+
+      describe("When move1 is Joker and move2 is tripleAces") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(Joker)),
+            Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club), NormalCard(ACE,Heart)))))
+        }
+      }
+    }
+
+    describe("When moves in question comprise of quadruples"){
+      // higher quad
+      // three 2s higher than quad
+      // joker > any quad
+      describe("When move1 is quadAces and move2 is quad9s") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club), NormalCard(ACE,Heart), NormalCard(ACE,Spade))),
+            Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club), NormalCard(NINE, Heart), NormalCard(NINE, Spade)))))
+        }
+      }
+
+      describe("When move1 is two2s and move2 is tripleAces") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO,Club), NormalCard(TWO, Heart))),
+            Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
+        }
+      }
+
+      describe("When move1 is Joker and move2 is tripleAces") {
+        it("should return true"){
+          assert(GameUtilities.checkIfBetter(
+            Move(List(Joker)),
+            Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club), NormalCard(ACE,Heart), NormalCard(ACE,Spade)))))
+        }
+      }
+    }
 
   }
 

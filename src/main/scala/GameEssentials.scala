@@ -88,7 +88,6 @@ case class Move(cards: List[Card]) {
   }
   def highestCard: Card = cards.last
   def numberOfCards: Int = cards.size
-  def begin: Boolean = cards.isEmpty
 }
 case class Moves(moves: List[Move])
 
