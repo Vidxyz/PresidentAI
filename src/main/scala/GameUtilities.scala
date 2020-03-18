@@ -295,10 +295,9 @@ case object GameUtilities {
   def getNextGameState(gameState: Move, nextValidMove: Option[Move]): Move = {
     nextValidMove.getOrElse(None) match {
       case move: Move =>
-        if (move.moveFaceValue == 2) Move(List.empty) // 2s
-        else if (move.moveFaceValue == -1) Move(List.empty) // Joker
-        else if(move.moveFaceValue > gameState.moveFaceValue) move
-        else Move(List.empty) // Suit Burn
+        if (move.moveFaceValue == -1) Move(List.empty) // Joker
+        else if(move.moveFaceValue != gameState.moveFaceValue) move // Higher card, or 2, replaces gameState
+        else Move(List.empty) // Suit Burn, since it is a valid move and faceValues are the same as gameState
       case None => gameState
     }
   }

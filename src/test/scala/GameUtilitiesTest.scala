@@ -1040,8 +1040,14 @@ class GameUtilitiesTest extends FunSpec {
         assert(GameUtilities.getNextGameState(single7, Some(higherJack)) == higherJack)
       }
 
-      it("Should be a burn when a single 2 is played") {
-        assert(GameUtilities.getNextGameState(single7, Some(Move(List(NormalCard(TWO, Club))))) == Move(List.empty))
+      it("Should be replaced by a 2 when a single 2 is played") {
+        val playedMove = Move(List(NormalCard(TWO, Club)))
+        assert(GameUtilities.getNextGameState(single7, Some(playedMove)) == playedMove)
+      }
+
+      it("Should be a burn when a higher two is played on top of a lower 2") {
+        val playedMove = Move(List(NormalCard(TWO, Club)))
+        assert(GameUtilities.getNextGameState(Move(List(NormalCard(TWO, Diamond))), Some(playedMove)) == Move(List.empty))
       }
 
       it("Should be a burn when a single Joker is played") {
@@ -1063,8 +1069,15 @@ class GameUtilitiesTest extends FunSpec {
         assert(GameUtilities.getNextGameState(double6s, Some(double7s)) == double7s)
       }
 
-      it("Should be a burn when a single 2 is played") {
-        assert(GameUtilities.getNextGameState(double6s, Some(Move(List(NormalCard(TWO, Heart))))) == Move(List.empty))
+      it("Should be a replaced by a 2 when a single 2 is played") {
+        val playedMove = Move(List(NormalCard(TWO, Heart)))
+        assert(GameUtilities.getNextGameState(double6s, Some(playedMove)) == playedMove)
+      }
+
+      it("Should be a burn when a higher 2-2s is played on top of a lower 2-2s") {
+        val gameState = Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club)))
+        val playedMove = Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade)))
+        assert(GameUtilities.getNextGameState(gameState, Some(playedMove)) == Move(List.empty))
       }
 
       it("Should be a burn when a single Joker is played") {
@@ -1082,9 +1095,9 @@ class GameUtilitiesTest extends FunSpec {
         assert(GameUtilities.getNextGameState(triple7s, Some(triple9s)) == triple9s)
       }
 
-      it("Should be a burn when a two 2s is played") {
+      it("Should be replaced by 2-2s when 2-2s are played") {
         val double2s = Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade)))
-        assert(GameUtilities.getNextGameState(triple7s, Some(double2s)) == Move(List.empty))
+        assert(GameUtilities.getNextGameState(triple7s, Some(double2s)) == double2s)
       }
 
       it("Should be a burn when a single Joker is played") {
