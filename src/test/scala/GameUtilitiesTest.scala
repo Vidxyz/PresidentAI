@@ -626,23 +626,72 @@ class GameUtilitiesTest extends FunSpec {
     }
 
     describe("When gameState is Empty") {
+      val emptyGameState = Move(List.empty)
 
+      describe("When validMove is a single 4")  {
+        it("should return value") {
+          assert(GameUtilities.getHeuristicValue(Move(List(NormalCard(FOUR,Heart))), emptyGameState) == 0.25)
+        }
+      }
+
+      describe("When validMove is double4s")  {
+        it("should return value") {
+          assert(GameUtilities.getHeuristicValue(
+            Move(List(NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
+            emptyGameState) == 0.375)
+        }
+      }
+
+      describe("When validMove is triple4s")  {
+        it("should return value") {
+          assert(GameUtilities.getHeuristicValue(
+            Move(List(NormalCard(FOUR,Club), NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
+            emptyGameState) == 0.5)
+        }
+      }
+
+      describe("When validMove is quad4s")  {
+        it("should return value") {
+          assert(GameUtilities.getHeuristicValue(
+            Move(List(NormalCard(FOUR,Diamond), NormalCard(FOUR,Club),
+              NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
+            emptyGameState) == 0.625)
+        }
+      }
     }
 
     describe("When gameState is a single") {
-
+      it("should return the right value"){
+        val gameState =  Move(List(NormalCard(FIVE, Spade)))
+        val validMove = Move(List(NormalCard(NINE, Diamond)))
+        assert(GameUtilities.getHeuristicValue(validMove, gameState) == 0.25)
+      }
     }
 
     describe("When gameState is a double") {
-
+      it("should return the right value"){
+        val gameState =  Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Spade)))
+        val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Spade)))
+        assert(GameUtilities.getHeuristicValue(validMove, gameState) == 0.375)
+      }
     }
 
     describe("When gameState is a triple") {
-
+      it("should return the right value"){
+        val gameState =  Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
+        val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club),  NormalCard(NINE, Spade)))
+        assert(GameUtilities.getHeuristicValue(validMove, gameState) == 0.5)
+      }
     }
 
     describe("When gameState is a quadruple") {
-
+      it("should return the right value"){
+        val gameState =  Move(List(NormalCard(FIVE, Diamond), NormalCard(FIVE, Club),
+                          NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
+        val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club),
+                          NormalCard(NINE, Heart),  NormalCard(NINE, Spade)))
+        assert(GameUtilities.getHeuristicValue(validMove, gameState) == 0.625)
+      }
     }
   }
 
@@ -678,7 +727,7 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       describe("When there is a slightly higher triple than a lower double") {
-        it("Should pick the slightly higher double") {
+        it("Should pick the slightly higher triple") {
           val double5s = Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Spade)))
           val triple6s = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club), NormalCard(SIX, Heart)))
           val validMoves: Moves = Moves(List(double5s, triple6s))
