@@ -37,12 +37,9 @@ object Main extends App {
 //  val currentState = Move(List.empty)
 //  val currentState = Move(List(NormalCard(TWO, Heart)))
 //  val currentState = Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Club)))
-
 //  var AI = Player("AI", errorHand, Active)
 //  var AI = Player("AI", stackedHand, Active)
 //  val listOfPlayers = GameUtilities.createPlayers(listOfNames)
-
-
 //  var AI = Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 //  var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 
@@ -52,9 +49,9 @@ object Main extends App {
   println("The starting state is : " + currentState)
   println("\n")
 
-
-  GameUtilities.play(listOfPlayers, Move(List.empty))
-//  GameUtilities.play(listOfPlayers, currentState)
+  val game = Game(Move(List.empty))
+//  val game = Game(currentState)
+  game.play(listOfPlayers)
 
 
 }
