@@ -53,7 +53,6 @@ object Main extends App {
 //  val game = Game(currentState)
   game.play(listOfPlayers)
 
-
 }
 
 

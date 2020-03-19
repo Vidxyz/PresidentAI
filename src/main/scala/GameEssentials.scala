@@ -136,7 +136,8 @@ case class Game(startState: Move) {
 
       val nextMove: Option[Move] =
       // If player has not skipped turn this round already, then they get to play
-        if(!round.hasAlreadySkippedTurn(currentPlayerObject.name)) currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
+        if(!round.hasAlreadySkippedTurn(currentPlayerObject.name))
+          currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
         else {
           println("PASSED ALREADY")
           None
