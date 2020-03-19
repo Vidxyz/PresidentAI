@@ -65,6 +65,17 @@ case class NormalCard(faceValue: Value, suit: Suit) extends Card {
 
 case class Hand(listOfCards: List[Card]) {
 
+  /*
+  Strength is defined as the numerical step-delta between
+  We always want to minimize this?
+   */
+  lazy val strength: Int = GameUtilities
+    .getListsOfSimilarCards(Hand(GameUtilities
+      .sortCards(this.listOfCards)))
+    .size
+
+  def size: Int = this.listOfCards.size
+
   override def toString: String = {
     if(listOfCards.isEmpty) "EMPTY"
     else {
@@ -192,7 +203,7 @@ case class Game(startState: Move) {
       }
 
       println("------------------------\n")
-
+//      Thread.sleep(100)
     }
   }
 }

@@ -13,6 +13,8 @@ case object Player {
   10 | 20
   20 | 10
   30 | 0
+
+  Returns a 0-100 Double value of a highCardModifier
    */
   def applyCustomHighCardModifier(sizeOfHand: Int): Double = {
     sizeOfHand match {
@@ -37,8 +39,9 @@ case class Player(name: String, hand: Hand) {
 
   lazy val status: PlayerStatus = if (hand.listOfCards.isEmpty) Complete else Active
   // Likelihood of playing a "high" card. Increases as the game moves on (hand nears empty)
-  lazy val highCardModifier: Double = applyCustomHighCardModifier(hand.listOfCards.size)
-
+  implicit lazy val highCardModifier: Double = applyCustomHighCardModifier(hand.listOfCards.size)/100
+  // Likelihood of passing the next move. TBD
+  lazy val probabilityOfPassing: Double = 0.5
 
   /*
   Returns the move chosen to play, given current hand and current state

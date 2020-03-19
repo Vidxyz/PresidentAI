@@ -1,6 +1,5 @@
 import FaceValue._
 import Suits._
-import GameUtilities._
 
 object Main extends App {
 
@@ -46,11 +45,11 @@ object Main extends App {
   val listOfNames = List("Player1", "Player2", "Player3", "Player4")
   val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames).toBuffer
 
-  println("The starting state is : " + currentState)
-  println("\n")
-
   val game = Game(Move(List.empty))
 //  val game = Game(currentState)
+
+  println("The starting state is : " + game.startState)
+  println("\n")
   game.play(listOfPlayers)
 
 }

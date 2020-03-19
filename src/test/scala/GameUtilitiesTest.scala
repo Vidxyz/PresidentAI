@@ -867,15 +867,19 @@ class GameUtilitiesTest extends FunSpec {
   describe("tests for getHeuristicValue()") {
 
     // TEST FOR EXPERIMENT
+    // TODO - delete this once done. Currently, a 2Diamond is favored over a 4Spade, this is WRONG and needs changing
     it("It is a test") {
-      val validMove1 = Move(List(NormalCard(FOUR, Spade)))
-      val validMove2 = Move(List(NormalCard(FOUR, Club), NormalCard(FOUR, Spade)))
+      val validMove1 = Move(List(NormalCard(TWO, Diamond)))
+      val validMove2 = Move(List(NormalCard(FOUR, Spade)))
+//      val validMove2 = Move(List(NormalCard(ACE, Club), NormalCard(ACE, Spade)))
       val validMove3 = Move(List(NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
       val gameState = Move(List.empty)
-      println(GameUtilities.getHeuristicValue(validMove1, gameState))
+//      val gameState = Move(List(NormalCard(THREE, Club), NormalCard(THREE, Spade)))/
+      println(GameUtilities.getHeuristicValue(validMove1, gameState, .3875956999999997))
       println(GameUtilities.getHeuristicValue(validMove2, gameState))
       println(GameUtilities.getHeuristicValue(validMove3, gameState))
     }
+    // TODO - delete above when done
 
     describe("When move involves a Joker") {
       it("should return 0") {
@@ -978,6 +982,8 @@ class GameUtilitiesTest extends FunSpec {
   }
 
   describe("tests for getNextMove()"){
+
+    implicit val mockHighCardModifier: Double = 0d
 
     describe("When validMoves is empty"){
       it("Should return an Empty Move") {

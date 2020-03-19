@@ -260,11 +260,13 @@ case object GameUtilities {
   Assumption :- validMove is a valid move given the current gameState
    */
   // TODO - the weighting on doubles/triples/quads over singles is too one-sided. Needs to be skewed empirically
-  def getHeuristicValue(validMove: Move, gameState: Move): Double = {
+  def getHeuristicValue(validMove: Move, gameState: Move, highCardModifier: Double = 0): Double = {
+    val temp = Random.nextDouble()
     validMove.cards match {
-      case List(Joker, _*) => 0
-      case List(NormalCard(TWO, _), _*) => 0
-      case _ => (0.5d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue))) + (0.5d * validMove.cards.size/Consants.maxMoveSize)
+      case List(Joker, _*) => if (temp < highCardModifier) highCardModifier else 0
+      case List(NormalCard(TWO, _), _*) => if (temp < highCardModifier) highCardModifier else 0
+      case _ => (0.5d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)))
+                + (0.5d * validMove.parity/Consants.maxMoveSize)
     }
   }
 
@@ -273,16 +275,17 @@ case object GameUtilities {
   Applies heuristic value on each move, and picks the best
   Returns Empty move is there are no valid moves to choose from
    */
-  def getNextMove(validMoves: Moves, gameState: Move): Option[Move] = {
+  def getNextMove(validMoves: Moves, gameState: Move)(implicit highCardModifier: Double): Option[Move] = {
       try {
         Some(
           validMoves.moves(validMoves.moves
-            .map(m => getHeuristicValue(m, gameState))
+            .map(m => getHeuristicValue(m, gameState, highCardModifier))
+            .filter(value => value > 0)
             .zipWithIndex
             .maxBy(_._1)
             ._2))
       } catch {
-        case e: UnsupportedOperationException => None
+        case e: Exception => None
       }
     }
 
