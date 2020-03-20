@@ -90,8 +90,18 @@ case class Hand(listOfCards: List[Card]) {
   lazy val listOfSimilarCards: List[List[Card]] = GameUtilities.getListsOfSimilarCards(Hand(GameUtilities.sortCards(listOfCards)))
 
   /*
-  WeaknessFactor is defined as the maximum faceValue difference
-  Between intermediate sets of lists
+  Delta is defined as difference in intValue (faceValue) between the highest NormalCard and lowest NormalCard
+   */
+  lazy val delta: Int = {
+    val sortedCards = GameUtilities.sortCards(listOfCards).filter(card => card match {
+      case NormalCard(_,_) => true
+      case _ => false
+    })
+    sortedCards.last.intValue - sortedCards.head.intValue
+  }
+
+  /*
+  WeaknessFactor is defined as the maximum faceValue difference between intermediate sets of lists
   For example:- If hand has the following cards (represented as a listOfSimilarCards)
   [4,  4,  4,]
   [5]
