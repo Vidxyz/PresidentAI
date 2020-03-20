@@ -43,7 +43,8 @@ object Main extends App {
 //  var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 
   val listOfNames = List("Player1", "Player2", "Player3", "Player4")
-  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames).toBuffer
+  // Comment out seed for true randomness
+  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames, seed=77).toBuffer
 
   val game = Game(Move(List.empty))
 //  val game = Game(currentState)

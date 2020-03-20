@@ -68,15 +68,14 @@ object Round {
 
 case object GameUtilities {
 
-  def generatePlayersAndDealHands(listOfNames: List[String]): List[Player] = {
-    val hands: List[Hand] = dealHands(listOfNames.size)
+  def generatePlayersAndDealHands(listOfNames: List[String], seed: Int = 0): List[Player] = {
+    val hands: List[Hand] = dealHands(listOfNames.size, seed)
    (hands zip listOfNames)
               .map(tuple => Player(tuple._2, tuple._1))
   }
 
-  def dealHands(numberOfPlayers: Int): List[Hand] = {
-    // TODO - remove the next line to acheive true randomness
-    val random = new Random(1)
+  def dealHands(numberOfPlayers: Int, seed: Int = 0): List[Hand] = {
+    val random = if(seed > 0) new Random(seed) else new Random()
     @tailrec
     def dealHandsHelper(currentPlayer: Int, playerHands: List[Hand], seenSoFar: List[Int]): List[Hand] = {
       if(seenSoFar.size == Consants.totalNumberOfCards) return playerHands
