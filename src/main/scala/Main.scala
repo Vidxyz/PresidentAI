@@ -17,8 +17,8 @@ object Main extends App {
     NormalCard(EIGHT, Heart),
     NormalCard(SEVEN, Diamond),
     NormalCard(SEVEN, Heart),
-    NormalCard(TWO, Heart),
-    NormalCard(TWO, Spade),
+    SpecialCard(TWO, Heart),
+    SpecialCard(TWO, Spade),
     Joker,
     Joker,
   ))

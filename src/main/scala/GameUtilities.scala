@@ -75,11 +75,13 @@ case object GameUtilities {
   }
 
   def dealHands(numberOfPlayers: Int): List[Hand] = {
+    // TODO - remove the next line to acheive true randomness
+    val random = new Random(1)
     @tailrec
     def dealHandsHelper(currentPlayer: Int, playerHands: List[Hand], seenSoFar: List[Int]): List[Hand] = {
       if(seenSoFar.size == Consants.totalNumberOfCards) return playerHands
 
-      val nextCardNum = Random.nextInt(Consants.totalNumberOfCards)
+      val nextCardNum = random.nextInt(Consants.totalNumberOfCards)
 
       if(seenSoFar.contains(nextCardNum)) dealHandsHelper(currentPlayer, playerHands, seenSoFar)
       else {
