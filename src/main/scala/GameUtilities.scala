@@ -275,11 +275,11 @@ case object GameUtilities {
   Applies heuristic value on each move, and picks the best
   Returns Empty move is there are no valid moves to choose from
    */
-  def getNextMove(validMoves: Moves, gameState: Move)(implicit highCardModifier: Double): Option[Move] = {
+  def getNextMove(validMoves: Moves, gameState: Move)(implicit playerIndicators: PlayerIndicators): Option[Move] = {
       try {
         Some(
           validMoves.moves(validMoves.moves
-            .map(m => getHeuristicValue(m, gameState, highCardModifier))
+            .map(m => getHeuristicValue(m, gameState, 0))
             .filter(value => value > 0)
             .zipWithIndex
             .maxBy(_._1)
