@@ -112,7 +112,7 @@ class GameUtilitiesTest extends FunSpec {
           NormalCard(JACK, Diamond),
           NormalCard(QUEEN, Club),
           NormalCard(QUEEN, Spade),
-          NormalCard(TWO, Diamond),
+          SpecialCard(TWO, Diamond),
           Joker,
           Joker
         )
@@ -183,12 +183,12 @@ class GameUtilitiesTest extends FunSpec {
       describe("And the hand is comprised cards including 2s and Jokers") {
         it("Should return the expected response"){
           val hand = Hand(List(NormalCard(FOUR, Spade), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade),
-            NormalCard(JACK, Club), NormalCard(TWO, Heart), Joker))
+            NormalCard(JACK, Club), SpecialCard(TWO, Heart), Joker))
           val expectedResult = List(
             List(NormalCard(FOUR, Spade)),
             List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)),
             List(NormalCard(JACK, Club)),
-            List(NormalCard(TWO, Heart)),
+            List(SpecialCard(TWO, Heart)),
             List(Joker)
           )
           assert(GameUtilities.getListsOfSimilarCards(hand) == expectedResult)
@@ -211,7 +211,7 @@ class GameUtilitiesTest extends FunSpec {
           List(NormalCard(QUEEN, Diamond), NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)),
           List(NormalCard(KING, Diamond), NormalCard(KING, Club), NormalCard(KING, Heart), NormalCard(KING, Spade)),
           List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)),
-          List(NormalCard(TWO, Diamond), NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade)),
+          List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade)),
           List(Joker, Joker),
         )
         assert(GameUtilities.getListsOfSimilarCards(Consants.sortedHandWithAllCards) == expectedResult)
@@ -316,20 +316,20 @@ class GameUtilitiesTest extends FunSpec {
 
       describe("When the list comprises of a single two in it") {
         it("should return the expected response") {
-          val intermediateLists = commonListOfLists :+ List(NormalCard(TWO, Club))
-          val expectedMoves = Moves(commonExpectedMovesList :+ Move(List(NormalCard(TWO, Club))))
+          val intermediateLists = commonListOfLists :+ List(SpecialCard(TWO, Club))
+          val expectedMoves = Moves(commonExpectedMovesList :+ Move(List(SpecialCard(TWO, Club))))
           assert(GameUtilities.getAllMoves(intermediateLists) == expectedMoves)
         }
       }
 
       describe("When the list comprises of multiple twos") {
         it("should return the expected response") {
-          val intermediateLists = commonListOfLists :+ List(NormalCard(TWO, Club), NormalCard(TWO, Heart))
+          val intermediateLists = commonListOfLists :+ List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart))
 
           val expectedMoves = Moves(commonExpectedMovesList ++ List(
-                                            Move(List(NormalCard(TWO, Club))),
-                                            Move(List(NormalCard(TWO, Heart))),
-                                            Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart)))))
+                                            Move(List(SpecialCard(TWO, Club))),
+                                            Move(List(SpecialCard(TWO, Heart))),
+                                            Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart)))))
           assert(GameUtilities.getAllMoves(intermediateLists) == expectedMoves)
         }
       }
@@ -372,9 +372,9 @@ class GameUtilitiesTest extends FunSpec {
       Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart))),
       Move(List(NormalCard(QUEEN, Diamond), NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart))),
       Move(List(NormalCard(TEN, Diamond), NormalCard(TEN, Club), NormalCard(TEN, Heart), NormalCard(TEN,Spade))),
-      Move(List(NormalCard(TWO, Club))),
-      Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart))),
-      Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+      Move(List(SpecialCard(TWO, Club))),
+      Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart))),
+      Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
       Move(List(Joker))
     ))
 
@@ -443,20 +443,20 @@ class GameUtilitiesTest extends FunSpec {
           Move(List.empty)))
       }
       it("Should return true for a single2") {
-        assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Spade))),
+        assert(GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Spade))),
           Move(List.empty)))
       }
       it("Should return true for a double2") {
-        assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Spade))),
+        assert(GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Spade))),
           Move(List.empty)))
       }
       it("Should return true for a triple2") {
-        assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+        assert(GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
           Move(List.empty)))
       }
       it("Should return true for a quadruple2") {
         assert(GameUtilities.isValidMove(
-          Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
           Move(List.empty)))
       }
       it("Should return true for a Joker") {
@@ -489,19 +489,19 @@ class GameUtilitiesTest extends FunSpec {
       }
       it("Should return true for a single2") {
         assert(GameUtilities.isValidMove(Move(List(Joker)),
-          Move(List(NormalCard(TWO, Diamond)))))
+          Move(List(SpecialCard(TWO, Diamond)))))
       }
       it("Should return true for a double2s") {
         assert(GameUtilities.isValidMove(Move(List(Joker)),
-          Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart)))))
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart)))))
       }
       it("Should return true for a triple2s") {
         assert(GameUtilities.isValidMove(Move(List(Joker)),
-          Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Club)))))
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Club)))))
       }
       it("Should return true for a quad2s") {
         assert(GameUtilities.isValidMove(Move(List(Joker)),
-          Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Club), NormalCard(TWO, Spade)))))
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Club), SpecialCard(TWO, Spade)))))
       }
     }
 
@@ -514,95 +514,95 @@ class GameUtilitiesTest extends FunSpec {
       // Better pair2s should burn lower pair2s
       describe("When move involves a single 2") {
         it("should return true when gameState is a high single") {
-          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club))), Move(List(NormalCard(ACE, Spade)))))
+          assert(GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club))), Move(List(NormalCard(ACE, Spade)))))
         }
         it("should return true when gameState is a high double") {
-          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club))),
+          assert(GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club))),
             Move(List(NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
         }
         it("should return true when gameState is a two of lesser suit (Suit burn)") {
-          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club))), Move(List(NormalCard(TWO, Diamond)))))
+          assert(GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club))), Move(List(SpecialCard(TWO, Diamond)))))
         }
         it("should return false when gameState is a two of lesser suit (No Suit burn)") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond))), Move(List(NormalCard(TWO, Club)))))
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Diamond))), Move(List(SpecialCard(TWO, Club)))))
         }
         it("should return false when gameState is a double2") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond))),
-            Move(List(NormalCard(TWO, Club), NormalCard(TWO, Spade)))))
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Diamond))),
+            Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Spade)))))
         }
         it("should return false when gameState is a triple") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Spade))),
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Spade))),
             Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))))
         }
         it("should return false when gameState is a quadruple") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Spade))),
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Spade))),
             Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
         }
       }
 
       describe("When move involves two 2s") {
         it("should return true when gameState is a high triple") {
-          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club))),
+          assert(GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club))),
             Move(List(NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
         }
         it("should return true when gameState is two 2s of lesser suit (Suit burn)") {
-          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Spade))),
-            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club)))))
+          assert(GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Spade))),
+            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club)))))
         }
         it("should return false when gameState is two 2s of lesser suit (No Suit burn)") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart))),
-            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Spade)))))
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart))),
+            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Spade)))))
         }
         it("should return false when gameState is a triple2") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Diamond))),
-            Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade)))))
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Diamond))),
+            Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade)))))
         }
         it("should return false when gameState is a single2") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart))),
-            Move(List(NormalCard(TWO, Club)))))
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
+            Move(List(SpecialCard(TWO, Club)))))
         }
         it("should return false when gameState is a single") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
             Move(List(NormalCard(SEVEN, Diamond)))))
         }
         it("should return false when gameState is a double") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
             Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club)))))
         }
         it("should return false when gameState is a quadruple") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
             Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))))
         }
       }
 
       describe("When move involves three 2s") {
         it("should return true when gameState is a high quadruple") {
-          assert(GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club))),
+          assert(GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club))),
             Move(List(NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
         }
         // No suit burns
         it("should return false when gameState is a single2") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
-            Move(List(NormalCard(TWO, Club)))))
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
+            Move(List(SpecialCard(TWO, Club)))))
         }
         it("should return false when gameState is a double2") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
-            Move(List(NormalCard(TWO, Club), NormalCard(TWO, Club)))))
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
+            Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Club)))))
         }
         it("should return false when gameState is a quad2") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
-            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade)))))
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
+            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade)))))
         }
         it("should return false when gameState is a single") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
             Move(List(NormalCard(SEVEN, Diamond)))))
         }
         it("should return false when gameState is a double") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
             Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club)))))
         }
         it("should return false when gameState is a triple") {
-          assert(!GameUtilities.isValidMove(Move(List(NormalCard(TWO, Club), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+          assert(!GameUtilities.isValidMove(Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
             Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))))
         }
       }
@@ -734,19 +734,19 @@ class GameUtilitiesTest extends FunSpec {
 
       describe("When move1 is 2-diamond and move2 is Ace-Spade") {
         it("Should return true") {
-          assert(GameUtilities.checkIfBetter(Move(List(NormalCard(TWO, Diamond))), Move(List(NormalCard(ACE, Spade)))))
+          assert(GameUtilities.checkIfBetter(Move(List(SpecialCard(TWO, Diamond))), Move(List(NormalCard(ACE, Spade)))))
         }
       }
 
       describe("When move1 is 2-spade and move2 is 2-Heart") {
         it("Should return true") {
-          assert(GameUtilities.checkIfBetter(Move(List(NormalCard(TWO, Spade))), Move(List(NormalCard(TWO, Heart)))))
+          assert(GameUtilities.checkIfBetter(Move(List(SpecialCard(TWO, Spade))), Move(List(SpecialCard(TWO, Heart)))))
         }
       }
 
       describe("When move1 is Joker and move2 is 2-Spade") {
         it("Should return true") {
-          assert(GameUtilities.checkIfBetter(Move(List(Joker)), Move(List(NormalCard(TWO, Spade)))))
+          assert(GameUtilities.checkIfBetter(Move(List(Joker)), Move(List(SpecialCard(TWO, Spade)))))
         }
       }
 
@@ -781,7 +781,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When move1 is single2 and move2 is doubleAces") {
         it("should return true"){
           assert(GameUtilities.checkIfBetter(
-            Move(List(NormalCard(TWO, Diamond))),
+            Move(List(SpecialCard(TWO, Diamond))),
             Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club)))))
         }
       }
@@ -811,7 +811,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When move1 is two2s and move2 is tripleAces") {
         it("should return true"){
           assert(GameUtilities.checkIfBetter(
-            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO,Club))),
+            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO,Club))),
             Move(List(NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
         }
       }
@@ -819,8 +819,8 @@ class GameUtilitiesTest extends FunSpec {
       describe("When move1 is two2s and move2 is two2s of lower suit") {
         it("should return true"){
           assert(GameUtilities.checkIfBetter(
-            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO,Spade))),
-            Move(List(NormalCard(TWO, Club), NormalCard(TWO,Heart)))))
+            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO,Spade))),
+            Move(List(SpecialCard(TWO, Club), SpecialCard(TWO,Heart)))))
         }
       }
 
@@ -848,7 +848,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When move1 is two2s and move2 is tripleAces") {
         it("should return true"){
           assert(GameUtilities.checkIfBetter(
-            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO,Club), NormalCard(TWO, Heart))),
+            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO,Club), SpecialCard(TWO, Heart))),
             Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))))
         }
       }
@@ -869,7 +869,7 @@ class GameUtilitiesTest extends FunSpec {
     // TEST FOR EXPERIMENT
     // TODO - delete this once done. Currently, a 2Diamond is favored over a 4Spade, this is WRONG and needs changing
     it("It is a test") {
-      val validMove1 = Move(List(NormalCard(TWO, Diamond)))
+      val validMove1 = Move(List(SpecialCard(TWO, Diamond)))
       val validMove2 = Move(List(NormalCard(FOUR, Spade)))
 //      val validMove2 = Move(List(NormalCard(ACE, Club), NormalCard(ACE, Spade)))
       val validMove3 = Move(List(NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
@@ -891,21 +891,21 @@ class GameUtilitiesTest extends FunSpec {
       describe("When it is a single 2") {
         it("should return 0") {
           assert(GameUtilities.getHeuristicValue(
-            Move(List(NormalCard(TWO, Diamond))),
+            Move(List(SpecialCard(TWO, Diamond))),
             Move(List.empty)) == 0)
         }
       }
       describe("When it is double 2s") {
         it("should return 0") {
           assert(GameUtilities.getHeuristicValue(
-            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart))),
+            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
             Move(List.empty)) == 0)
         }
       }
       describe("When it is triple 2s") {
         it("should return 0") {
           assert(GameUtilities.getHeuristicValue(
-            Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Heart), NormalCard(TWO, Spade))),
+            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
             Move(List.empty)) == 0)
         }
       }
@@ -983,7 +983,7 @@ class GameUtilitiesTest extends FunSpec {
 
   describe("tests for getNextMove()"){
 
-    implicit val mockHighCardModifier: Double = 0d
+    implicit val playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))
 
     describe("When validMoves is empty"){
       it("Should return an Empty Move") {
@@ -1058,13 +1058,13 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       it("Should be replaced by a 2 when a single 2 is played") {
-        val playedMove = Move(List(NormalCard(TWO, Club)))
+        val playedMove = Move(List(SpecialCard(TWO, Club)))
         assert(GameUtilities.getNextGameState(single7, Some(playedMove)) == playedMove)
       }
 
       it("Should be a burn when a higher two is played on top of a lower 2") {
-        val playedMove = Move(List(NormalCard(TWO, Club)))
-        assert(GameUtilities.getNextGameState(Move(List(NormalCard(TWO, Diamond))), Some(playedMove)) == Move(List.empty))
+        val playedMove = Move(List(SpecialCard(TWO, Club)))
+        assert(GameUtilities.getNextGameState(Move(List(SpecialCard(TWO, Diamond))), Some(playedMove)) == Move(List.empty))
       }
 
       it("Should be a burn when a single Joker is played") {
@@ -1087,13 +1087,13 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       it("Should be a replaced by a 2 when a single 2 is played") {
-        val playedMove = Move(List(NormalCard(TWO, Heart)))
+        val playedMove = Move(List(SpecialCard(TWO, Heart)))
         assert(GameUtilities.getNextGameState(double6s, Some(playedMove)) == playedMove)
       }
 
       it("Should be a burn when a higher 2-2s is played on top of a lower 2-2s") {
-        val gameState = Move(List(NormalCard(TWO, Diamond), NormalCard(TWO, Club)))
-        val playedMove = Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade)))
+        val gameState = Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club)))
+        val playedMove = Move(List(SpecialCard(TWO, Heart), SpecialCard(TWO, Spade)))
         assert(GameUtilities.getNextGameState(gameState, Some(playedMove)) == Move(List.empty))
       }
 
@@ -1113,7 +1113,7 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       it("Should be replaced by 2-2s when 2-2s are played") {
-        val double2s = Move(List(NormalCard(TWO, Heart), NormalCard(TWO, Spade)))
+        val double2s = Move(List(SpecialCard(TWO, Heart), SpecialCard(TWO, Spade)))
         assert(GameUtilities.getNextGameState(triple7s, Some(double2s)) == double2s)
       }
 
