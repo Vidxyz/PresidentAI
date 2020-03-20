@@ -77,13 +77,45 @@ case class SpecialCard(faceValue: Value = TWO, suit: Suit) extends Card {
 case class Hand(listOfCards: List[Card]) {
 
   /*
-  Strength is defined as the numerical step-delta between
-  We always want to minimize this?
+  WeaknessFactor is defined as the maximum faceValue difference
+  Between intermediate sets of lists
+  For example:- If hand has the following cards
+  [4,  4,  4,]
+  [5]
+  [8, 8]
+  [J]
+  [Q]
+  [K, K, K]
+  Then weakness factor is :- 3 (5-8 and 8-J)
+  If the hand only had
+  [4, 4, 4]
+  [K, K, K]
+  Then weakness factor is :- 9
+  If the hand only had
+  [4, 4, 4]
+  Then weakness factor is :- 0
+  We always want to minimize this
    */
-  lazy val strength: Int = GameUtilities
-    .getListsOfSimilarCards(Hand(GameUtilities
-      .sortCards(this.listOfCards)))
-    .size
+  def weaknessFactor: Int = {
+    val intermediateList = GameUtilities.getListsOfSimilarCards(Hand(GameUtilities.sortCards(this.listOfCards)))
+    if(intermediateList.size == 1) 0 else {
+      var lastIntValueSeen  = intermediateList.tail.head.head.intValue
+      intermediateList
+        .tail.tail
+        .foldLeft(intermediateList.tail.head.head.intValue - intermediateList.head.head.intValue)(
+          (maxDifferenceSoFar, list) => {
+            if (list.head.intValue - lastIntValueSeen > maxDifferenceSoFar) {
+              val returnVal = list.head.intValue - lastIntValueSeen
+              lastIntValueSeen = list.head.intValue
+              returnVal
+            }
+            else {
+              lastIntValueSeen = list.head.intValue
+              maxDifferenceSoFar
+            }
+          })
+    }
+  }
 
   def size: Int = this.listOfCards.size
 
@@ -114,6 +146,10 @@ case class Move(cards: List[Card]) {
   def highestCard: Card = cards.last
   def parity: Int = cards.size
 }
+
+/*
+A wrapper around list of moves, for logical reasons
+ */
 case class Moves(moves: List[Move])
 
 
