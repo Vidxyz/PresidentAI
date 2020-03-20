@@ -1,4 +1,5 @@
 import FaceValue._
+import GameUtilities.IllegalHeuristicFunctionException
 import Suits._
 import org.scalatest.FunSpec
 
@@ -864,51 +865,52 @@ class GameUtilitiesTest extends FunSpec {
 
   }
 
-  describe("tests for getHeuristicValue()") {
+  describe("tests for getNormalMoveHeuristic()") {
 
     // TEST FOR EXPERIMENT
     // TODO - delete this once done. Currently, a 2Diamond is favored over a 4Spade, this is WRONG and needs changing
     it("It is a test") {
-      val validMove1 = Move(List(SpecialCard(TWO, Diamond)))
-      val validMove2 = Move(List(NormalCard(FOUR, Spade)))
+//      val validMove1 = Move(List(SpecialCard(TWO, Diamond)))
+//      val validMove12 = Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club)))
+//      val validMove2 = Move(List(NormalCard(FOUR, Spade)))
 //      val validMove2 = Move(List(NormalCard(ACE, Club), NormalCard(ACE, Spade)))
-      val validMove3 = Move(List(NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
-      val gameState = Move(List.empty)
-//      val gameState = Move(List(NormalCard(THREE, Club), NormalCard(THREE, Spade)))/
-      println(GameUtilities.getHeuristicValue(validMove1, gameState, .3875956999999997))
-      println(GameUtilities.getHeuristicValue(validMove2, gameState))
-      println(GameUtilities.getHeuristicValue(validMove3, gameState))
+//      val validMove3 = Move(List(NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
+//      val gameState = Move(List.empty)
+//      val validMoves = Moves(List(validMove1, validMove2, validMove3))
+//      val gameState = Move(List(NormalCard(THREE, Club), NormalCard(THREE, Spade)))
+//      println(GameUtilities.getNextMoveWrapper(validMoves, gameState)(PlayerIndicators(Main.stackedHand)))
+//      println(GameUtilities.getHeuristicValue(validMove1, gameState, .3875956999999997))
+//      println(GameUtilities.getHeuristicValue(validMove2, gameState))
+//      println(GameUtilities.getHeuristicValue(validMove3, gameState))
+
+//      println(GameUtilities.getNextMoveV2(Moves(List(validMove1, validMove12, validMove3)), gameState))
+
     }
     // TODO - delete above when done
 
-    describe("When move involves a Joker") {
-      it("should return 0") {
-        assert(GameUtilities.getHeuristicValue(Move(List(Joker)), Move(List.empty)) == 0)
-      }
-    }
+    describe("Throws exception when") {
 
-    describe("When move involves a 2") {
-      describe("When it is a single 2") {
-        it("should return 0") {
-          assert(GameUtilities.getHeuristicValue(
-            Move(List(SpecialCard(TWO, Diamond))),
-            Move(List.empty)) == 0)
+      it("Move involves a joker") {
+        assertThrows[IllegalHeuristicFunctionException](GameUtilities.getNormalMoveHeuristic(Move(List(Joker)), Move(List.empty)))
+      }
+
+      describe("When move involves a 2") {
+        it("is a single 2") {
+          assertThrows[IllegalHeuristicFunctionException](GameUtilities.
+            getNormalMoveHeuristic(Move(List(SpecialCard(TWO, Diamond))), Move(List.empty)))
+        }
+        it("is a double 2") {
+          assertThrows[IllegalHeuristicFunctionException](GameUtilities.
+            getNormalMoveHeuristic(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
+            Move(List.empty)))
+        }
+        it("is a triple 2") {
+          assertThrows[IllegalHeuristicFunctionException](GameUtilities.
+            getNormalMoveHeuristic(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
+            Move(List.empty)))
         }
       }
-      describe("When it is double 2s") {
-        it("should return 0") {
-          assert(GameUtilities.getHeuristicValue(
-            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
-            Move(List.empty)) == 0)
-        }
-      }
-      describe("When it is triple 2s") {
-        it("should return 0") {
-          assert(GameUtilities.getHeuristicValue(
-            Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
-            Move(List.empty)) == 0)
-        }
-      }
+
     }
 
     describe("When gameState is Empty") {
@@ -916,13 +918,13 @@ class GameUtilitiesTest extends FunSpec {
 
       describe("When validMove is a single 4")  {
         it("should return value") {
-          assert(GameUtilities.getHeuristicValue(Move(List(NormalCard(FOUR,Heart))), emptyGameState) == 0.25)
+          assert(GameUtilities.getNormalMoveHeuristic(Move(List(NormalCard(FOUR,Heart))), emptyGameState) == 0.25)
         }
       }
 
       describe("When validMove is double4s")  {
         it("should return value") {
-          assert(GameUtilities.getHeuristicValue(
+          assert(GameUtilities.getNormalMoveHeuristic(
             Move(List(NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
             emptyGameState) == 0.375)
         }
@@ -930,7 +932,7 @@ class GameUtilitiesTest extends FunSpec {
 
       describe("When validMove is triple4s")  {
         it("should return value") {
-          assert(GameUtilities.getHeuristicValue(
+          assert(GameUtilities.getNormalMoveHeuristic(
             Move(List(NormalCard(FOUR,Club), NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
             emptyGameState) == 0.5)
         }
@@ -938,7 +940,7 @@ class GameUtilitiesTest extends FunSpec {
 
       describe("When validMove is quad4s")  {
         it("should return value") {
-          assert(GameUtilities.getHeuristicValue(
+          assert(GameUtilities.getNormalMoveHeuristic(
             Move(List(NormalCard(FOUR,Diamond), NormalCard(FOUR,Club),
               NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
             emptyGameState) == 0.625)
@@ -950,7 +952,7 @@ class GameUtilitiesTest extends FunSpec {
       it("should return the right value"){
         val gameState =  Move(List(NormalCard(FIVE, Spade)))
         val validMove = Move(List(NormalCard(NINE, Diamond)))
-        assert(GameUtilities.getHeuristicValue(validMove, gameState) == 0.25)
+        assert(GameUtilities.getNormalMoveHeuristic(validMove, gameState) == 0.25)
       }
     }
 
@@ -958,7 +960,7 @@ class GameUtilitiesTest extends FunSpec {
       it("should return the right value"){
         val gameState =  Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Spade)))
         val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Spade)))
-        assert(GameUtilities.getHeuristicValue(validMove, gameState) == 0.375)
+        assert(GameUtilities.getNormalMoveHeuristic(validMove, gameState) == 0.375)
       }
     }
 
@@ -966,7 +968,7 @@ class GameUtilitiesTest extends FunSpec {
       it("should return the right value"){
         val gameState =  Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
         val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club),  NormalCard(NINE, Spade)))
-        assert(GameUtilities.getHeuristicValue(validMove, gameState) == 0.5)
+        assert(GameUtilities.getNormalMoveHeuristic(validMove, gameState) == 0.5)
       }
     }
 
@@ -976,7 +978,7 @@ class GameUtilitiesTest extends FunSpec {
                           NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
         val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club),
                           NormalCard(NINE, Heart),  NormalCard(NINE, Spade)))
-        assert(GameUtilities.getHeuristicValue(validMove, gameState) == 0.625)
+        assert(GameUtilities.getNormalMoveHeuristic(validMove, gameState) == 0.625)
       }
     }
   }
@@ -987,7 +989,7 @@ class GameUtilitiesTest extends FunSpec {
 
     describe("When validMoves is empty"){
       it("Should return an Empty Move") {
-        assert(GameUtilities.getNextMove(Moves(List.empty), Move(List.empty)) == None)
+        assert(GameUtilities.getNextMoveWrapper(Moves(List.empty), Move(List.empty)) == None)
       }
     }
 
@@ -1010,7 +1012,7 @@ class GameUtilitiesTest extends FunSpec {
             double6s
           ))
           val gameState = Move(List.empty)
-          assert(GameUtilities.getNextMove(validMoves, gameState).contains(double6s))
+          assert(GameUtilities.getNextMoveWrapper(validMoves, gameState).contains(double6s))
         }
       }
 
@@ -1020,7 +1022,7 @@ class GameUtilitiesTest extends FunSpec {
           val triple6s = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club), NormalCard(SIX, Heart)))
           val validMoves: Moves = Moves(List(double5s, triple6s))
           val gameState = Move(List.empty)
-          assert(GameUtilities.getNextMove(validMoves, gameState).contains(triple6s))
+          assert(GameUtilities.getNextMoveWrapper(validMoves, gameState).contains(triple6s))
         }
       }
 
@@ -1030,7 +1032,7 @@ class GameUtilitiesTest extends FunSpec {
           val quad8s = Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade)))
           val validMoves: Moves = Moves(List(triple5s, quad8s))
           val gameState = Move(List.empty)
-          assert(GameUtilities.getNextMove(validMoves, gameState).contains(quad8s))
+          assert(GameUtilities.getNextMoveWrapper(validMoves, gameState).contains(quad8s))
         }
       }
 

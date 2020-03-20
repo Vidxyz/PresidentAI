@@ -260,13 +260,20 @@ case object GameUtilities {
   Assumption :- validMove is a valid move given the current gameState
    */
   // TODO - the weighting on doubles/triples/quads over singles is too one-sided. Needs to be skewed empirically
-  def getHeuristicValue(validMove: Move, gameState: Move, highCardModifier: Double = 0): Double = {
-    val temp = Random.nextDouble()
+  def getNormalMoveHeuristic(validMove: Move, gameState: Move, highCardModifier: Double = 0): Double = {
     validMove.cards match {
-      case List(Joker, _*) => if (temp < highCardModifier) highCardModifier else 0
-      case List(NormalCard(TWO, _), _*) => if (temp < highCardModifier) highCardModifier else 0
-      case _ => (0.5d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)))
-                + (0.5d * validMove.parity/Consants.maxMoveSize)
+      case List(NormalCard(_,_), _*) => (0.5d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue))
+                                      + (0.5d * validMove.parity/Consants.maxMoveSize))
+      case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
+    }
+  }
+
+  // TODO - this can be specificly weighted towards the various suits of 2
+  def getSpecialMoveHeuristic(validMove: Move, gameState: Move, specialCardModifier: Double = 0): Double = {
+    val randomValue = Random.nextDouble()
+    validMove.cards match {
+      case List(NormalCard(_,_), _*) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
+      case _ => if (randomValue < specialCardModifier) specialCardModifier else 0
     }
   }
 
@@ -274,20 +281,46 @@ case object GameUtilities {
   Fetches the next best move possible, from list of valid moves, given current game state and current hand
   Applies heuristic value on each move, and picks the best
   Returns Empty move is there are no valid moves to choose from
+  NOTE:-
+  1. validMoves will comprise of moves with Special Cards (2s, Jokers) IFF no NormalCard moves are available
+    1.1 Even then, there isnt a guarantee that the special card will be chosen
    */
-  def getNextMove(validMoves: Moves, gameState: Move)(implicit playerIndicators: PlayerIndicators): Option[Move] = {
-      try {
-        Some(
-          validMoves.moves(validMoves.moves
-            .map(m => getHeuristicValue(m, gameState, 0))
-            .filter(value => value > 0)
-            .zipWithIndex
-            .maxBy(_._1)
-            ._2))
-      } catch {
-        case e: Exception => None
-      }
+  def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, Double) => Double, modifier: Double): Option[Move] = {
+    try {
+      Some(
+        validMoves.moves(validMoves.moves
+          .map(m => heuristic(m, gameState, modifier))
+          .filter(value => value > 0)
+          .zipWithIndex
+          .maxBy(_._1)
+          ._2))
+    } catch {
+      case _: Exception => None
     }
+  }
+
+  def getNextMoveWrapper(validMoves: Moves, gameState: Move)(implicit playerIndicators: PlayerIndicators): Option[Move] = {
+    // Check if validMoves comprises ONLY of special cards
+    val isOnlySpecialMovesAvailable: Boolean =
+      validMoves.moves.foldLeft(true)((acc, move) => move.cards match {
+      case List(SpecialCard(_, _), _*) => acc
+      case List(Joker,_*) => acc
+      case _ => false
+    })
+
+    // If normal moves are available, play them first!
+    if(!isOnlySpecialMovesAvailable) {
+      val filteredValidMoves = Moves(validMoves.moves.filter(m => m.cards match {
+        case List(NormalCard(_,_), _*) => true
+        case _ => false
+      }))
+      getNextMove(filteredValidMoves, gameState)(getNormalMoveHeuristic, playerIndicators.specialCardModifier)
+    } else {
+      // If comprising ONLY of special moves, do nothing
+      getNextMove(validMoves, gameState)(getSpecialMoveHeuristic, playerIndicators.specialCardModifier)
+    }
+  }
+
 
 
   /*
@@ -305,4 +338,8 @@ case object GameUtilities {
       case None => gameState
     }
   }
+
+
+
+  case class IllegalHeuristicFunctionException(s: String) extends IllegalStateException(s)
 }

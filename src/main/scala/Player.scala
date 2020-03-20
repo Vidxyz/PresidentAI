@@ -13,7 +13,7 @@ case class Player(name: String, hand: Hand) {
     val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
     val allMoves: Moves = getAllMoves(intermediateLists)
     val validMoves: Moves = getValidMoves(allMoves, currentState)
-    getNextMove(validMoves, currentState)
+    getNextMoveWrapper(validMoves, currentState)
   }
 
   /*
@@ -71,6 +71,7 @@ case class PlayerIndicators(hand: Hand) {
 
   // Likelihood of playing a special card. Increases as the game moves on (hand nears empty)
   implicit lazy val specialCardModifier: Double = applyCustomSpecialCardModifier(hand.listOfCards.size)/100
+  implicit lazy val highCardModifier: Double = 0
   // Likelihood of passing the next move. TBD
   lazy val probabilityOfPassing: Double = 0.5
 }

@@ -77,9 +77,22 @@ case class SpecialCard(faceValue: Value = TWO, suit: Suit) extends Card {
 case class Hand(listOfCards: List[Card]) {
 
   /*
+  Has similar cards together. This will be used to penalize breaking of sets
+  Example :-
+  [
+    [4,4,4]
+    [5]
+    [8,8]
+    [Q,Q,Q]
+    [K]
+  ]
+   */
+  lazy val listOfSimilarCards: List[List[Card]] = GameUtilities.getListsOfSimilarCards(Hand(GameUtilities.sortCards(listOfCards)))
+
+  /*
   WeaknessFactor is defined as the maximum faceValue difference
   Between intermediate sets of lists
-  For example:- If hand has the following cards
+  For example:- If hand has the following cards (represented as a listOfSimilarCards)
   [4,  4,  4,]
   [5]
   [8, 8]
@@ -97,17 +110,16 @@ case class Hand(listOfCards: List[Card]) {
   We always want to minimize this
    */
   def weaknessFactor: Int = {
-    val intermediateList = GameUtilities.getListsOfSimilarCards(Hand(GameUtilities.sortCards(this.listOfCards)))
-    if(intermediateList.size == 1) 0 else {
-      var lastIntValueSeen  = intermediateList.tail.head.head.intValue
-      intermediateList
+    if(listOfSimilarCards.size == 1) 0 else {
+      var lastIntValueSeen  = listOfSimilarCards.tail.head.head.intValue
+      listOfSimilarCards
         .tail.tail
-        .foldLeft(intermediateList.tail.head.head.intValue - intermediateList.head.head.intValue)(
+        .foldLeft(listOfSimilarCards.tail.head.head.intValue - listOfSimilarCards.head.head.intValue)(
           (maxDifferenceSoFar, list) => {
             if (list.head.intValue - lastIntValueSeen > maxDifferenceSoFar) {
-              val returnVal = list.head.intValue - lastIntValueSeen
+              val newDifference = list.head.intValue - lastIntValueSeen
               lastIntValueSeen = list.head.intValue
-              returnVal
+              newDifference
             }
             else {
               lastIntValueSeen = list.head.intValue
