@@ -8,7 +8,7 @@ class PlayerTest extends FunSpec {
     it("should getNewHand") {
       val player = Player("test", GameUtilities.dealNewHand(54, Consants.totalNumberOfCards))
 //      println(player.highCardModifier)
-//      println(Player.applyCustomHighCardModifier(7))
+      println(PlayerIndicators.applyCustomSpecialCardModifier(14))
     }
 
     it("should playNextMove") {
