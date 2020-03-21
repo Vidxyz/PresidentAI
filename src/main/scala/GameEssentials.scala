@@ -171,6 +171,7 @@ case class Move(cards: List[Card]) {
   }
   def highestCard: Card = cards.last
   def parity: Int = cards.size
+  def isEmpty: Boolean = cards.isEmpty
 
   /*
   More thought needs to be put into this

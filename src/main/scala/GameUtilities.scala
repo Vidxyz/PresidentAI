@@ -271,7 +271,9 @@ case object GameUtilities {
           if(randomValue < highCardModifier) applyNormalCardHeuristic(validMove, gameState)
           else 0
         }
-        else*/ applyNormalCardHeuristic(validMove, gameState)
+        else*/
+        if(gameState.isEmpty) applyNormalCardHeuristicWithMoveSizeModifier(validMove, gameState)
+        else applyNormalCardHeuristic(validMove, gameState)
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
     }
   }
@@ -285,9 +287,11 @@ case object GameUtilities {
     }
   }
 
-  def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = {
+  def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move, gameState: Move): Double = {
     (0.78d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
   }
+
+  def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
 
   /*
   Fetches the next best move possible, from list of valid moves, given current game state and current hand
