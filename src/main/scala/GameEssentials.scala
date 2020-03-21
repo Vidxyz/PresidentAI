@@ -101,7 +101,7 @@ case class Hand(listOfCards: List[Card]) {
       case NormalCard(_,_) => true
       case _ => false
     })
-    sortedCards.last.intValue - sortedCards.head.intValue
+    if(sortedCards.nonEmpty) sortedCards.last.intValue - sortedCards.head.intValue else 0
   }
 
   /*
