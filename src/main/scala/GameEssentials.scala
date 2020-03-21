@@ -9,6 +9,7 @@ sealed trait Value
 sealed trait Card {
   def value: String = "Card"
   val intValue: Int
+  val isFaceCard: Boolean
 }
 
 case object Active extends PlayerStatus
@@ -43,6 +44,7 @@ case object Joker extends Card {
   override def toString: String = "<JOKER>"
   override def value: String = "JOKER"
   override val intValue: Int = -1
+  override val isFaceCard: Boolean = false
 }
 
 case class NormalCard(faceValue: Value, suit: Suit) extends Card {
@@ -63,6 +65,7 @@ case class NormalCard(faceValue: Value, suit: Suit) extends Card {
     case ACE => 14
     case _ => throw IllegalFaceValueException("Normal Card provided with illegal face value")
   }
+  override lazy val isFaceCard: Boolean = if(intValue > 10) true else false
 }
 
 case class SpecialCard(faceValue: Value = TWO, suit: Suit) extends Card {
@@ -72,6 +75,7 @@ case class SpecialCard(faceValue: Value = TWO, suit: Suit) extends Card {
     case TWO => 2
     case _ => throw IllegalFaceValueException("Special Card provided with illegal face value")
   }
+  override val isFaceCard: Boolean = false
 }
 
 case class Hand(listOfCards: List[Card]) {
@@ -167,6 +171,17 @@ case class Move(cards: List[Card]) {
   }
   def highestCard: Card = cards.last
   def parity: Int = cards.size
+
+  /*
+  More thought needs to be put into this
+   */
+  def getMoveNormalCardModifier: Double = {
+    cards.head match {
+      case Joker => -1
+      case SpecialCard(_,_) => -1
+      case c: NormalCard => c.intValue
+    }
+  }
 }
 
 /*

@@ -259,23 +259,34 @@ case object GameUtilities {
   /*
   Gets a 0-1 value signifying how desirable a move is compared to given game state
   Assumption :- validMove is a valid move given the current gameState
+  TODO - penalize  breaking of sets, and prioritize suit burns  if available
+  I am more inclined to play higher cards when I have more special cards to fall back on
+  I am more inclined to play higher cards when I see that my opponents are closer to finishing
    */
-  // TODO - the weighting on doubles/triples/quads over singles is too one-sided. Needs to be skewed empirically
-  def getNormalMoveHeuristic(validMove: Move, gameState: Move, highCardModifier: Double = 0): Double = {
+  def getNormalCardMoveHeuristic(validMove: Move, gameState: Move, highCardModifier: Double = 0): Double = {
+    val randomValue = Random.nextDouble()
     validMove.cards match {
-      case List(NormalCard(_,_), _*) => (0.5d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue))
-                                      + (0.5d * validMove.parity/Consants.maxMoveSize))
+      case List(NormalCard(_,_), _*) =>
+        if(validMove.cards.head.isFaceCard) {
+          if(randomValue < highCardModifier) applyNormalCardHeuristic(validMove, gameState)
+          else 0
+        }
+        else applyNormalCardHeuristic(validMove, gameState)
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
     }
   }
 
   // TODO - this can be specificly weighted towards the various suits of 2
-  def getSpecialMoveHeuristic(validMove: Move, gameState: Move, specialCardModifier: Double = 0): Double = {
+  def getSpecialCardMoveHeuristic(validMove: Move, gameState: Move, specialCardModifier: Double = 0): Double = {
     val randomValue = Random.nextDouble()
     validMove.cards match {
       case List(NormalCard(_,_), _*) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
       case _ => if (randomValue < specialCardModifier) specialCardModifier else 0
     }
+  }
+
+  def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = {
+    (0.78d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
   }
 
   /*
@@ -315,10 +326,10 @@ case object GameUtilities {
         case List(NormalCard(_,_), _*) => true
         case _ => false
       }))
-      getNextMove(filteredValidMoves, gameState)(getNormalMoveHeuristic, playerIndicators.specialCardModifier)
+      getNextMove(filteredValidMoves, gameState)(getNormalCardMoveHeuristic, playerIndicators.highCardModifier)
     } else {
       // If comprising ONLY of special moves, do nothing
-      getNextMove(validMoves, gameState)(getSpecialMoveHeuristic, playerIndicators.specialCardModifier)
+      getNextMove(validMoves, gameState)(getSpecialCardMoveHeuristic, playerIndicators.specialCardModifier)
     }
   }
 
