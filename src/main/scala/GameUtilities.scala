@@ -266,12 +266,12 @@ case object GameUtilities {
   def getNormalCardMoveHeuristic(validMove: Move, gameState: Move, highCardModifier: Double = 0): Double = {
     val randomValue = Random.nextDouble()
     validMove.cards match {
-      case List(NormalCard(_,_), _*) =>
+      case List(NormalCard(_,_), _*) => /*
         if(validMove.cards.head.isFaceCard) {
           if(randomValue < highCardModifier) applyNormalCardHeuristic(validMove, gameState)
           else 0
         }
-        else applyNormalCardHeuristic(validMove, gameState)
+        else*/ applyNormalCardHeuristic(validMove, gameState)
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
     }
   }
