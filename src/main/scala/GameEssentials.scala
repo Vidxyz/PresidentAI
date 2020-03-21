@@ -1,7 +1,4 @@
 import FaceValue._
-import GameUtilities.{getNextGameState, sortCards}
-
-import scala.collection.mutable
 
 sealed trait PlayerStatus
 sealed trait Suit

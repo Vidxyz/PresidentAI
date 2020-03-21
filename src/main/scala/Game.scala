@@ -1,8 +1,14 @@
 import GameUtilities.{getNextGameState, sortCards}
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 case class Game(startState: Move) {
+
+  /*
+  Keeps a completion order of the form (playerName, roundEnded)
+   */
+  var playerCompletionOrder: ListBuffer[String] = new ListBuffer[String]
 
   /*
  Simulates a run of the game, given a list of Player and a starting state
@@ -84,6 +90,7 @@ case class Game(startState: Move) {
         println(listOfPlayers(round.currentPlayerTurn).name + " has finished!\n")
         listOfPlayers.remove(round.currentPlayerTurn)
         round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn - 1, listOfPlayers.toList, round.roundPassStatus)
+        playerCompletionOrder += currentPlayerObject.name
       }
 
       /*
@@ -102,5 +109,14 @@ case class Game(startState: Move) {
       println("------------------------\n")
 //            Thread.sleep(100)
     }
+
+    printStats()
+
+  }
+
+  def printStats() = {
+    println("GAME OVER")
+    println("---------")
+    println(playerCompletionOrder)
   }
 }

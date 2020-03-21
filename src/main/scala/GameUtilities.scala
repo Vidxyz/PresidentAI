@@ -1,8 +1,6 @@
 import Consants._
-import FaceValue.TWO
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.util.Random
 
 case class Round(gameState: Move,

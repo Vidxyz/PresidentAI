@@ -54,7 +54,7 @@ object Main extends App {
   println("The starting state is : " + game.startState)
   println("\n")
 //  game.play(listOfPlayers)
-  game.play(listOfPlayers2)
+  game.play(listOfPlayers)
 
 }
 
