@@ -72,6 +72,9 @@ case class PlayerIndicators(hand: Hand) {
   // Likelihood of playing a special card. Increases as the game moves on (hand nears empty)
   lazy val specialCardModifier: Double = applyCustomSpecialCardModifier(hand.listOfCards.size)/100
   lazy val highCardModifier: Double =  if(hand.delta == 0) 1d else 1d/hand.delta
-  // Likelihood of passing the next move. TBD
-  lazy val probabilityOfPassing: Double = 0.5
+
+  def getListSetSizeForCard(validMove: Move): Int = {
+    hand.listOfSimilarCards.filter(l => l.head.intValue == validMove.moveFaceValue).head.size
+  }
+
 }

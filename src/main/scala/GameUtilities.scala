@@ -261,7 +261,8 @@ case object GameUtilities {
   I am more inclined to play higher cards when I have more special cards to fall back on
   I am more inclined to play higher cards when I see that my opponents are closer to finishing
    */
-  def getNormalCardMoveHeuristic(validMove: Move, gameState: Move, highCardModifier: Double = 0): Double = {
+  def getNormalCardMoveHeuristic(validMove: Move, gameState: Move,
+                                 playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
     val randomValue = Random.nextDouble()
     validMove.cards match {
       case List(NormalCard(_,_), _*) => /*
@@ -271,17 +272,19 @@ case object GameUtilities {
         }
         else*/
         if(gameState.isEmpty) applyNormalCardHeuristicWithMoveSizeModifier(validMove, gameState)
-        else applyNormalCardHeuristic(validMove, gameState)
+        else applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState, playerIndicators.getListSetSizeForCard(validMove))
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
     }
   }
 
-  // TODO - this can be specificly weighted towards the various suits of 2
-  def getSpecialCardMoveHeuristic(validMove: Move, gameState: Move, specialCardModifier: Double = 0): Double = {
+  // TODO - this can be specificly weighted towards the various suits of 2, and priority should be given for suit burns here
+  // TODO - write unit tests for this too
+  // Over the probability distribution function
+  def getSpecialCardMoveHeuristic(validMove: Move, gameState: Move, playerIndicators: PlayerIndicators): Double = {
     val randomValue = Random.nextDouble()
     validMove.cards match {
       case List(NormalCard(_,_), _*) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
-      case _ => if (randomValue < specialCardModifier) specialCardModifier else 0
+      case _ => if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
     }
   }
 
@@ -291,6 +294,12 @@ case object GameUtilities {
 
   def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
 
+  // TODO - add tests for this
+  def applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove: Move, gameState: Move, maxCards: Int): Double = {
+    (0.22d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue))
+      + (0.78d * 1/(maxCards - validMove.parity + 1)))
+  }
+
   /*
   Fetches the next best move possible, from list of valid moves, given current game state and current hand
   Applies heuristic value on each move, and picks the best
@@ -299,11 +308,11 @@ case object GameUtilities {
   1. validMoves will comprise of moves with Special Cards (2s, Jokers) IFF no NormalCard moves are available
     1.1 Even then, there isnt a guarantee that the special card will be chosen
    */
-  def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, Double) => Double, modifier: Double): Option[Move] = {
+  def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, PlayerIndicators) => Double, playerIndicators: PlayerIndicators): Option[Move] = {
     try {
       Some(
         validMoves.moves(validMoves.moves
-          .map(m => heuristic(m, gameState, modifier))
+          .map(m => heuristic(m, gameState, playerIndicators))
           .filter(value => value > 0)
           .zipWithIndex
           .maxBy(_._1)
@@ -313,25 +322,26 @@ case object GameUtilities {
     }
   }
 
-  def getNextMoveWrapper(validMoves: Moves, gameState: Move)(implicit playerIndicators: PlayerIndicators): Option[Move] = {
-    // Check if validMoves comprises ONLY of special cards
-    val isOnlySpecialMovesAvailable: Boolean =
-      validMoves.moves.foldLeft(true)((acc, move) => move.cards match {
+  //TODO -  write tests for this
+  def isOnlySpecialMovesAvailable(validMoves: Moves): Boolean = {
+    validMoves.moves.foldLeft(true)((acc, move) => move.cards match {
       case List(SpecialCard(_, _), _*) => acc
       case List(Joker,_*) => acc
       case _ => false
     })
+  }
 
+  def getNextMoveWrapper(validMoves: Moves, gameState: Move)(implicit playerIndicators: PlayerIndicators): Option[Move] = {
     // If normal moves are available, play them first!
-    if(!isOnlySpecialMovesAvailable) {
+    if(!isOnlySpecialMovesAvailable(validMoves)) {
       val filteredValidMoves = Moves(validMoves.moves.filter(m => m.cards match {
         case List(NormalCard(_,_), _*) => true
         case _ => false
       }))
-      getNextMove(filteredValidMoves, gameState)(getNormalCardMoveHeuristic, playerIndicators.highCardModifier)
+      getNextMove(filteredValidMoves, gameState)(getNormalCardMoveHeuristic, playerIndicators)
     } else {
       // If comprising ONLY of special moves, do nothing
-      getNextMove(validMoves, gameState)(getSpecialCardMoveHeuristic, playerIndicators.specialCardModifier)
+      getNextMove(validMoves, gameState)(getSpecialCardMoveHeuristic, playerIndicators)
     }
   }
 
