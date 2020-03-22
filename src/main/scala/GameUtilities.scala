@@ -251,13 +251,14 @@ case object GameUtilities {
   // 2. move1 and move2 have same parity - same size of cards
   //    - only exception to the above is 2s and JOKERs
   def checkIfBetter(move1: Move, move2: Move): Boolean =
-    numberToCardMap.find(_._2 == move1.highestCard).map(_._1).getOrElse(-1) >
-    numberToCardMap.find(_._2 == move2.highestCard).map(_._1).getOrElse(-1)
+    cardOrderValue(move1.highestCard) > cardOrderValue(move2.highestCard)
+
+  def cardOrderValue(card: Card): Int = numberToCardMap.find(_._2 == card).map(_._1).getOrElse(-1)
 
   /*
   Gets a 0-1 value signifying how desirable a move is compared to given game state
   Assumption :- validMove is a valid move given the current gameState
-  TODO - penalize  breaking of sets, and prioritize suit burns  if available
+  TODO - penalize  breaking of sets, and prioritize suit burns  if available, update unit tests
   I am more inclined to play higher cards when I have more special cards to fall back on
   I am more inclined to play higher cards when I see that my opponents are closer to finishing
    */
@@ -265,33 +266,50 @@ case object GameUtilities {
                                  playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
     val randomValue = Random.nextDouble()
     validMove.cards match {
-      case List(NormalCard(_,_), _*) => /*
-        if(validMove.cards.head.isFaceCard) {
-          if(randomValue < highCardModifier) applyNormalCardHeuristic(validMove, gameState)
-          else 0
-        }
-        else*/
+      case List(NormalCard(_,_), _*) =>
         if(gameState.isEmpty) applyNormalCardHeuristicWithMoveSizeModifier(validMove, gameState)
         else applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState, playerIndicators.getListSetSizeForCard(validMove))
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
     }
   }
 
-  // TODO - this can be specificly weighted towards the various suits of 2, and priority should be given for suit burns here
-  // TODO - write unit tests for this too
-  // Over the probability distribution function
+  /*
+  Readily plays a 2 if it is ONE away from the 2 in question in the gameState. Otherwise, uses probability function
+  TODO - write unit tests for this too
+   */
   def getSpecialCardMoveHeuristic(validMove: Move, gameState: Move, playerIndicators: PlayerIndicators): Double = {
     val randomValue = Random.nextDouble()
-    validMove.cards match {
-      case List(NormalCard(_,_), _*) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
-      case _ => if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
+    validMove match {
+      case Move(List(NormalCard(_,_), _*)) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
+      case validSpecialMove =>
+        // Meaning that a single 2 is being played
+        if(validSpecialMove.parity == 1) {
+          // Meaning that the special card is gonna be played on top of (a) NormalCard(s)
+          if(gameState.isEmpty || gameState.highestCard.intValue > 2) {
+            if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
+          }
+          // Meaning that the special card is gonna be played on top of a 2
+          else {
+            // Prioritizing off-by-one 2-suit burns
+            if(cardOrderValue(validSpecialMove.highestCard) - cardOrderValue(gameState.highestCard) == 1) playerIndicators.specialCardModifier
+            else if(randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
+          }
+        }
+        // Meaning that multiple 2s are being played
+        else {
+          // This is being done to de-incentivize playing multiple 2s at once, since that is a pretty expensive move
+          if (randomValue < scala.math.pow(playerIndicators.specialCardModifier, validSpecialMove.parity)) playerIndicators.specialCardModifier
+          else 0
+        }
     }
   }
+
 
   def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move, gameState: Move): Double = {
     (0.78d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
   }
 
+  @Deprecated
   def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
 
   // TODO - add tests for this
@@ -331,6 +349,7 @@ case object GameUtilities {
     })
   }
 
+  // TODO - unit tests
   def getNextMoveWrapper(validMoves: Moves, gameState: Move)(implicit playerIndicators: PlayerIndicators): Option[Move] = {
     // If normal moves are available, play them first!
     if(!isOnlySpecialMovesAvailable(validMoves)) {

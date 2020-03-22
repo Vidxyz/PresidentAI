@@ -107,14 +107,14 @@ case class Game(startState: Move) {
       }
 
       println("------------------------\n")
-//            Thread.sleep(100)
+//            Thread.sleep(10)
     }
 
     printStats()
 
   }
 
-  def printStats() = {
+  def printStats(): Unit = {
     println("GAME OVER")
     println("---------")
     println(playerCompletionOrder)
