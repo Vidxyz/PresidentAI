@@ -196,10 +196,8 @@ case object GameUtilities {
   def checkIfBetter(move1: Move, move2: Move): Boolean =
     cardOrderValue(move1.highestCard) > cardOrderValue(move2.highestCard)
 
-  //TODO -  write tests for this
   def cardOrderValue(card: Card): Int = numberToCardMap.find(_._2 == card).map(_._1).getOrElse(-1)
 
-  //TODO -  write tests for this
   def isOnlySpecialMovesAvailable(validMoves: Moves): Boolean = {
     validMoves.moves.foldLeft(true)((acc, move) => move.cards match {
       case List(SpecialCard(_, _), _*) => acc

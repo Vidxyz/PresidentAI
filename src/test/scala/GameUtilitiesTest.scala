@@ -1,6 +1,5 @@
 import game.{GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard}
 import org.scalatest.FunSpec
-import org.scalactic.{Equality, TolerantNumerics}
 import utils.Consants
 
 import scala.util.Random
@@ -868,11 +867,83 @@ class GameUtilitiesTest extends FunSpec {
   }
 
   describe("tests for cardOrderValue()") {
-
+    it("should return the right value when supplied card is a NormalCard") {
+      assert(GameUtilities.cardOrderValue(NormalCard(SIX, Heart)) == 14)
+    }
+    it("should return the right value when supplied card is a SpecialCard") {
+      assert(GameUtilities.cardOrderValue(SpecialCard(TWO, Spade)) == 51)
+    }
+    it("should return the right value when supplied card is a Joker") {
+      assert(GameUtilities.cardOrderValue(Joker) == 52)
+    }
   }
 
-  describe(" tests for isOnlySpecialMovesAvailable()") {
+  describe("tests for isOnlySpecialMovesAvailable()") {
+    describe("When only moves involving 2s are available") {
+      it("Should return true") {
+        val validMoves = Moves(List(
+          Move(List(SpecialCard(TWO, Diamond))),
+          Move(List(SpecialCard(TWO, Club))),
+          Move(List(SpecialCard(TWO, Heart))),
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club))),
+          Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart))),
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart)))
+        ))
+        assert(GameUtilities.isOnlySpecialMovesAvailable(validMoves))
+      }
+    }
 
+    describe("When only moves involving a Joker are available") {
+      it("Should return true") {
+        val validMoves = Moves(List(
+          Move(List(Joker)),
+          Move(List(Joker)),
+          Move(List(Joker, Joker)),
+        ))
+        assert(GameUtilities.isOnlySpecialMovesAvailable(validMoves))
+      }
+    }
+
+    describe("When only moves involving NormalCards are available") {
+      it("Should return false") {
+        val validMoves = Moves(List(
+          Move(List(NormalCard(FOUR, Diamond))),
+          Move(List(NormalCard(SEVEN, Club))),
+          Move(List(NormalCard(NINE, Heart))),
+          Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
+          Move(List(NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart))),
+          Move(List(NormalCard(JACK, Diamond), NormalCard(JACK, Heart))),
+          Move(List(NormalCard(KING, Diamond), NormalCard(KING, Club), NormalCard(KING, Heart)))
+        ))
+        assert(!GameUtilities.isOnlySpecialMovesAvailable(validMoves))
+      }
+    }
+
+    describe("When moves involving all types of cards are available") {
+      it("Should return false") {
+        val validMoves = Moves(List(
+          Move(List(NormalCard(THREE, Diamond))),
+          Move(List(NormalCard(SEVEN, Club))),
+          Move(List(NormalCard(NINE, Heart))),
+          Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
+          Move(List(NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart))),
+          Move(List(NormalCard(JACK, Diamond), NormalCard(JACK, Heart))),
+          Move(List(NormalCard(KING, Diamond), NormalCard(KING, Club), NormalCard(KING, Heart))),
+          Move(List(SpecialCard(TWO, Diamond))),
+          Move(List(SpecialCard(TWO, Club))),
+          Move(List(SpecialCard(TWO, Heart))),
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club))),
+          Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart))),
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart))),
+          Move(List(Joker)),
+          Move(List(Joker)),
+          Move(List(Joker, Joker)),
+        ))
+        assert(!GameUtilities.isOnlySpecialMovesAvailable(validMoves))
+      }
+    }
   }
 
   describe("tests for getNextGameState()") {
