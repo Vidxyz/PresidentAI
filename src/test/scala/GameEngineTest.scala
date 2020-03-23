@@ -44,7 +44,6 @@ class GameEngineTest extends FunSpec{
     // Picks a higher double over a lower single
     // Picks higher triple over lower double, single
     // Picks higher quad over lower single, double, triple
-    // Discards twos and jokers if other moves can be played --- this is for wrapper
     // Plays 2s when possible, but not always, depends on specialCardModifier
     // Plays jokers when possible, but not always, depends on specialCardModifier
 
@@ -346,7 +345,81 @@ class GameEngineTest extends FunSpec{
     // Test for the following
     // If only special moves available - choose other heuristic and return None or result
     // If only normal card moves available - choose normal heuristic and return result
-    // If there is a mix of both - filter into only normal and choose normal heuristic and return result
+    // If there is a mix of both - choose normal heuristic and return result
+    describe("When validMoves is empty") {
+      it("Should return None") {
+       assert(GameEngine.getNextMoveWrapper(Moves(List.empty), Move(List.empty))(PlayerIndicators(Hand(List.empty))).isEmpty)
+      }
+    }
+
+    describe("When only special moves are available") {
+      it("Should return either None or a move involving special card") {
+        val randomHand = Hand(GameUtilities.dealNewHand(4, Consants.totalNumberOfCards).listOfCards.slice(0, 6))
+        val playerInd = PlayerIndicators(randomHand)
+        val validMoves = Moves(List(
+          Move(List(SpecialCard(TWO, Diamond))),
+          Move(List(SpecialCard(TWO, Heart))),
+          Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
+          Move(List(Joker)),
+        ))
+        val gameState = Move(List.empty)
+        val result = GameEngine.getNextMoveWrapper(validMoves, gameState)(playerInd)
+        assert(result.contains(Move(List(SpecialCard(TWO, Diamond)))) || result.isEmpty)
+      }
+    }
+
+    describe("When only normal moves are available") {
+      it("Should definitively return a move") {
+        val hand = Hand(List(
+          NormalCard(SIX, Diamond),
+          NormalCard(QUEEN, Heart),
+          NormalCard(ACE, Diamond),
+          NormalCard(ACE, Heart),
+        ))
+        val playerInd = PlayerIndicators(hand)
+        val validMoves = Moves(List(
+          Move(List(NormalCard(SIX, Diamond))),
+          Move(List(NormalCard(QUEEN, Heart))),
+          Move(List(NormalCard(ACE, Diamond))),
+          Move(List(NormalCard(ACE, Heart))),
+          Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart)))
+        ))
+        val gameState = Move(List.empty)
+        val result = GameEngine.getNextMoveWrapper(validMoves, gameState)(playerInd)
+        assert(result.contains(Move(List(NormalCard(SIX, Diamond)))))
+      }
+    }
+
+    describe("When both normal and special moves are available") {
+      it("Should only return a normalCard move and NOT a specialCard move") {
+        val hand = Hand(List(
+          NormalCard(SIX, Diamond),
+          NormalCard(QUEEN, Heart),
+          NormalCard(ACE, Diamond),
+          NormalCard(ACE, Heart),
+          SpecialCard(TWO, Spade),
+          Joker
+        ))
+        val playerInd = PlayerIndicators(hand)
+        val validMoves = Moves(List(
+          Move(List(NormalCard(SEVEN, Diamond))),
+          Move(List(NormalCard(QUEEN, Heart))),
+          Move(List(NormalCard(ACE, Diamond))),
+          Move(List(NormalCard(ACE, Heart))),
+          Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart))),
+          Move(List(SpecialCard(TWO, Spade))),
+          Move(List(Joker)),
+        ))
+        val gameState = Move(List.empty)
+        val result = GameEngine.getNextMoveWrapper(validMoves, gameState)(playerInd)
+        assert(result.contains(Move(List(NormalCard(SEVEN, Diamond)))))
+        assert(result.get.cards match {
+          case List(NormalCard(_,_), _*) => true
+          case _ => false
+        })
+      }
+    }
+
   }
 
   describe("tests for getNormalCardMoveHeuristic()") {

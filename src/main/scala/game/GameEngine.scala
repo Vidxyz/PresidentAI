@@ -117,7 +117,7 @@ case object GameEngine {
     }
   }
 
-  // TODO - unit tests
+  // TODO - It was noticed during testing that A,A was favored over a single 8, when the hand was 8, Q, A, A - this isnt the most desirable
   def getNextMoveWrapper(validMoves: Moves, gameState: Move)(implicit playerIndicators: PlayerIndicators): Option[Move] = {
     // If normal moves are available, play them first!
     if(!GameUtilities.isOnlySpecialMovesAvailable(validMoves)) {
