@@ -1,6 +1,7 @@
 package player
 
 import game.GameUtilities._
+import game.GameEngine.getNextMoveWrapper
 import game._
 
 case class Player(name: String, hand: Hand) {

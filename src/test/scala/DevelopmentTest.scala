@@ -1,6 +1,6 @@
 import game.FaceValue._
 import game.Suits._
-import game.{GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard}
+import game.{GameEngine, GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard}
 import org.scalatest.FunSpec
 import player.PlayerIndicators
 
@@ -73,16 +73,16 @@ class DevelopmentTest extends FunSpec{
       //      println(single9 +  " : " + game.GameUtilities.getNormalCardMoveHeuristic(single9, gameState, playerIndicators).toString)
       //      println(single10 +  " : " + game.GameUtilities.getNormalCardMoveHeuristic(single10, gameState, playerIndicators).toString)
       //      println(singleJack +  " : " + game.GameUtilities.getNormalCardMoveHeuristic(singleJack, gameState, playerIndicators).toString)
-      println(single8D +  " : " + GameUtilities.getNormalCardMoveHeuristic(single8D, gameState, playerIndicators).toString)
-      println(doubleQueen +  " : " + GameUtilities.getNormalCardMoveHeuristic(doubleQueen, gameState, playerIndicators).toString)
-      println(single2D +  " : " + GameUtilities.getSpecialCardMoveHeuristic(single2D, gameState, playerIndicators).toString)
-      println(single2C +  " : " + GameUtilities.getSpecialCardMoveHeuristic(single2C, gameState, playerIndicators).toString)
-      println(single2H +  " : " + GameUtilities.getSpecialCardMoveHeuristic(single2H, gameState, playerIndicators).toString)
-      println(joker +  " : " + GameUtilities.getSpecialCardMoveHeuristic(joker, gameState, playerIndicators).toString)
+      println(single8D +  " : " + GameEngine.getNormalCardMoveHeuristic(single8D, gameState, playerIndicators).toString)
+      println(doubleQueen +  " : " + GameEngine.getNormalCardMoveHeuristic(doubleQueen, gameState, playerIndicators).toString)
+      println(single2D +  " : " + GameEngine.getSpecialCardMoveHeuristic(single2D, gameState, playerIndicators).toString)
+      println(single2C +  " : " + GameEngine.getSpecialCardMoveHeuristic(single2C, gameState, playerIndicators).toString)
+      println(single2H +  " : " + GameEngine.getSpecialCardMoveHeuristic(single2H, gameState, playerIndicators).toString)
+      println(joker +  " : " + GameEngine.getSpecialCardMoveHeuristic(joker, gameState, playerIndicators).toString)
 
       val validMoves = Moves(List(single8D, doubleQueen, single2D, single2C, single2H, two2s, three2s, joker))
       println("Is only special moves available " + GameUtilities.isOnlySpecialMovesAvailable(validMoves) )
-      println("Next move is " + GameUtilities.getNextMoveWrapper(validMoves, gameState)(playerIndicators))
+      println("Next move is " + GameEngine.getNextMoveWrapper(validMoves, gameState)(playerIndicators))
 
       //      println(game.GameUtilities.getNextMoveV2(game.Moves(List(validMove1, validMove12, validMove3)), gameState))
 
