@@ -424,6 +424,26 @@ class GameEngineTest extends FunSpec{
   }
 
   describe("tests for applyJokerModifierFunction()") {
+    describe("When specialCardModifier is 0") {
+      it("Should return 0") {
+        assert(GameEngine.applyJokerModifierFunction(0, 2) == 0)
+      }
+    }
+
+    describe("When specialCardModifier is 1") {
+      it("Should return 1") {
+        assert(GameEngine.applyJokerModifierFunction(1, 2) == 1)
+      }
+    }
+
+    describe("When specialCardModifier is between 0 and 1") {
+      it("Should return the expected value") {
+        val specialCardModifier = 0.5
+        val gameStateParity = 3
+        val expectedValue = scala.math.pow(specialCardModifier, (2/(gameStateParity - 1)))
+        assert(GameEngine.applyJokerModifierFunction(specialCardModifier, gameStateParity) == expectedValue)
+      }
+    }
 
   }
 
