@@ -19,4 +19,22 @@ class PlayerTest extends FunSpec {
     }
 
   }
+
+  describe("Tests for methods in Player class") {
+    describe("Tests for playNextMove()"){
+
+    }
+
+    describe("Tests for getNewHand()") {
+
+    }
+  }
+
+
+  describe("Tests for methods in PlayerIndicator object") {
+    describe("Tests for getListSetSizeForCard()") {
+
+    }
+  }
+
 }
