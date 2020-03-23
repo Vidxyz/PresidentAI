@@ -9,11 +9,9 @@ case object GameEngine {
   /*
  Gets a 0-1 value signifying how desirable a move is compared to given game state
  Assumption :- validMove is a valid move given the current gameState
- TODO -  update unit tests
   */
   def getNormalCardMoveHeuristic(validMove: Move, gameState: Move,
                                  playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
-    val randomValue = Random.nextDouble()
     validMove.cards match {
       case List(NormalCard(_,_), _*) =>
         if(gameState.isEmpty) applyNormalCardHeuristicWithMoveSizeModifier(validMove, gameState)
@@ -25,9 +23,10 @@ case object GameEngine {
   /*
   Readily plays a 2 if it is ONE away from the 2 in question in the gameState. Otherwise, uses probability function
   Prioritizes playing jokers on triples/quads over using probability function
-  TODO - write unit tests for this too
+  TODO - Clean up code by using match with guards instead of nested if-else
    */
-  def getSpecialCardMoveHeuristic(validMove: Move, gameState: Move, playerIndicators: PlayerIndicators): Double = {
+  def getSpecialCardMoveHeuristic(validMove: Move, gameState: Move,
+                                  playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
     val randomValue = Random.nextDouble()
     validMove match {
       case Move(List(NormalCard(_,_), _*)) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
@@ -39,7 +38,7 @@ case object GameEngine {
         /* Modifying probability of playing a joker according to :- modifier^(2/(parity-1))
         This is to incentivize playing jokers for triples/quads
         */
-        if (randomValue < scala.math.pow(playerIndicators.specialCardModifier, (2/(gameState.parity - 1)))) playerIndicators.specialCardModifier
+        if (randomValue < applyJokerModifierFunction(playerIndicators.specialCardModifier, gameState.parity)) playerIndicators.specialCardModifier
         else 0
       }
       case validSpecialMove =>
@@ -59,11 +58,23 @@ case object GameEngine {
         // Meaning that multiple 2s are being played
         else {
           // This is being done to de-incentivize playing multiple 2s at once, since that is a pretty expensive move
-          if (randomValue < scala.math.pow(playerIndicators.specialCardModifier, validSpecialMove.parity)) playerIndicators.specialCardModifier
+          if (randomValue < applyMultipleTwoModifierFunction(playerIndicators.specialCardModifier, validSpecialMove.parity)) playerIndicators.specialCardModifier
           else 0
         }
     }
   }
+
+  /*
+  Modifying probability of playing a joker according to :- modifier^(2/(parity-1))
+  This is to incentivize playing jokers for triples/quads
+  */
+  def applyJokerModifierFunction(specialCardModifier: Double, gameStateParity: Int) = scala.math.pow(specialCardModifier, (2/(gameStateParity - 1)))
+
+  /*
+  Method to de-incentivize playing multiple 2s at once, since it is an expensive move
+  Based on the formula :- modifier^(validMoveParity)
+   */
+  def applyMultipleTwoModifierFunction(specialCardModifier: Double, validMoveParity: Int) = scala.math.pow(specialCardModifier, validMoveParity)
 
   @Deprecated
   def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
