@@ -448,6 +448,25 @@ class GameEngineTest extends FunSpec{
   }
 
   describe("tests for applyMultipleTwoModifierFunction()") {
+    describe("When specialCardModifier is 0") {
+      it("Should return 0") {
+        assert(GameEngine.applyMultipleTwoModifierFunction(0, 2) == 0)
+      }
+    }
 
+    describe("When specialCardModifier is 1") {
+      it("Should return 1") {
+        assert(GameEngine.applyMultipleTwoModifierFunction(1, 2) == 1)
+      }
+    }
+
+    describe("When specialCardModifier is between 0 and 1") {
+      it("Should return the expected value") {
+        val specialCardModifier = 0.5
+        val validMoveParity = 3
+        val expectedValue = scala.math.pow(specialCardModifier, validMoveParity)
+        assert(GameEngine.applyMultipleTwoModifierFunction(specialCardModifier, validMoveParity) == expectedValue)
+      }
+    }
   }
 }
