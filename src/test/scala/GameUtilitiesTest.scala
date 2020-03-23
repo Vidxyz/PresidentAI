@@ -1040,4 +1040,41 @@ class GameUtilitiesTest extends FunSpec {
     }
   }
 
+  describe("tests for filterOnlyNormalCardMoves") {
+
+    val listOfSpecialMoves = List(
+      Move(List(SpecialCard(TWO, Diamond))),
+      Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club))),
+      Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart))),
+      Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))))
+    val listOfNormalMoves = List(
+      Move(List(NormalCard(SEVEN, Diamond))),
+      Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club))),
+      Move(List(NormalCard(JACK, Diamond), NormalCard(JACK, Club), NormalCard(JACK, Heart))),
+      Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade))))
+    val validSpecialMoves = Moves(listOfSpecialMoves)
+    val validNormalMoves = Moves(listOfNormalMoves)
+
+    describe("When validMoves comprise only of NormalCard moves") {
+
+      it("Should return the validMoves itself") {
+        assert(GameUtilities.filterOnlyNormalCardMoves(validNormalMoves) == validNormalMoves)
+      }
+    }
+
+    describe("When validMoves comprise only of SpecialCard moves") {
+      it("Should return empty list") {
+        assert(GameUtilities.filterOnlyNormalCardMoves(validSpecialMoves).moves.isEmpty)
+      }
+    }
+
+    describe("When validMoves comprise of both specialCard moves and NormalCard moves"){
+      it("Should return list containing only NormalCard moves") {
+        assert(GameUtilities.filterOnlyNormalCardMoves(Moves(listOfSpecialMoves ++ listOfNormalMoves)) == validNormalMoves)
+      }
+    }
+
+
+  }
+
 }

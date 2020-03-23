@@ -343,7 +343,10 @@ class GameEngineTest extends FunSpec{
   }
 
   describe("tests for getNextMoveWrapper()") {
-    // Fill this in
+    // Test for the following
+    // If only special moves available - choose other heuristic and return None or result
+    // If only normal card moves available - choose normal heuristic and return result
+    // If there is a mix of both - filter into only normal and choose normal heuristic and return result
   }
 
   describe("tests for getNormalCardMoveHeuristic()") {

@@ -222,4 +222,16 @@ case object GameUtilities {
     }
   }
 
+  // TODO - unit tests
+  /*
+  Returns a list of validMoves containing only NormalCard moves
+   */
+  def filterOnlyNormalCardMoves(validMoves: Moves): Moves = {
+    Moves(validMoves.moves.filter(m => m.cards match {
+      case List(NormalCard(_,_), _*) => true
+      case _ => false
+    }))
+  }
+
+
 }
