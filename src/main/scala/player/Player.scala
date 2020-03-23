@@ -77,6 +77,10 @@ case class PlayerIndicators(hand: Hand) {
   lazy val specialCardModifier: Double = applyCustomSpecialCardModifier(hand.listOfCards.size)/100
   lazy val highCardModifier: Double =  if(hand.delta == 0) 1d else 1d/hand.delta
 
+  /*
+  Assumes that the card used in the validMove is present in Hand.
+  If not, leads to an exception being thrown, and the nextMove defaulting to None
+   */
   def getListSetSizeForCard(validMove: Move): Int = {
     hand.listOfSimilarCards.filter(l => l.head.intValue == validMove.moveFaceValue).head.size
   }

@@ -3,7 +3,7 @@ import org.scalatest.FunSpec
 import game.FaceValue._
 import game.Suits._
 
-class HandTest extends FunSpec {
+class GameEssentialsTest extends FunSpec {
 
   describe("HandTest") {
 
