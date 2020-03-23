@@ -281,6 +281,16 @@ case object GameUtilities {
     val randomValue = Random.nextDouble()
     validMove match {
       case Move(List(NormalCard(_,_), _*)) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
+      case Move(List(Joker, _*)) =>  if (gameState.isEmpty || gameState.parity < 3) {
+        if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
+      }
+      else{
+        // Modifying probability of playing a joker according to :- modifier^(1/(parity-1))
+        // This is to incentivize playing jokers for triples/quads
+        if (randomValue < scala.math.pow(playerIndicators.specialCardModifier, (1/(gameState.parity - 1)))) playerIndicators.specialCardModifier
+        else 0
+      }
+
       case validSpecialMove =>
         // Meaning that a single 2 is being played
         if(validSpecialMove.parity == 1) {
