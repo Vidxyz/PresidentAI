@@ -68,7 +68,7 @@ class GameEngineTest extends FunSpec{
   }
 
   describe("tests for getNextMoveWrapper()") {
-
+    // Fill this in
   }
 
   describe("tests for getNormalCardMoveHeuristic()") {
@@ -314,10 +314,45 @@ class GameEngineTest extends FunSpec{
   }
 
   describe("tests for applyNormalCardHeuristicWithMoveSizeModifier()") {
+    describe("When multiple validMoves exist when gameState is Empty") {
+      it("Should return the highest value to the most desirable move of the lot") {
+        val move1 = Move(List(NormalCard(FOUR, Spade)))
+        val move2 = Move(List(NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)))
+        val move3 = Move(List(NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)))
+        val move4 = Move(List(NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)))
+        val move5 = Move(List(NormalCard(QUEEN, Diamond), NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
+        val move6 = Move(List(NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
+        val move7 = Move(List(NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
+        val move8 = Move(List( NormalCard(QUEEN, Spade)))
 
+        val r1 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move1)
+        val r2 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move2)
+        val r3 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move3)
+        val r4 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move4)
+        val r5 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move5)
+        val r6 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move6)
+        val r7 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move7)
+        val r8 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move8)
+        val results = List(r1, r2, r3, r4, r5, r6, r7, r8)
+        val expected: List[Double] = List(0.25, 0.305, 0.36, 0.415, 0.285, 0.23, 0.175, 0.12)
+
+        assert(results.max == r4)
+        assert(results.min == r8)
+        assert(((results zip expected).map(tuple => tuple._1 === tuple._2).forall(x => x)))
+
+      }
+    }
   }
 
   describe("tests for applyNormalCardHeuristicWithPenaltyForBreakingSets()") {
+
+  }
+
+  describe("tests for applyJokerModifierFunction()") {
+
+  }
+
+  describe("tests for applyMultipleTwoModifierFunction()") {
 
   }
 }

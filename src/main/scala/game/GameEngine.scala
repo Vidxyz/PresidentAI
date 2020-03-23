@@ -14,7 +14,7 @@ case object GameEngine {
                                  playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
     validMove.cards match {
       case List(NormalCard(_,_), _*) =>
-        if(gameState.isEmpty) applyNormalCardHeuristicWithMoveSizeModifier(validMove, gameState)
+        if(gameState.isEmpty) applyNormalCardHeuristicWithMoveSizeModifier(validMove)
         else applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState, playerIndicators.getListSetSizeForCard(validMove))
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
     }
@@ -64,6 +64,24 @@ case object GameEngine {
     }
   }
 
+  @Deprecated
+  def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
+
+  // TODO - add tests
+  /*
+  Assumes that gameState is empty. If non-empty, use the heuristic function below this instead
+  Assumes validMove comprises only of NormalCards
+   */
+  def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move): Double = {
+    (0.78d * (1d/validMove.moveFaceValue) + (0.22d * validMove.parity/Consants.maxMoveSize))
+  }
+
+  // TODO - add tests for this
+  def applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove: Move, gameState: Move, maxCards: Int): Double = {
+    (0.22d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue))
+      + (0.78d * 1/(maxCards - validMove.parity + 1)))
+  }
+
   /*
   Modifying probability of playing a joker according to :- modifier^(2/(parity-1))
   This is to incentivize playing jokers for triples/quads
@@ -75,20 +93,6 @@ case object GameEngine {
   Based on the formula :- modifier^(validMoveParity)
    */
   def applyMultipleTwoModifierFunction(specialCardModifier: Double, validMoveParity: Int) = scala.math.pow(specialCardModifier, validMoveParity)
-
-  @Deprecated
-  def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
-
-  // TODO - add tests
-  def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move, gameState: Move): Double = {
-    (0.78d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
-  }
-
-  // TODO - add tests for this
-  def applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove: Move, gameState: Move, maxCards: Int): Double = {
-    (0.22d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue))
-      + (0.78d * 1/(maxCards - validMove.parity + 1)))
-  }
 
   /*
   Fetches the next best move possible, from list of valid moves, given current game state and current hand
