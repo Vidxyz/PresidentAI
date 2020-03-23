@@ -67,7 +67,6 @@ case object GameEngine {
   @Deprecated
   def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
 
-  // TODO - add tests
   /*
   Assumes that gameState is empty. If non-empty, use the heuristic function below this instead
   Assumes validMove comprises only of NormalCards
@@ -76,9 +75,11 @@ case object GameEngine {
     (0.78d * (1d/validMove.moveFaceValue) + (0.22d * validMove.parity/Consants.maxMoveSize))
   }
 
-  // TODO - add tests for this
+  /*
+  Penalizing the breaking of sets to play this move by giving a 0.78 weighting to holding on to sets
+   */
   def applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove: Move, gameState: Move, maxCards: Int): Double = {
-    (0.22d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue))
+    ((0.22d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)))
       + (0.78d * 1/(maxCards - validMove.parity + 1)))
   }
 
@@ -86,13 +87,13 @@ case object GameEngine {
   Modifying probability of playing a joker according to :- modifier^(2/(parity-1))
   This is to incentivize playing jokers for triples/quads
   */
-  def applyJokerModifierFunction(specialCardModifier: Double, gameStateParity: Int) = scala.math.pow(specialCardModifier, (2/(gameStateParity - 1)))
+  def applyJokerModifierFunction(specialCardModifier: Double, gameStateParity: Int): Double = scala.math.pow(specialCardModifier, (2/(gameStateParity - 1)))
 
   /*
   Method to de-incentivize playing multiple 2s at once, since it is an expensive move
   Based on the formula :- modifier^(validMoveParity)
    */
-  def applyMultipleTwoModifierFunction(specialCardModifier: Double, validMoveParity: Int) = scala.math.pow(specialCardModifier, validMoveParity)
+  def applyMultipleTwoModifierFunction(specialCardModifier: Double, validMoveParity: Int): Double = scala.math.pow(specialCardModifier, validMoveParity)
 
   /*
   Fetches the next best move possible, from list of valid moves, given current game state and current hand

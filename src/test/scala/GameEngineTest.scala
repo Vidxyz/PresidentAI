@@ -345,6 +345,81 @@ class GameEngineTest extends FunSpec{
   }
 
   describe("tests for applyNormalCardHeuristicWithPenaltyForBreakingSets()") {
+    val single7 = Move(List(NormalCard(SEVEN, Heart)))
+    val double7s = Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+    val triple7s = Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))
+    val quad7s = Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+    val gameState = Move(List(NormalCard(SIX, Heart)))
+
+    describe("When it is a single in a move and a single in the Hand") {
+      it("Should not be penalized") {
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, gameState, 1) ===
+          ((0.22d * (1d / (single7.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1 / (1 - single7.parity + 1)))
+      }
+    }
+
+    describe("When it is a single in a move and a double in the Hand"){
+      it("Should be penalized"){
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, gameState, 2) ===
+          ((0.22d * (1d/(single7.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(2 - single7.parity + 1)))
+      }
+     }
+
+    describe("When it is a single in a move and a triple in the Hand"){
+      it("Should be penalized"){
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, gameState, 3) ===
+          ((0.22d * (1d/(single7.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(3 - single7.parity + 1)))
+      }
+    }
+
+    describe("When it is a single in a move and a quadruple in the Hand"){
+      it("Should be penalized"){
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, gameState, 4) ===
+          ((0.22d * (1d/(single7.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(4 - single7.parity + 1)))
+      }
+    }
+
+    describe("When it is a double in a move and a triple in the Hand"){
+      it("Should be penalized"){
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(double7s, gameState, 3) ===
+          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(3 - double7s.parity + 1)))
+      }
+    }
+
+    describe("When it is a double in a move and a quadruple in the Hand"){
+      it("Should be penalized"){
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(double7s, gameState, 4) ===
+          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(4 - double7s.parity + 1)))
+      }
+    }
+
+    describe("When it is a triple in a move and a quadruple in the Hand"){
+      it("Should be penalized"){
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(triple7s, gameState, 4) ===
+          ((0.22d * (1d/(triple7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(4 - triple7s.parity + 1)))
+      }
+    }
+
+    describe("When it is a quadruple in a move and a quadruple in the Hand"){
+      it("Should not be penalized"){
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(quad7s, gameState, 4) ===
+          ((0.22d * (1d/(quad7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(4 - quad7s.parity + 1)))
+      }
+    }
+
+    describe("When it is a triple in a move and a triple in the Hand"){
+      it("Should not be penalized"){
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(triple7s, gameState, 3) ===
+          ((0.22d * (1d/(triple7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(3 - triple7s.parity + 1)))
+      }
+    }
+
+    describe("When it is a double in a move and a double in the Hand"){
+      it("Should not be penalized"){
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(double7s, gameState, 2) ===
+          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(2 - double7s.parity + 1)))
+      }
+    }
 
   }
 
