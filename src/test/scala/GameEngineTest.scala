@@ -67,7 +67,11 @@ class GameEngineTest extends FunSpec{
     }
   }
 
-  describe("tests for getNormalMoveHeuristic()") {
+  describe("tests for getNextMoveWrapper()") {
+
+  }
+
+  describe("tests for getNormalCardMoveHeuristic()") {
 
     describe("Throws exception when") {
 
@@ -173,5 +177,15 @@ class GameEngineTest extends FunSpec{
     //TODO - write unit tests for facevalue tests based on highCardModifier
   }
 
+  describe("tests for getSpecialCardMoveHeuristic()") {
 
+  }
+
+  describe("tests for applyNormalCardHeuristicWithMoveSizeModifier()") {
+
+  }
+
+  describe("tests for applyNormalCardHeuristicWithPenaltyForBreakingSets()") {
+
+  }
 }
