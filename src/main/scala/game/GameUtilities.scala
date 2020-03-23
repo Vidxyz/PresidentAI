@@ -1,4 +1,8 @@
-import Consants._
+package game
+
+import player.{Player, PlayerIndicators}
+import utils.Consants
+import utils.Consants._
 
 import scala.annotation.tailrec
 import scala.util.Random
@@ -105,7 +109,7 @@ case object GameUtilities {
   /*
   Deals a new hand by randomly selecting non-repeating numbers in the range [0, 54)
   and assigning them in a round robin format to each of the players.
-  Return - Hand comprising of cards dealt to player1, discards all other "dealt cards"
+  Return - game.Hand comprising of cards dealt to player1, discards all other "dealt cards"
   */
   def dealNewHand(numberOfPlayers: Int, totalNormalCards: Int): Hand = {
     @tailrec
@@ -147,7 +151,7 @@ case object GameUtilities {
 
   /*
   Generate Lists of Similar cards
-  Similar cards include cards with same FaceValue but differing Suit
+  Similar cards include cards with same game.FaceValue but differing game.Suit
   Assumption :- hand is sorted
    */
   def getListsOfSimilarCards(hand: Hand): List[List[Card]] = {
@@ -241,7 +245,7 @@ case object GameUtilities {
 
     if(move.parity != gameState.parity) false
 
-    // This only happens when the Move in question doesn't involve 2s/JOKERs and is of the same numberOfCards
+    // This only happens when the game.Move in question doesn't involve 2s/JOKERs and is of the same numberOfCards
     else checkIfBetter(move, gameState)
   }
 
@@ -258,9 +262,7 @@ case object GameUtilities {
   /*
   Gets a 0-1 value signifying how desirable a move is compared to given game state
   Assumption :- validMove is a valid move given the current gameState
-  TODO - penalize  breaking of sets, and prioritize suit burns  if available, update unit tests
-  I am more inclined to play higher cards when I have more special cards to fall back on
-  I am more inclined to play higher cards when I see that my opponents are closer to finishing
+  TODO -  update unit tests
    */
   def getNormalCardMoveHeuristic(validMove: Move, gameState: Move,
                                  playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
@@ -275,6 +277,7 @@ case object GameUtilities {
 
   /*
   Readily plays a 2 if it is ONE away from the 2 in question in the gameState. Otherwise, uses probability function
+  Prioritizes playing jokers on triples/quads over using probability function
   TODO - write unit tests for this too
    */
   def getSpecialCardMoveHeuristic(validMove: Move, gameState: Move, playerIndicators: PlayerIndicators): Double = {
@@ -284,19 +287,18 @@ case object GameUtilities {
       case Move(List(Joker, _*)) =>  if (gameState.isEmpty || gameState.parity < 3 ) {
         /* We don't care about playing jokers any differently if its a double/single */
         if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
-      }
-      else{
-        /* Modifying probability of playing a joker according to :- modifier^(2/(parity-1))
-        This is to incentivize playing jokers for triples/quads
-        */
-        if (randomValue < scala.math.pow(playerIndicators.specialCardModifier, (2/(gameState.parity - 1)))) playerIndicators.specialCardModifier
-        else 0
-      }
-
+        }
+        else{
+          /* Modifying probability of playing a joker according to :- modifier^(2/(parity-1))
+          This is to incentivize playing jokers for triples/quads
+          */
+          if (randomValue < scala.math.pow(playerIndicators.specialCardModifier, (2/(gameState.parity - 1)))) playerIndicators.specialCardModifier
+          else 0
+        }
       case validSpecialMove =>
         // Meaning that a single 2 is being played
         if(validSpecialMove.parity == 1) {
-          // Meaning that the special card is gonna be played on top of (a) NormalCard(s)
+          // Meaning that the special card is gonna be played on top of (a) game.NormalCard(s)
           if(gameState.isEmpty || gameState.highestCard.intValue > 2) {
             if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
           }
@@ -316,13 +318,13 @@ case object GameUtilities {
     }
   }
 
+  @Deprecated
+  def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
 
+  // TODO - add tests
   def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move, gameState: Move): Double = {
     (0.78d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
   }
-
-  @Deprecated
-  def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
 
   // TODO - add tests for this
   def applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove: Move, gameState: Move, maxCards: Int): Double = {
@@ -335,7 +337,7 @@ case object GameUtilities {
   Applies heuristic value on each move, and picks the best
   Returns Empty move is there are no valid moves to choose from
   NOTE:-
-  1. validMoves will comprise of moves with Special Cards (2s, Jokers) IFF no NormalCard moves are available
+  1. validMoves will comprise of moves with Special Cards (2s, Jokers) IFF no game.NormalCard moves are available
     1.1 Even then, there isnt a guarantee that the special card will be chosen
    */
   def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, PlayerIndicators) => Double, playerIndicators: PlayerIndicators): Option[Move] = {
@@ -376,25 +378,21 @@ case object GameUtilities {
     }
   }
 
-
-
   /*
   Returns the next game state having processed the nextMove
-  Returns Move(List.empty) if it is a suit burn or a joker, ie a valid move with same moveFaceValue
+  Returns game.Move(List.empty) if it is a suit burn or a joker, ie a valid move with same moveFaceValue
   Returns gameState otherwise
   Assumption - nextMove is a validMove - this includes the (n-1) restriction for 2s as a special card
    */
   def getNextGameState(gameState: Move, nextValidMove: Option[Move]): Move = {
     nextValidMove.getOrElse(None) match {
       case move: Move =>
-        if (move.moveFaceValue == -1) Move(List.empty) // Joker
+        if (move.moveFaceValue == -1) Move(List.empty) // game.Joker
         else if(move.moveFaceValue != gameState.moveFaceValue) move // Higher card, or 2, replaces gameState
-        else Move(List.empty) // Suit Burn, since it is a valid move and faceValues are the same as gameState
+        else Move(List.empty) // game.Suit Burn, since it is a valid move and faceValues are the same as gameState
       case None => gameState
     }
   }
-
-
 
   case class IllegalHeuristicFunctionException(s: String) extends IllegalStateException(s)
 }

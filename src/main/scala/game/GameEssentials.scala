@@ -1,10 +1,12 @@
-import FaceValue._
+package game
+
+import game.FaceValue.{TWO, _}
 
 sealed trait PlayerStatus
 sealed trait Suit
 sealed trait Value
 sealed trait Card {
-  def value: String = "Card"
+  def value: String = "game.Card"
   val intValue: Int
   val isFaceCard: Boolean
 }
@@ -60,7 +62,7 @@ case class NormalCard(faceValue: Value, suit: Suit) extends Card {
     case QUEEN => 12
     case KING => 13
     case ACE => 14
-    case _ => throw IllegalFaceValueException("Normal Card provided with illegal face value")
+    case _ => throw IllegalFaceValueException("Normal game.Card provided with illegal face value")
   }
   override lazy val isFaceCard: Boolean = if(intValue > 10) true else false
 }
@@ -70,7 +72,7 @@ case class SpecialCard(faceValue: Value = TWO, suit: Suit) extends Card {
   override def value: String = faceValue.toString
   override val intValue: Int = faceValue match {
     case TWO => 2
-    case _ => throw IllegalFaceValueException("Special Card provided with illegal face value")
+    case _ => throw IllegalFaceValueException("Special game.Card provided with illegal face value")
   }
   override val isFaceCard: Boolean = false
 }
@@ -91,7 +93,7 @@ case class Hand(listOfCards: List[Card]) {
   lazy val listOfSimilarCards: List[List[Card]] = GameUtilities.getListsOfSimilarCards(Hand(GameUtilities.sortCards(listOfCards)))
 
   /*
-  Delta is defined as difference in intValue (faceValue) between the highest NormalCard and lowest NormalCard
+  Delta is defined as difference in intValue (faceValue) between the highest game.NormalCard and lowest game.NormalCard
    */
   lazy val delta: Int = {
     val sortedCards = GameUtilities.sortCards(listOfCards).filter(card => card match {
@@ -157,10 +159,10 @@ case class Hand(listOfCards: List[Card]) {
 }
 
 /*
-A move is classified as a sorted List[Card] sorted as per numberToCardMap
+A move is classified as a sorted List[game.Card] sorted as per numberToCardMap
  */
 case class Move(cards: List[Card]) {
-  override def toString: String = if(cards.nonEmpty) "Move(" + cards + ")" else "EMPTY"
+  override def toString: String = if(cards.nonEmpty) "game.Move(" + cards + ")" else "EMPTY"
 
   def moveFaceValue: Int = {
     if (cards.isEmpty) 0

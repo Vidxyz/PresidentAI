@@ -1,5 +1,8 @@
-import FaceValue.{ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING}
-import Suits.{Diamond, Club, Spade, Heart}
+package utils
+
+import game.FaceValue._
+import game.Suits._
+import game.{Card, Hand, Joker, NormalCard, SpecialCard}
 
 object Consants {
 

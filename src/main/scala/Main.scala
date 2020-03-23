@@ -1,5 +1,6 @@
-import FaceValue._
-import Suits._
+import game.FaceValue._
+import game.Suits._
+import game.{Game, GameUtilities, Hand, Joker, Move, NormalCard, SpecialCard}
 
 object Main extends App {
 
@@ -33,25 +34,25 @@ object Main extends App {
     NormalCard(ACE, Club)))
 
   var currentState = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)))
-//  val currentState = Move(List.empty)
-//  val currentState = Move(List(NormalCard(TWO, Heart)))
-//  val currentState = Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Club)))
-//  var AI = Player("AI", errorHand, Active)
-//  var AI = Player("AI", stackedHand, Active)
-//  val listOfPlayers = GameUtilities.createPlayers(listOfNames)
-//  var AI = Player("AI", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
-//  var computer = Player("Computer", GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
+//  val currentState = game.Move(List.empty)
+//  val currentState = game.Move(List(game.NormalCard(TWO, Heart)))
+//  val currentState = game.Move(List(game.NormalCard(ACE, Diamond), game.NormalCard(ACE, Club), game.NormalCard(ACE, Club)))
+//  var AI = player.Player("AI", errorHand, game.Active)
+//  var AI = player.Player("AI", stackedHand, game.Active)
+//  val listOfPlayers = game.GameUtilities.createPlayers(listOfNames)
+//  var AI = player.Player("AI", game.GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
+//  var computer = player.Player("Computer", game.GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 
   val listOfNames = List("Player1", "Player2", "Player3", "Player4")
   val listOfNames2 = List("Player1", "Player2")
   // Comment out seed for true randomness
-//  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames, seed=5).toBuffer
+//  val listOfPlayers = game.GameUtilities.generatePlayersAndDealHands(listOfNames, seed=5).toBuffer
   // 77 and 13 are good seeds
   val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames, seed=13).toBuffer
   val listOfPlayers2 = GameUtilities.generatePlayersAndDealHands(listOfNames2, seed=77).toBuffer
 
   val game = Game(Move(List.empty))
-//  val game = Game(currentState)
+//  val game = game.Game(currentState)
 
   println("The starting state is : " + game.startState)
   println("\n")

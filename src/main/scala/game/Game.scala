@@ -1,4 +1,7 @@
-import GameUtilities.{getNextGameState, sortCards}
+package game
+
+import player.Player
+import game.GameUtilities.{sortCards, getNextGameState}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -11,7 +14,7 @@ case class Game(startState: Move) {
   var playerCompletionOrder: ListBuffer[String] = new ListBuffer[String]
 
   /*
- Simulates a run of the game, given a list of Player and a starting state
+ Simulates a run of the game, given a list of player.Player and a starting state
   */
   def play(listOfPlayers: mutable.Buffer[Player]): Unit = {
 
@@ -20,7 +23,7 @@ case class Game(startState: Move) {
     var round = Round(currentState, "", listOfPlayers.size, 0,
       listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
 
-    // Keep the game going, until exactly one player is Active (Bum)
+    // Keep the game going, until exactly one player is game.Active (Bum)
     while(listOfPlayers
       .map(player => player.status)
       .map(playerstatus => playerstatus == Active)
@@ -73,7 +76,7 @@ case class Game(startState: Move) {
 
       currentState = getNextGameState(currentState, nextMove)
       // Reset roundPassStatus list if currentState has become Empty
-      // This can only happen when it is a suit-burn/2-burn/Joker/All-pass right now
+      // This can only happen when it is a suit-burn/2-burn/game.Joker/All-pass right now
       if(currentState.cards.isEmpty)
         round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
       else

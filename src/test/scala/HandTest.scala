@@ -1,6 +1,7 @@
-import FaceValue._
-import Suits._
+import game.{Hand, NormalCard}
 import org.scalatest.FunSpec
+import game.FaceValue._
+import game.Suits._
 
 class HandTest extends FunSpec {
 

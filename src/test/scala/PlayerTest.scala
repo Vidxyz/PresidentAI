@@ -1,4 +1,7 @@
+import game.GameUtilities
 import org.scalatest.FunSpec
+import player.{Player, PlayerIndicators}
+import utils.Consants
 
 class PlayerTest extends FunSpec {
 
@@ -8,7 +11,7 @@ class PlayerTest extends FunSpec {
     it("should getNewHand") {
       val player = Player("test", GameUtilities.dealNewHand(54, Consants.totalNumberOfCards))
 //      println(player.highCardModifier)
-      println(PlayerIndicators.applyCustomSpecialCardModifier(14))
+      println(PlayerIndicators.applyCustomSpecialCardModifier(11))
     }
 
     it("should playNextMove") {

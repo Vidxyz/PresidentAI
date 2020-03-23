@@ -1,4 +1,7 @@
-import GameUtilities._
+package player
+
+import game.GameUtilities._
+import game._
 
 case class Player(name: String, hand: Hand) {
 
