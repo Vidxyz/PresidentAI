@@ -9,6 +9,11 @@ case class Round(gameState: Move,
                  listOfPlayers: List[Player],
                  roundPassStatus: List[Boolean]) {
 
+  // Ensure player names are unique over here? Or in game
+  def apply(gameState: Move, lastMovePlayedBy: String, totalNumberOfPlayers: Int, currentPlayerTurn: Int,
+            listOfPlayers: List[Player], roundPassStatus: List[Boolean]): Round =
+    new Round(gameState, lastMovePlayedBy, totalNumberOfPlayers, currentPlayerTurn, listOfPlayers, roundPassStatus)
+
   /*
   Return TRUE if everyone has passed, except for the person who played the last move
   Returns FALSE otherwise
@@ -43,6 +48,7 @@ case class Round(gameState: Move,
 
   /*
  Since name is unique, this should only return a list of size 1
+ Assumes that name is present in list
   */
   def getIndexOf(name: String): Int = {
     listOfPlayers
