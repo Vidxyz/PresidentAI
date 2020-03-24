@@ -2,7 +2,7 @@ package utils
 
 import game.FaceValue._
 import game.Suits._
-import game.{Card, Hand, Joker, NormalCard, SpecialCard}
+import game.{Card, Hand, Joker, NormalCard, SpecialCard, WildCard}
 
 object Consants {
 
@@ -11,10 +11,10 @@ object Consants {
   val maxMoveSize = 4
 
   val numberToCardMap: Map[Int, Card] = Map(
-    0 -> NormalCard(THREE, Diamond),
-    1 -> NormalCard(THREE, Club),
-    2 -> NormalCard(THREE, Heart),
-    3 -> NormalCard(THREE, Spade),
+    0 -> WildCard(THREE, Diamond),
+    1 -> WildCard(THREE, Club),
+    2 -> WildCard(THREE, Heart),
+    3 -> WildCard(THREE, Spade),
 
     4 -> NormalCard(FOUR, Diamond),
     5 -> NormalCard(FOUR, Club),
@@ -81,10 +81,10 @@ object Consants {
   )
 
   val sortedHandWithAllCards: Hand = Hand(List(
-    NormalCard(THREE, Diamond),
-    NormalCard(THREE, Club),
-    NormalCard(THREE, Heart),
-    NormalCard(THREE, Spade),
+    WildCard(THREE, Diamond),
+    WildCard(THREE, Club),
+    WildCard(THREE, Heart),
+    WildCard(THREE, Spade),
     NormalCard(FOUR, Diamond),
     NormalCard(FOUR, Club),
     NormalCard(FOUR, Heart),
