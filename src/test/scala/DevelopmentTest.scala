@@ -4,11 +4,10 @@ import game.{GameEngine, GameUtilities, Hand, Joker, Move, Moves, NormalCard, Sp
 import org.scalatest.FunSpec
 import player.PlayerIndicators
 
-class DevelopmentTest extends FunSpec{
+class DevelopmentTest extends FunSpec {
 
-  // TEST FOR EXPERIMENT
-  // TODO - delete this once done. Currently, a 2Diamond is favored over a 4Spade, this is WRONG and needs changing
-  describe("These are experimental tests") {
+  // TODO - delete when done
+  describe("*********************************") {
     it("**** EXPERIMENTAL TEST TO VALIDATE BEHAVIOUR *****") {
       val hand = Hand(List(
         NormalCard(SIX, Club),
@@ -88,6 +87,5 @@ class DevelopmentTest extends FunSpec{
 
     }
   }
-  // TODO - delete above when done
 
 }

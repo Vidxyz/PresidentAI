@@ -7,7 +7,7 @@ import org.scalatest.FunSpec
 import player.PlayerIndicators
 import utils.Consants
 
-class GameEngineTest extends FunSpec{
+class GameEngineTest extends FunSpec {
 
   val epsilon = 1e-4f
   implicit val doubleEq: Equality[Double] = TolerantNumerics.tolerantDoubleEquality(epsilon)
