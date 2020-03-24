@@ -2,6 +2,24 @@ import org.scalatest.FunSpec
 
 class RoundTest extends FunSpec{
 
-  // Must implement tests for everything here
+  describe("tests for hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed()") {
+
+  }
+
+  describe("tests for checkIfLastMovePlayedBy") {
+
+  }
+
+  describe("tests for playerEndedTheGameOnABurn()") {
+
+  }
+
+  describe("tests for hasAlreadySkippedTurn") {
+
+  }
+
+  describe("tests for getIndexOf") {
+
+  }
 
 }
