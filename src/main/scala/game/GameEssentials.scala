@@ -93,7 +93,7 @@ case class Hand(listOfCards: List[Card]) {
   lazy val listOfSimilarCards: List[List[Card]] = GameUtilities.getListsOfSimilarCards(Hand(GameUtilities.sortCards(listOfCards)))
 
   /*
-  Delta is defined as difference in intValue (faceValue) between the highest game.NormalCard and lowest game.NormalCard
+  Delta is defined as difference in intValue (faceValue) between the highest NormalCard and lowest NormalCard
    */
   lazy val delta: Int = {
     val sortedCards = GameUtilities.sortCards(listOfCards).filter(card => card match {
