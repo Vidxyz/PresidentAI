@@ -2,17 +2,14 @@ package game
 
 import player.Player
 
+
+
 case class Round(gameState: Move,
                  lastMovePlayedBy: String,
                  totalNumberOfPlayers: Int,
                  currentPlayerTurn: Int,
                  listOfPlayers: List[Player],
                  roundPassStatus: List[Boolean]) {
-
-  // Ensure player names are unique over here? Or in game
-  def apply(gameState: Move, lastMovePlayedBy: String, totalNumberOfPlayers: Int, currentPlayerTurn: Int,
-            listOfPlayers: List[Player], roundPassStatus: List[Boolean]): Round =
-    new Round(gameState, lastMovePlayedBy, totalNumberOfPlayers, currentPlayerTurn, listOfPlayers, roundPassStatus)
 
   /*
   Return TRUE if everyone has passed, except for the person who played the last move
@@ -61,10 +58,25 @@ case class Round(gameState: Move,
       }
       .head
   }
+
 }
 
 object Round {
   def getNoPassList(numberOfPlayers: Int): List[Boolean] = {
     (1 to numberOfPlayers).toList.map(_ => false)
   }
+
+  /*
+  Throws exception if player names are not unique
+  Returns new round object otherwise
+   */
+  def apply(gameState: Move, lastMovePlayedBy: String, totalNumberOfPlayers: Int, currentPlayerTurn: Int,
+            listOfPlayers: List[Player], roundPassStatus: List[Boolean]): Round = {
+    if(listOfPlayers.size - listOfPlayers.map(p => p.name).distinct.size != 0) throw DuplicatePlayerNamesException("Player names must be unique")
+    else new Round(gameState, lastMovePlayedBy, totalNumberOfPlayers, currentPlayerTurn, listOfPlayers, roundPassStatus)
+  }
+
 }
+
+case class DuplicatePlayerNamesException(s: String) extends IllegalStateException(s)
+

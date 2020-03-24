@@ -1,7 +1,29 @@
-import game.{GameUtilities, Move, Round}
+import game.{DuplicatePlayerNamesException, GameUtilities, Move, Round}
 import org.scalatest.FunSpec
 
 class RoundTest extends FunSpec{
+
+  describe("tests for apply method") {
+    it("Should throw exception when player names are repeated") {
+      val players = GameUtilities.generatePlayersAndDealHands(List("p1", "p2", "p1"))
+      val gameState = Move(List.empty)
+      val roundPassStatus = Round.getNoPassList(players.size)
+      assertThrows[DuplicatePlayerNamesException](Round(gameState, "p2", players.size, 0, players, roundPassStatus))
+    }
+
+    it("Should not throw exception when player names are not repeated") {
+      val players = GameUtilities.generatePlayersAndDealHands(List("p1", "p2", "p3"))
+      val gameState = Move(List.empty)
+      val roundPassStatus = Round.getNoPassList(players.size)
+      val result = Round(gameState, "p2", players.size, 0, players, roundPassStatus)
+      assert(result.gameState == gameState)
+      assert(result.lastMovePlayedBy == "p2")
+      assert(result.totalNumberOfPlayers == players.size)
+      assert(result.currentPlayerTurn == 0)
+      assert(result.listOfPlayers == players)
+      assert(result.roundPassStatus == Round.getNoPassList(players.size))
+    }
+  }
 
   describe("tests for hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed()") {
 
