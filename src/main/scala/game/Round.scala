@@ -25,6 +25,10 @@ case class Round(gameState: Move,
 
   def checkIfLastMovePlayedBy(name: String): Boolean = name == lastMovePlayedBy
 
+  /*
+  Returns True if round.lastMovePlayedBy is not present in round.listOfPlayers. False otherwise
+  Only exception to this is when lastMovePlayedBy is empty string, since that is the start case
+   */
   def playerEndedTheGameOnABurn: Boolean =
     !this.listOfPlayers.map(player => player.name).contains(this.lastMovePlayedBy) && this.lastMovePlayedBy != ""
 

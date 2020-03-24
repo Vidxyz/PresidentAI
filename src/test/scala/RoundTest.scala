@@ -104,7 +104,28 @@ class RoundTest extends FunSpec {
   }
 
   describe("tests for playerEndedTheGameOnABurn()") {
+    val gameState = Move(List.empty)
+    val listOfPlayers = GameUtilities.generatePlayersAndDealHands(List("p1", "p2", "p3", "p4"))
+    val roundPassStatus = Round.getNoPassList(listOfPlayers.size)
 
+    describe("When listOfPlayers does not contain the name of lastMovePlayedBy") {
+      it("Should return true when lastMovePlayedBy is an actual name") {
+        val round = Round(gameState, "p5", listOfPlayers.size, 0, listOfPlayers, roundPassStatus)
+        assert(round.playerEndedTheGameOnABurn)
+      }
+
+      it("Should return false when lastMovePlayedBy is an empty string") {
+        val round = Round(gameState, "", listOfPlayers.size, 0, listOfPlayers, roundPassStatus)
+        assert(!round.playerEndedTheGameOnABurn)
+      }
+    }
+
+    describe("When listOfPlayers contains the name of lastMovePlayedBy") {
+      it("Should return false, since the player is still present in the game") {
+        val round = Round(gameState, "p2", listOfPlayers.size, 0, listOfPlayers, roundPassStatus)
+        assert(!round.playerEndedTheGameOnABurn)
+      }
+    }
   }
 
   describe("tests for hasAlreadySkippedTurn()") {
@@ -120,13 +141,12 @@ class RoundTest extends FunSpec {
     }
 
     describe("When player has not skipped turn this round") {
-      it("Should return true"){
-        val roundPassStatus = List(false, true, false, false)
+      it("Should return false"){
+        val roundPassStatus = List(false, false, true, true)
         val round = Round(gameState, "p2", listOfPlayers.size, 0, listOfPlayers, roundPassStatus)
-        assert(round.hasAlreadySkippedTurn("p5"))
+        assert(!round.hasAlreadySkippedTurn("p2"))
       }
     }
-
   }
 
   describe("tests for getIndexOf()") {
