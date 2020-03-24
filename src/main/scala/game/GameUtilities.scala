@@ -222,7 +222,6 @@ case object GameUtilities {
     }
   }
 
-  // TODO - unit tests
   /*
   Returns a list of validMoves containing only NormalCard moves
    */
