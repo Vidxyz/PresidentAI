@@ -30,16 +30,14 @@ case class Round(gameState: Move,
 
   /*
   Since name is unique, this should only return a list of size 1
+  Assumes supplied name is part of listOfPlayers. Throws exception otherwise
    */
   def hasAlreadySkippedTurn(name: String): Boolean = {
     (listOfPlayers zip roundPassStatus)
       .filter(tuple => tuple match {
         case (player, _passStatus) => player.name == name
       })
-      .map {
-        case (_, status) =>
-          status
-      }
+      .map { case (_, status) => status }
       .head
   }
 

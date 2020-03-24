@@ -1,7 +1,7 @@
 import game.{DuplicatePlayerNamesException, GameUtilities, Move, Round}
 import org.scalatest.FunSpec
 
-class RoundTest extends FunSpec{
+class RoundTest extends FunSpec {
 
   describe("tests for apply method") {
     it("Should throw exception when player names are repeated") {
@@ -107,7 +107,25 @@ class RoundTest extends FunSpec{
 
   }
 
-  describe("tests for hasAlreadySkippedTurn") {
+  describe("tests for hasAlreadySkippedTurn()") {
+    val gameState = Move(List.empty)
+    val listOfPlayers = GameUtilities.generatePlayersAndDealHands(List("p1", "p2", "p3", "p4"))
+
+    describe("When player has already skipped turn this round") {
+      it("Should return true"){
+        val roundPassStatus = List(false, true, false, false)
+        val round = Round(gameState, "p2", listOfPlayers.size, 0, listOfPlayers, roundPassStatus)
+        assert(round.hasAlreadySkippedTurn("p2"))
+      }
+    }
+
+    describe("When player has not skipped turn this round") {
+      it("Should return true"){
+        val roundPassStatus = List(false, true, false, false)
+        val round = Round(gameState, "p2", listOfPlayers.size, 0, listOfPlayers, roundPassStatus)
+        assert(round.hasAlreadySkippedTurn("p5"))
+      }
+    }
 
   }
 
