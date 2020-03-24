@@ -26,6 +26,56 @@ class RoundTest extends FunSpec{
   }
 
   describe("tests for hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed()") {
+    val gameState = Move(List.empty)
+    val players = GameUtilities.generatePlayersAndDealHands(List("p1", "p2", "p3", "p4"))
+
+    describe("When everyone has passed already") {
+      it("Should return true") {
+        val roundPassStatus = List(true, true, true, true)
+        val round = Round(gameState, "p3", players.size, 1, players, roundPassStatus)
+        assert(round.hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed)
+      }
+    }
+
+    describe("When everyone except for the player who played last has passed already") {
+      it("Should return true") {
+        val roundPassStatus = List(true, true, false, true)
+        val round = Round(gameState, "p3", players.size, 1, players, roundPassStatus)
+        assert(round.hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed)
+      }
+    }
+
+    describe("When everyone except for the player who didn't play last has passed already") {
+      it("Should return false") {
+        val roundPassStatus = List(true, false, true, true)
+        val round = Round(gameState, "p3", players.size, 1, players, roundPassStatus)
+        assert(!round.hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed)
+      }
+    }
+
+    describe("When not everyone has passed") {
+      it("Should return false") {
+        val roundPassStatus = List(false, false, true, true)
+        val round = Round(gameState, "p3", players.size, 0, players, roundPassStatus)
+        assert(!round.hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed)
+      }
+    }
+
+    describe("When not everyone has passed, including the player who played last") {
+      it("Should return false") {
+        val roundPassStatus = List(false, false, false, true)
+        val round = Round(gameState, "p3", players.size, 0, players, roundPassStatus)
+        assert(!round.hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed)
+      }
+    }
+
+    describe("When not everyone has passed, except the player who played last") {
+      it("Should return false") {
+        val roundPassStatus = List(false, false, true, false)
+        val round = Round(gameState, "p3", players.size, 0, players, roundPassStatus)
+        assert(!round.hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed)
+      }
+    }
 
   }
 
