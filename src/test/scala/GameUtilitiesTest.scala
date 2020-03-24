@@ -8,6 +8,49 @@ import game.Suits._
 
 class GameUtilitiesTest extends FunSpec {
 
+  implicit def enhanceWithContainsDuplicates[T](s:List[T]) = new {
+    def containsDuplicatesExcludingJokers ={
+      (s.size - s.distinct.size > 1)
+    }
+  }
+
+  describe("tests for generatePlayersAndDealHands()") {
+
+    describe("When there are no players") {
+      it("Should return empty List[Player]") {
+        assert(GameUtilities.generatePlayersAndDealHands(List.empty) == List.empty)
+      }
+    }
+
+    describe("When there is exactly one player") {
+      it("Should return a List[Player] of size 1 with hand comprising of all unique 54 cards") {
+        val result = GameUtilities.generatePlayersAndDealHands(List("Player1"))
+        assert(result.size == 1)
+        assert(result.head.hand.size == Consants.totalNumberOfCards)
+        assert(result.head.name == "Player1")
+        assert(!result.head.hand.listOfCards.containsDuplicatesExcludingJokers)
+      }
+    }
+
+    describe("When there are 4 players") {
+      it("Should return List[Player] of size 4, each having unique cards and two having 13 cards and two having 14 cards") {
+        val listOfNames = List("p1", "p2", "p3", "p4")
+        val result = GameUtilities.generatePlayersAndDealHands(listOfNames)
+        // Verify size of resulting list
+        assert(result.size == 4)
+        // Check if listOfNames is created properly
+        assert(result.map(p => p.name) == listOfNames)
+        // Check two hands are size 13, two other of size 14
+        assert(result.map(p => p.hand).map(h => h.listOfCards.size).count(s => s == 13) == 2)
+        assert(result.map(p => p.hand).map(h => h.listOfCards.size).count(s => s == 14) == 2)
+        // Check all hands are unqiue, excluding jokers
+        assert(result.map(p => p.hand).map(h => !h.listOfCards.containsDuplicatesExcludingJokers).forall(x => x))
+        // Check all hands cards add up to total
+        assert(result.map(p => p.hand).flatMap(h => h.listOfCards).size == Consants.totalNumberOfCards)
+      }
+    }
+  }
+
   describe("tests for dealHands()") {
     // Test that one person gets all the cards
     // Test 2 people getting non overlapping cards
