@@ -1,85 +1,27 @@
-import Consants._
-import FaceValue.TWO
+package game
+
+import player.{Player, PlayerIndicators}
+import utils.Consants
+import utils.Consants._
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.util.Random
-
-case class Round(gameState: Move,
-                 lastMovePlayedBy: String,
-                 totalNumberOfPlayers: Int,
-                 currentPlayerTurn: Int,
-                 listOfPlayers: List[Player],
-                 roundPassStatus: List[Boolean]) {
-
-  /*
-  Return TRUE if everyone has passed, except for the person who played the last move
-  Returns FALSE otherwise
-   */
-  def hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed: Boolean = {
-    (listOfPlayers zip roundPassStatus)
-      .filter(tuple => tuple match {
-        case (player, _passStatus) => !(player.name == lastMovePlayedBy)
-      })
-      .foldLeft(true)((acc, tuple1) => acc && tuple1._2)
-  }
-
-  def checkIfLastMovePlayedBy(name: String): Boolean = name == lastMovePlayedBy
-
-  def playerEndedTheGameOnABurn: Boolean =
-    !this.listOfPlayers.map(player => player.name).contains(this.lastMovePlayedBy) && this.lastMovePlayedBy != ""
-
-  /*
-  Since name is unique, this should only return a list of size 1
-   */
-  def hasAlreadySkippedTurn(name: String): Boolean = {
-    (listOfPlayers zip roundPassStatus)
-      .filter(tuple => tuple match {
-        case (player, _passStatus) => player.name == name
-      })
-      .map {
-        case (_, status) =>
-          status
-      }
-      .head
-  }
-
-  /*
- Since name is unique, this should only return a list of size 1
-  */
-  def getIndexOf(name: String): Int = {
-    listOfPlayers
-      .zipWithIndex
-      .filter {
-        case (player, _) => player.name == name
-      }
-      .map {
-        case (_, index) => index
-      }
-      .head
-  }
-}
-
-object Round {
-  def getNoPassList(numberOfPlayers: Int): List[Boolean] = {
-    (1 to numberOfPlayers).toList.map(_ => false)
-  }
-}
 
 case object GameUtilities {
 
-  def generatePlayersAndDealHands(listOfNames: List[String]): List[Player] = {
-    val hands: List[Hand] = dealHands(listOfNames.size)
+  def generatePlayersAndDealHands(listOfNames: List[String], seed: Int = 0): List[Player] = {
+    val hands: List[Hand] = dealHands(listOfNames.size, seed)
    (hands zip listOfNames)
               .map(tuple => Player(tuple._2, tuple._1))
   }
 
-  def dealHands(numberOfPlayers: Int): List[Hand] = {
+  def dealHands(numberOfPlayers: Int, seed: Int = 0): List[Hand] = {
+    val random = if(seed > 0) new Random(seed) else new Random()
     @tailrec
     def dealHandsHelper(currentPlayer: Int, playerHands: List[Hand], seenSoFar: List[Int]): List[Hand] = {
       if(seenSoFar.size == Consants.totalNumberOfCards) return playerHands
 
-      val nextCardNum = Random.nextInt(Consants.totalNumberOfCards)
+      val nextCardNum = random.nextInt(Consants.totalNumberOfCards)
 
       if(seenSoFar.contains(nextCardNum)) dealHandsHelper(currentPlayer, playerHands, seenSoFar)
       else {
@@ -106,7 +48,7 @@ case object GameUtilities {
   /*
   Deals a new hand by randomly selecting non-repeating numbers in the range [0, 54)
   and assigning them in a round robin format to each of the players.
-  Return - Hand comprising of cards dealt to player1, discards all other "dealt cards"
+  Return - game.Hand comprising of cards dealt to player1, discards all other "dealt cards"
   */
   def dealNewHand(numberOfPlayers: Int, totalNormalCards: Int): Hand = {
     @tailrec
@@ -148,7 +90,7 @@ case object GameUtilities {
 
   /*
   Generate Lists of Similar cards
-  Similar cards include cards with same FaceValue but differing Suit
+  Similar cards include cards with same game.FaceValue but differing game.Suit
   Assumption :- hand is sorted
    */
   def getListsOfSimilarCards(hand: Hand): List[List[Card]] = {
@@ -242,7 +184,7 @@ case object GameUtilities {
 
     if(move.parity != gameState.parity) false
 
-    // This only happens when the Move in question doesn't involve 2s/JOKERs and is of the same numberOfCards
+    // This only happens when the game.Move in question doesn't involve 2s/JOKERs and is of the same numberOfCards
     else checkIfBetter(move, gameState)
   }
 
@@ -252,54 +194,43 @@ case object GameUtilities {
   // 2. move1 and move2 have same parity - same size of cards
   //    - only exception to the above is 2s and JOKERs
   def checkIfBetter(move1: Move, move2: Move): Boolean =
-    numberToCardMap.find(_._2 == move1.highestCard).map(_._1).getOrElse(-1) >
-    numberToCardMap.find(_._2 == move2.highestCard).map(_._1).getOrElse(-1)
+    cardOrderValue(move1.highestCard) > cardOrderValue(move2.highestCard)
 
-  /*
-  Gets a 0-1 value signifying how desirable a move is compared to given game state
-  Assumption :- validMove is a valid move given the current gameState
-   */
-  // TODO - the weighting on doubles/triples/quads over singles is too one-sided. Needs to be skewed empirically
-  def getHeuristicValue(validMove: Move, gameState: Move): Double = {
-    validMove.cards match {
-      case List(Joker, _*) => 0
-      case List(NormalCard(TWO, _), _*) => 0
-      case _ => (0.5d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue))) + (0.5d * validMove.cards.size/Consants.maxMoveSize)
-    }
+  def cardOrderValue(card: Card): Int = numberToCardMap.find(_._2 == card).map(_._1).getOrElse(-1)
+
+  def isOnlySpecialMovesAvailable(validMoves: Moves): Boolean = {
+    validMoves.moves.foldLeft(true)((acc, move) => move.cards match {
+      case List(SpecialCard(_, _), _*) => acc
+      case List(Joker,_*) => acc
+      case _ => false
+    })
   }
 
   /*
-  Fetches the next best move possible, from list of valid moves, given current game state and current hand
-  Applies heuristic value on each move, and picks the best
-  Returns Empty move is there are no valid moves to choose from
-   */
-  def getNextMove(validMoves: Moves, gameState: Move): Option[Move] = {
-      try {
-        Some(
-          validMoves.moves(validMoves.moves
-            .map(m => getHeuristicValue(m, gameState))
-            .zipWithIndex
-            .maxBy(_._1)
-            ._2))
-      } catch {
-        case e: UnsupportedOperationException => None
-      }
-    }
-
-
-  /*
   Returns the next game state having processed the nextMove
-  Returns Move(List.empty) if it is a suit burn or a joker, ie a valid move with same moveFaceValue
+  Returns game.Move(List.empty) if it is a suit burn or a joker, ie a valid move with same moveFaceValue
   Returns gameState otherwise
   Assumption - nextMove is a validMove - this includes the (n-1) restriction for 2s as a special card
    */
   def getNextGameState(gameState: Move, nextValidMove: Option[Move]): Move = {
     nextValidMove.getOrElse(None) match {
       case move: Move =>
-        if (move.moveFaceValue == -1) Move(List.empty) // Joker
+        if (move.moveFaceValue == -1) Move(List.empty) // game.Joker
         else if(move.moveFaceValue != gameState.moveFaceValue) move // Higher card, or 2, replaces gameState
-        else Move(List.empty) // Suit Burn, since it is a valid move and faceValues are the same as gameState
+        else Move(List.empty) // game.Suit Burn, since it is a valid move and faceValues are the same as gameState
       case None => gameState
     }
   }
+
+  /*
+  Returns a list of validMoves containing only NormalCard moves
+   */
+  def filterOnlyNormalCardMoves(validMoves: Moves): Moves = {
+    Moves(validMoves.moves.filter(m => m.cards match {
+      case List(NormalCard(_,_), _*) => true
+      case _ => false
+    }))
+  }
+
+
 }

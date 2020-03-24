@@ -1,103 +1,20 @@
-import FaceValue._
-import GameUtilities.{getNextGameState, sortCards}
+package game
+
+import player.Player
+import game.GameUtilities.{sortCards, getNextGameState}
 
 import scala.collection.mutable
-
-sealed trait PlayerStatus
-sealed trait Suit
-sealed trait Value
-sealed trait Card {
-  def value: String = "Card"
-  val intValue: Int
-}
-
-case object Active extends PlayerStatus
-case object Complete extends PlayerStatus
-
-object Suits {
-  case object Diamond extends Suit
-  case object Club extends Suit
-  case object Heart extends Suit
-  case object Spade extends Suit
-}
-
-object FaceValue {
-  case object ACE extends Value
-  case object TWO extends Value
-  case object THREE extends Value
-  case object FOUR extends Value
-  case object FIVE extends Value
-  case object SIX extends Value
-  case object SEVEN extends Value
-  case object EIGHT extends Value
-  case object NINE extends Value
-  case object TEN extends Value
-  case object JACK extends Value
-  case object QUEEN extends Value
-  case object KING extends Value
-}
-
-case object Joker extends Card {
-  override def toString: String = "<JOKER>"
-  override def value: String = "JOKER"
-  override val intValue: Int = -1
-}
-
-case class NormalCard(faceValue: Value, suit: Suit) extends Card {
-  override def toString: String = "<" + faceValue.toString + "," + suit.toString + ">"
-  override def value: String = faceValue.toString
-  override val intValue: Int = faceValue match {
-    case TWO => 2
-    case THREE => 3
-    case FOUR => 4
-    case FIVE => 5
-    case SIX => 6
-    case SEVEN => 7
-    case EIGHT => 8
-    case NINE => 9
-    case TEN => 10
-    case JACK => 11
-    case QUEEN => 12
-    case KING => 13
-    case ACE => 14
-  }
-}
-
-case class Hand(listOfCards: List[Card]) {
-
-  override def toString: String = {
-    if(listOfCards.isEmpty) "EMPTY"
-    else {
-      var sizeSeen = 0
-      var stringValue = ""
-      while (sizeSeen < listOfCards.size) {
-        stringValue = stringValue + listOfCards.slice(sizeSeen, sizeSeen + 7).toString + "\n"
-        sizeSeen += 7
-      }
-      stringValue
-    }
-  }
-}
-
-/*
-A move is classified as a sorted List[Card] sorted as per numberToCardMap
- */
-case class Move(cards: List[Card]) {
-  override def toString: String = if(cards.nonEmpty) "Move(" + cards + ")" else "EMPTY"
-
-  def moveFaceValue: Int = {
-    if (cards.isEmpty) 0
-    else cards.head.intValue
-  }
-  def highestCard: Card = cards.last
-  def parity: Int = cards.size
-}
-case class Moves(moves: List[Move])
+import scala.collection.mutable.ListBuffer
 
 case class Game(startState: Move) {
 
   /*
- Simulates a run of the game, given a list of Player and a starting state
+  Keeps a completion order of the form (playerName, roundEnded)
+   */
+  var playerCompletionOrder: ListBuffer[String] = new ListBuffer[String]
+
+  /*
+ Simulates a run of the game, given a list of player.Player and a starting state
   */
   def play(listOfPlayers: mutable.Buffer[Player]): Unit = {
 
@@ -106,7 +23,7 @@ case class Game(startState: Move) {
     var round = Round(currentState, "", listOfPlayers.size, 0,
       listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
 
-    // Keep the game going, until exactly one player is Active (Bum)
+    // Keep the game going, until exactly one player is game.Active (Bum)
     while(listOfPlayers
       .map(player => player.status)
       .map(playerstatus => playerstatus == Active)
@@ -159,7 +76,7 @@ case class Game(startState: Move) {
 
       currentState = getNextGameState(currentState, nextMove)
       // Reset roundPassStatus list if currentState has become Empty
-      // This can only happen when it is a suit-burn/2-burn/Joker/All-pass right now
+      // This can only happen when it is a suit-burn/2-burn/game.Joker/All-pass right now
       if(currentState.cards.isEmpty)
         round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn, listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
       else
@@ -176,6 +93,7 @@ case class Game(startState: Move) {
         println(listOfPlayers(round.currentPlayerTurn).name + " has finished!\n")
         listOfPlayers.remove(round.currentPlayerTurn)
         round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn - 1, listOfPlayers.toList, round.roundPassStatus)
+        playerCompletionOrder += currentPlayerObject.name
       }
 
       /*
@@ -192,7 +110,16 @@ case class Game(startState: Move) {
       }
 
       println("------------------------\n")
-
+//            Thread.sleep(10)
     }
+
+    printStats()
+
+  }
+
+  def printStats(): Unit = {
+    println("GAME OVER")
+    println("---------")
+    println(playerCompletionOrder)
   }
 }

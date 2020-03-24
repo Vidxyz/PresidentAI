@@ -1,5 +1,8 @@
-import FaceValue.{ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING}
-import Suits.{Diamond, Club, Spade, Heart}
+package utils
+
+import game.FaceValue._
+import game.Suits._
+import game.{Card, Hand, Joker, NormalCard, SpecialCard}
 
 object Consants {
 
@@ -68,10 +71,10 @@ object Consants {
     46 -> NormalCard(ACE, Heart),
     47 -> NormalCard(ACE, Spade),
 
-    48 -> NormalCard(TWO, Diamond),
-    49 -> NormalCard(TWO, Club),
-    50 -> NormalCard(TWO, Heart),
-    51 -> NormalCard(TWO, Spade),
+    48 -> SpecialCard(TWO, Diamond),
+    49 -> SpecialCard(TWO, Club),
+    50 -> SpecialCard(TWO, Heart),
+    51 -> SpecialCard(TWO, Spade),
 
     52 -> Joker,
     53 -> Joker
@@ -126,10 +129,10 @@ object Consants {
     NormalCard(ACE, Club),
     NormalCard(ACE, Heart),
     NormalCard(ACE, Spade),
-    NormalCard(TWO, Diamond),
-    NormalCard(TWO, Club),
-    NormalCard(TWO, Heart),
-    NormalCard(TWO, Spade),
+    SpecialCard(TWO, Diamond),
+    SpecialCard(TWO, Club),
+    SpecialCard(TWO, Heart),
+    SpecialCard(TWO, Spade),
     Joker,
     Joker,
   ))
