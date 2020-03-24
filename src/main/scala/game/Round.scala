@@ -16,7 +16,7 @@ case class Round(gameState: Move,
   def hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed: Boolean = {
     (listOfPlayers zip roundPassStatus)
       .filter(tuple => tuple match {
-        case (player, _passStatus) => !(player.name == lastMovePlayedBy)
+        case (player, _passStatus) => !checkIfLastMovePlayedBy(player.name)
       })
       .foldLeft(true)((acc, tuple1) => acc && tuple1._2)
   }
