@@ -179,8 +179,15 @@ case class Move(cards: List[Card]) {
     }
   }
 
-  // TODO - cannot always return last - what if the move is like this (3Spade, 8Diamond, 8Club) - 3spade aka 8Spade is the highest
-  def highestCard: Card = cards.last
+  def highestCard: Card = {
+    if(cards.size == 1) cards.head
+    else {
+      cards.foldLeft(cards.head)((highestCard, currentCard) =>
+        if(GameUtilities.cardOrderValue(currentCard) >
+          GameUtilities.cardOrderValue(highestCard)) currentCard
+        else highestCard)
+    }
+  }
   def parity: Int = cards.size
   def isEmpty: Boolean = cards.isEmpty
 

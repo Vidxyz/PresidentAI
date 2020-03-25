@@ -106,6 +106,13 @@ class DevelopmentTest extends FunSpec {
       println(GameUtilities.getValidMoves(allMovesWithThrees,
         Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club)))))
 
+
+      val testMove = Move(List(
+        NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)
+      ))
+      println("-------------")
+      println(testMove.highestCard)
+
     }
   }
 
