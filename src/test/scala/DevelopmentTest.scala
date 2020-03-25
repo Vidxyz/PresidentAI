@@ -107,11 +107,12 @@ class DevelopmentTest extends FunSpec {
         Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club)))))
 
 
-      val testMove = Move(List(
+      val testMove = Move(List(WildCard(THREE, Diamond, 7), WildCard(THREE, Club, 7), WildCard(THREE, Heart, 7), WildCard(THREE, Spade, 7),
         NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)
       ))
       println("-------------")
       println(testMove.highestCard)
+      println(testMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false}))
 
     }
   }

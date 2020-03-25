@@ -13,10 +13,11 @@ case object GameEngine {
   def getNormalCardMoveHeuristic(validMove: Move, gameState: Move,
                                  playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
     validMove.cards match {
-      case List(NormalCard(_,_), _*) =>
-        if(gameState.isEmpty) applyNormalCardHeuristicWithMoveSizeModifier(validMove)
-        else applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState, playerIndicators.getListSetSizeForCard(validMove))
-      case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
+      case List(NormalCard(_,_), _*) | List(WildCard(_,_,_), _*) =>
+        if(gameState.isEmpty)  scala.math.max(0, applyNormalCardHeuristicWithMoveSizeModifier(validMove) - wildCardUsagePenalty(validMove))
+        else scala.math.max(0, applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState,
+              playerIndicators.getListSetSizeForCard(validMove)) - wildCardUsagePenalty(validMove))
+      case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
     }
   }
 
@@ -29,7 +30,7 @@ case object GameEngine {
                                   playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
     val randomValue = Random.nextDouble()
     validMove match {
-      case Move(List(NormalCard(_,_), _*)) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
+      case Move(List(NormalCard(_,_), _*)) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
       case Move(List(Joker, _*)) =>  if (gameState.isEmpty || gameState.parity < 3 ) {
         /* We don't care about playing jokers any differently if its a double/single */
         if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
@@ -66,6 +67,14 @@ case object GameEngine {
 
   @Deprecated
   def applyNormalCardHeuristic(validMove: Move, gameState: Move): Double = 1d/(validMove.moveFaceValue - gameState.moveFaceValue)
+
+  /*
+  Penalizes the usage of WildCards. Subtracted from heuristic value obtained based on move
+   */
+  def wildCardUsagePenalty(validMove: Move): Double = {
+    if(validMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false})) 0
+    else 0
+  }
 
   /*
   Assumes that gameState is empty. If non-empty, use the heuristic function below this instead
