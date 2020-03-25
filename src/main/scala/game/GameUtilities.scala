@@ -1,5 +1,6 @@
 package game
 
+import game.FaceValue.FOUR
 import player.{Player, PlayerIndicators}
 import utils.Consants
 import utils.Consants._
@@ -188,7 +189,12 @@ case object GameUtilities {
 
     if(move.parity != gameState.parity) false
 
-    // This only happens when the game.Move in question doesn't involve 2s/JOKERs and is of the same numberOfCards
+    // This only happens when the Move in question doesn't involve 2s/JOKERs
+    // AND is of the same parity
+    // This implies one of three things
+    // 1. Move is comprised of all NormalCard
+    // 2. Move is comprised of NormalCard(s) + WildCard(s)
+    // 3. Move is comprised of all WildCard(s)
     else checkIfBetter(move, gameState)
   }
 
@@ -200,7 +206,15 @@ case object GameUtilities {
   def checkIfBetter(move1: Move, move2: Move): Boolean =
     cardOrderValue(move1.highestCard) > cardOrderValue(move2.highestCard)
 
-  def cardOrderValue(card: Card): Int = numberToCardMap.find(_._2 == card).map(_._1).getOrElse(-1)
+  def cardOrderValue(card: Card): Int = {
+    card match {
+      case n: NormalCard => numberToCardMap.find(_._2 == n).map(_._1).getOrElse(-1)
+      case w: WildCard => numberToCardMap.find(_._2 ==
+        /* Defaulting to a FOUR for now, look over this later. Theoretically, this shouldn't happen ever. */
+        NormalCard(numberToFaceValueMap.getOrElse(w.assumedValue, FOUR), w.suit)).map(_._1).getOrElse(-1)
+    }
+
+  }
 
   def isOnlySpecialMovesAvailable(validMoves: Moves): Boolean = {
     validMoves.moves.foldLeft(true)((acc, move) => move.cards match {
@@ -229,9 +243,10 @@ case object GameUtilities {
   /*
   Returns a list of validMoves containing only NormalCard moves
    */
-  def filterOnlyNormalCardMoves(validMoves: Moves): Moves = {
+  def filterNonSpecialCardMoves(validMoves: Moves): Moves = {
     Moves(validMoves.moves.filter(m => m.cards match {
       case List(NormalCard(_,_), _*) => true
+      case List(WildCard(_,_,_), _*) => true
       case _ => false
     }))
   }
@@ -258,7 +273,31 @@ case object GameUtilities {
         case Move(List(SpecialCard(_,_), _*)) => true
         case _ => false
       })
-      Moves((allPossibleCombinationsOfThrees cross listOfCardsInNormalMoves).map(list => Move(list)) ++ listOfSpecialMoves)
+
+      val totalMoves: List[Move] = (allPossibleCombinationsOfThrees cross listOfCardsInNormalMoves).map(list => Move(list)) ++
+        allPossibleCombinationsOfThrees.filter(l => l.nonEmpty).map(listOfCard => Move(listOfCard)) ++
+        listOfSpecialMoves
+
+      Moves(totalMoves
+        .map(move => move.cards)
+          .map(listOfCard =>
+            if(listOfCard.forall(card => card.intValue != 3)) listOfCard
+            else {
+              if(listOfCard.forall(card => card match {
+                case w: WildCard => true
+                case e => false })) {
+                listOfCard.map {
+                  case w: WildCard => w.copy(assumedValue = 14) // Value for ACE right now
+                  case e => e
+                }
+              }
+              else listOfCard.map {
+                case w: WildCard => w.copy(assumedValue = listOfCard.last.intValue)
+                case c => c
+              }
+            }
+          )
+          .map(listOfCards => Move(listOfCards)))
     }
   }
 

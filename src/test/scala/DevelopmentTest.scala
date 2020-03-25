@@ -101,9 +101,10 @@ class DevelopmentTest extends FunSpec {
       val threes = List(WildCard(THREE, Diamond), WildCard(THREE, Spade))
       val allMovesWithThrees = GameUtilities.addThreesToMoves(allMoves, threes)
 
-      println(GameUtilities.getValidMoves(allMovesWithThrees,
-        Move(List(NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)))))
+      println(allMovesWithThrees)
 
+      println(GameUtilities.getValidMoves(allMovesWithThrees,
+        Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club)))))
 
     }
   }

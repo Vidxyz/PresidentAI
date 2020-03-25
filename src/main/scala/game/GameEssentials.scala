@@ -63,8 +63,8 @@ case class NormalCard(faceValue: Value, suit: Suit) extends Card {
   }
 }
 
-case class WildCard(faceValue: Value, suit: Suit) extends Card {
-  override def toString: String = "<" + faceValue.toString + "," + suit.toString + ">"
+case class WildCard(faceValue: Value, suit: Suit, assumedValue: Int = 0) extends Card {
+  override def toString: String = "<" + faceValue.toString + "," + suit.toString + "(" + assumedValue + ")>"
   override def value: String = faceValue.toString
   override val intValue: Int = faceValue match {
     case THREE => 3
@@ -170,7 +170,13 @@ case class Move(cards: List[Card]) {
 
   def moveFaceValue: Int = {
     if (cards.isEmpty) 0
-    else cards.head.intValue
+    else {
+      cards.head match {
+        case w: WildCard => w.assumedValue
+        case n: NormalCard => n.intValue
+        case s: SpecialCard => s.intValue
+      }
+    }
   }
   def highestCard: Card = cards.last
   def parity: Int = cards.size

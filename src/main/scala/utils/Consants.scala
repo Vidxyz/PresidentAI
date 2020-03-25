@@ -2,7 +2,7 @@ package utils
 
 import game.FaceValue._
 import game.Suits._
-import game.{Card, Hand, Joker, NormalCard, SpecialCard, WildCard}
+import game.{Card, Hand, Joker, NormalCard, SpecialCard, Value, WildCard}
 
 object Consants {
 
@@ -136,5 +136,19 @@ object Consants {
     Joker,
     Joker,
   ))
+
+  val numberToFaceValueMap: Map[Int, Value] = Map(
+    4 -> FOUR,
+    5 -> FIVE,
+    6 -> SIX,
+    7 -> SEVEN,
+    8 -> EIGHT,
+    9 -> NINE,
+    10 -> TEN,
+    11-> JACK,
+    12 -> QUEEN,
+    13 -> KING,
+    14 -> ACE
+  )
 
 }

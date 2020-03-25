@@ -121,7 +121,7 @@ case object GameEngine {
   def getNextMoveWrapper(validMoves: Moves, gameState: Move)(implicit playerIndicators: PlayerIndicators): Option[Move] = {
     // If normal moves are available, play them first!
     if(!GameUtilities.isOnlySpecialMovesAvailable(validMoves)) {
-      val filteredValidMoves = GameUtilities.filterOnlyNormalCardMoves(validMoves)
+      val filteredValidMoves = GameUtilities.filterNonSpecialCardMoves(validMoves)
       getNextMove(filteredValidMoves, gameState)(getNormalCardMoveHeuristic, playerIndicators)
     } else {
       // If comprising ONLY of special moves, do nothing

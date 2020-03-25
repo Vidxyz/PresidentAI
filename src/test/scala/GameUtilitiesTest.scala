@@ -1101,19 +1101,19 @@ class GameUtilitiesTest extends FunSpec {
     describe("When validMoves comprise only of NormalCard moves") {
 
       it("Should return the validMoves itself") {
-        assert(GameUtilities.filterOnlyNormalCardMoves(validNormalMoves) == validNormalMoves)
+        assert(GameUtilities.filterNonSpecialCardMoves(validNormalMoves) == validNormalMoves)
       }
     }
 
     describe("When validMoves comprise only of SpecialCard moves") {
       it("Should return empty list") {
-        assert(GameUtilities.filterOnlyNormalCardMoves(validSpecialMoves).moves.isEmpty)
+        assert(GameUtilities.filterNonSpecialCardMoves(validSpecialMoves).moves.isEmpty)
       }
     }
 
     describe("When validMoves comprise of both specialCard moves and NormalCard moves"){
       it("Should return list containing only NormalCard moves") {
-        assert(GameUtilities.filterOnlyNormalCardMoves(Moves(listOfSpecialMoves ++ listOfNormalMoves)) == validNormalMoves)
+        assert(GameUtilities.filterNonSpecialCardMoves(Moves(listOfSpecialMoves ++ listOfNormalMoves)) == validNormalMoves)
       }
     }
   }
