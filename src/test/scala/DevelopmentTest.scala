@@ -1,6 +1,6 @@
 import game.FaceValue._
 import game.Suits._
-import game.{GameEngine, GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard}
+import game._
 import org.scalatest.FunSpec
 import player.PlayerIndicators
 
@@ -84,6 +84,26 @@ class DevelopmentTest extends FunSpec {
       println("Next move is " + GameEngine.getNextMoveWrapper(validMoves, gameState)(playerIndicators))
 
       //      println(game.GameUtilities.getNextMoveV2(game.Moves(List(validMove1, validMove12, validMove3)), gameState))
+
+    }
+
+    it("is used for developing wildcard"){
+
+      val allMoves = Moves(List(
+        Move(List(NormalCard(SEVEN, Spade))),
+        Move(List(NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade))),
+        Move(List(NormalCard(NINE, Club), NormalCard(NINE, Heart), NormalCard(NINE, Spade))),
+        Move(List(NormalCard(TEN, Diamond), NormalCard(TEN, Club), NormalCard(TEN, Heart), NormalCard(TEN, Spade))),
+        Move(List(SpecialCard(TWO, Heart))),
+        Move(List(Joker))
+      ))
+
+      val threes = List(WildCard(THREE, Diamond), WildCard(THREE, Spade))
+      val allMovesWithThrees = GameUtilities.addThreesToMoves(allMoves, threes)
+
+      println(GameUtilities.getValidMoves(allMovesWithThrees,
+        Move(List(NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)))))
+
 
     }
   }

@@ -1,4 +1,4 @@
-import game.{GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard}
+import game.{Card, GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard, WildCard}
 import org.scalatest.FunSpec
 import utils.Consants
 
@@ -1116,8 +1116,79 @@ class GameUtilitiesTest extends FunSpec {
         assert(GameUtilities.filterOnlyNormalCardMoves(Moves(listOfSpecialMoves ++ listOfNormalMoves)) == validNormalMoves)
       }
     }
+  }
 
+  describe("tests for getWildCardListFromIntermediateList()") {
 
+    describe("When intermediate list is empty") {
+      it("Should return empty list") {
+        val intermediateList = List.empty
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList).isEmpty)
+      }
+    }
+
+    describe("When intermediate list is a List(List.empty)") {
+      it("Should return empty list") {
+        val intermediateList = List(List.empty)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList).isEmpty)
+      }
+    }
+
+    describe("When intermediateList does NOT have a list of cards with 3s in it") {
+      it("Should return empty list") {
+        val intermediateList = List(
+          List(NormalCard(FOUR, Heart)),
+          List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)),
+          List(NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade)),
+          List(NormalCard(TEN, Diamond), NormalCard(TEN, Club), NormalCard(TEN, Heart), NormalCard(TEN, Spade)),
+          List(SpecialCard(TWO, Spade)),
+          List(Joker)
+        )
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList).isEmpty)
+      }
+    }
+
+    describe("When intermediateList has a list of card(s) with 3s in it") {
+      val intermediateList = List(
+        List(NormalCard(FOUR, Heart)),
+        List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)),
+        List(NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade)),
+        List(NormalCard(TEN, Diamond), NormalCard(TEN, Club), NormalCard(TEN, Heart), NormalCard(TEN, Spade)),
+        List(SpecialCard(TWO, Spade)),
+        List(Joker)
+      )
+
+      describe("When the list of 3s is of size 1") {
+        it("Should return a list of size 1") {
+          val intermediate: List[List[Card]] = intermediateList :+ List(WildCard(THREE, Diamond))
+          assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 1)
+        }
+      }
+
+      describe("When the list of 3s is of size 2") {
+        it("Should return a list of size 2") {
+          val intermediate: List[List[Card]] = intermediateList :+
+            List(WildCard(THREE, Diamond), WildCard(THREE, Club))
+          assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 2)
+        }
+      }
+
+      describe("When the list of 3s is of size 3") {
+        it("Should return a list of size 3") {
+          val intermediate: List[List[Card]] = intermediateList :+
+            List(WildCard(THREE, Diamond), WildCard(THREE, Club), WildCard(THREE, Heart))
+          assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 3)
+        }
+      }
+
+      describe("When the list of 3s is of size 4") {
+        it("Should return a list of size 4") {
+          val intermediate: List[List[Card]] = intermediateList :+
+            List(WildCard(THREE, Diamond), WildCard(THREE, Club), WildCard(THREE, Heart), WildCard(THREE, Spade))
+          assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 4)
+        }
+      }
+    }
   }
 
 }
