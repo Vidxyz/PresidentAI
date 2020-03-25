@@ -210,12 +210,16 @@ case object GameUtilities {
   def cardOrderValue(card: Card): Int = {
     card match {
       case n: NormalCard => numberToCardMap.find(_._2 == n).map(_._1).getOrElse(-1)
-      case w: WildCard => numberToCardMap.find(_._2 ==
-        /* Defaulting to a FOUR for now, look over this later. Theoretically, this shouldn't happen ever. */
-        NormalCard(numberToFaceValueMap.getOrElse(w.assumedValue, FOUR), w.suit)).map(_._1).getOrElse(-1)
+      case w: WildCard => numberToCardMap.find(_._2 == getCardAssumedByWildCard(w)).map(_._1).getOrElse(-1)
     }
-
   }
+
+  /*
+  Returns the NormalCard assumed by a wildcard, given its assumed value
+  Defaulting to a FOUR for now, look over this later. Theoretically, this shouldn't happen ever.
+  */
+
+  def getCardAssumedByWildCard(w: WildCard): NormalCard = NormalCard(numberToFaceValueMap.getOrElse(w.assumedValue, FOUR), w.suit)
 
   def isOnlySpecialMovesAvailable(validMoves: Moves): Boolean = {
     validMoves.moves.foldLeft(true)((acc, move) => move.cards match {
@@ -265,7 +269,7 @@ case object GameUtilities {
         .map(set => set.toList)
 
       // Apply 3s only on NormalMoves, cannot apply with special cards
-      val listOfCardsInNormalMoves = allMoves.moves.filter(move => move match {
+      val listOfCardsInNormalMoves: List[List[Card]] = allMoves.moves.filter(move => move match {
         case Move(List(NormalCard(_,_), _*)) => true
         case _ => false
       }).map(move => move.cards)

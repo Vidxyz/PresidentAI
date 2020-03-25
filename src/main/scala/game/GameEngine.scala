@@ -119,10 +119,10 @@ case object GameEngine {
 
   // TODO - It was noticed during testing that A,A was favored over a single 8, when the hand was 8, Q, A, A - this isnt the most desirable
   def getNextMoveWrapper(validMoves: Moves, gameState: Move)(implicit playerIndicators: PlayerIndicators): Option[Move] = {
-    // If normal moves are available, play them first!
+    // If normal (non-special, including 3s) moves are available, play them first!
     if(!GameUtilities.isOnlySpecialMovesAvailable(validMoves)) {
-      val filteredValidMoves = GameUtilities.filterNonSpecialCardMoves(validMoves)
-      getNextMove(filteredValidMoves, gameState)(getNormalCardMoveHeuristic, playerIndicators)
+      val filteredNonSpecialValidMoves = GameUtilities.filterNonSpecialCardMoves(validMoves)
+      getNextMove(filteredNonSpecialValidMoves, gameState)(getNormalCardMoveHeuristic, playerIndicators)
     } else {
       // If comprising ONLY of special moves, do nothing
       getNextMove(validMoves, gameState)(getSpecialCardMoveHeuristic, playerIndicators)
