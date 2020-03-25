@@ -9,6 +9,10 @@ import scala.util.Random
 
 case object GameUtilities {
 
+  implicit class Crossable[X](xs: List[List[Card]]) {
+    def cross(ys: List[List[Card]]): List[List[Card]] = for { x <- xs; y <- ys } yield x ++ y
+  }
+
   def generatePlayersAndDealHands(listOfNames: List[String], seed: Int = 0): List[Player] = {
     val hands: List[Hand] = dealHands(listOfNames.size, seed)
    (hands zip listOfNames)
@@ -140,7 +144,7 @@ case object GameUtilities {
       else {
         val allCombinations: List[Move] = intermediateSetsOfCards(currentSetIndex)
                                           .toSet
-                                          .subsets()
+                                          .subsets
                                           .toList
                                           .filter(e => e.nonEmpty)
                                           .map(set => Move(set.toList))
@@ -232,5 +236,41 @@ case object GameUtilities {
     }))
   }
 
+  /*
+  Applies all possible combinations of threes to allMoves and returns them
+   */
+  def addThreesToMoves(allMoves: Moves, listOfThrees: List[Card]): Moves = {
+    if(listOfThrees.isEmpty) allMoves
+    else {
+      val allPossibleCombinationsOfThrees = listOfThrees.
+        toSet
+        .subsets
+        .toList
+        .map(set => set.toList)
 
+      // Apply 3s only on NormalMoves, cannot apply with special cards
+      val listOfCardsInNormalMoves = allMoves.moves.filter(move => move match {
+        case Move(List(NormalCard(_,_), _*)) => true
+        case _ => false
+      }).map(move => move.cards)
+      val listOfSpecialMoves = allMoves.moves.filter(move => move match {
+        case Move(List(Joker)) => true
+        case Move(List(SpecialCard(_,_), _*)) => true
+        case _ => false
+      })
+      Moves((allPossibleCombinationsOfThrees cross listOfCardsInNormalMoves).map(list => Move(list)) ++ listOfSpecialMoves)
+    }
+  }
+
+  /*
+  Returns a List[Card] containing all WildCards from supplied list
+  Return List.empty if no wildcards
+   */
+  def getWildCardListFromIntermediateList(intermediateList: List[List[Card]]): List[Card] = {
+    try {
+      intermediateList.filter(list => list.head.intValue == 3).head
+    } catch {
+      case _: Exception => List.empty
+    }
+  }
 }

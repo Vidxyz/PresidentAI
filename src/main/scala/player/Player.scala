@@ -15,7 +15,10 @@ case class Player(name: String, hand: Hand) {
   def playNextMove(currentHand: Hand, currentState: Move): Option[Move] = {
     val sortedHand = Hand(sortCards(currentHand.listOfCards))
     val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
-    val allMoves: Moves = getAllMoves(intermediateLists)
+    val intermediateListsWithoutThrees: List[List[Card]] = intermediateLists.filter(list => list.head.intValue != 3)
+    val listOfThreesInHand: List[Card] = getWildCardListFromIntermediateList(intermediateLists)
+    val allMovesWithoutThrees: Moves = getAllMoves(intermediateListsWithoutThrees)
+    val allMoves: Moves = addThreesToMoves(allMovesWithoutThrees, listOfThreesInHand)
     val validMoves: Moves = getValidMoves(allMoves, currentState)
     getNextMoveWrapper(validMoves, currentState)
   }
