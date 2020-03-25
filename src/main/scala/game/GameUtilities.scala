@@ -1,6 +1,7 @@
 package game
 
-import game.FaceValue.FOUR
+import game.FaceValue.{ACE, FOUR}
+import game.Suits.Spade
 import player.{Player, PlayerIndicators}
 import utils.Consants
 import utils.Consants._
@@ -287,7 +288,7 @@ case object GameUtilities {
                 case w: WildCard => true
                 case e => false })) {
                 listOfCard.map {
-                  case w: WildCard => w.copy(assumedValue = 14) // Value for ACE right now
+                  case w: WildCard => w.copy(assumedValue = NormalCard(ACE, Spade).intValue)
                   case e => e
                 }
               }
