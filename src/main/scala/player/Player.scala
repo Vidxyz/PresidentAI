@@ -31,7 +31,15 @@ case class Player(name: String, hand: Hand) {
       case move: Move => Hand(
         currentHand
           .listOfCards
-          .filter(c => !move.cards.contains(c)))
+          .filter(c => c match {
+            case w: WildCard =>
+              if(move.cards.exists(mc => mc match {
+                case mwc: WildCard => mwc.suit == w.suit
+                case _ => false
+              })) false
+              else true
+            case _ => !move.cards.contains(c)
+          }))
       case None => currentHand
     }
   }
@@ -81,11 +89,17 @@ case class PlayerIndicators(hand: Hand) {
   lazy val highCardModifier: Double =  if(hand.delta == 0) 1d else 1d/hand.delta
 
   /*
+  Gets the total number of cards of the type that is being played
+  Returns
+  Generally speaking, it is desirable to play all cards of the same type at once
+  Example :- Playing quad4s when you have 4-4-4-4 in your hand, over triple4s, double4s, single4s
   Assumes that the card used in the validMove is present in Hand.
   If not, leads to an exception being thrown, and the nextMove defaulting to None
    */
   def getListSetSizeForCard(validMove: Move): Int = {
-    hand.listOfSimilarCards.filter(l => l.head.intValue == validMove.moveFaceValue).head.size
+    // If the move is comprised entirely of wildcards, then return parity of move
+    if(GameUtilities.getNumberOfWildCardsInMove(validMove) == validMove.parity) validMove.parity
+    else hand.listOfSimilarCards.filter(l => l.head.intValue == validMove.moveFaceValue).head.size
   }
 
 }

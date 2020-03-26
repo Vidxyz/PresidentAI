@@ -48,7 +48,8 @@ object Main extends App {
   // Comment out seed for true randomness
 //  val listOfPlayers = game.GameUtilities.generatePlayersAndDealHands(listOfNames, seed=5).toBuffer
   // 77 and 13 are good seeds
-  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames, seed=13).toBuffer
+//  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames, seed=13).toBuffer
+  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames).toBuffer
   val listOfPlayers2 = GameUtilities.generatePlayersAndDealHands(listOfNames2, seed=77).toBuffer
 
   val game = Game(Move(List.empty))
