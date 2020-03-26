@@ -165,8 +165,9 @@ case class Hand(listOfCards: List[Card]) {
 /*
 A move is classified as a sorted List[game.Card] sorted as per numberToCardMap
  */
-case class Move(cards: List[Card]) {
-  override def toString: String = if(cards.nonEmpty) "game.Move(" + cards + ")" else "EMPTY"
+case class Move(cards: List[Card], likelihood: Double = 0) {
+  override def toString: String = if(cards.nonEmpty) "game.Move(" + cards + ")" +
+    (if (likelihood > 0) s"[$likelihood]" else "") else "EMPTY"
 
   def moveFaceValue: Int = {
     if (cards.isEmpty) 0

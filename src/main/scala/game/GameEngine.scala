@@ -12,13 +12,13 @@ case object GameEngine {
  Gets a 0-1 value signifying how desirable a move is compared to given game state
  Assumption :- validMove is a valid move given the current gameState
   */
-  def getNormalCardMoveHeuristic(validMove: Move, gameState: Move,
-                                 playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
+  def applyNormalCardMoveHeuristic(validMove: Move, gameState: Move,
+                                   playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Move = {
     validMove.cards match {
       case List(NormalCard(_,_), _*) | List(WildCard(_,_,_), _*) =>
-        if(gameState.isEmpty)  scala.math.max(0d, applyNormalCardHeuristicWithMoveSizeModifier(validMove) - wildCardUsagePenalty(validMove)/2)
-        else scala.math.max(0d, applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState,
-              playerIndicators.getListSetSizeForCard(validMove)) - wildCardUsagePenalty(validMove)/2)
+        if(gameState.isEmpty)  validMove.copy(likelihood = scala.math.max(0d, applyNormalCardHeuristicWithMoveSizeModifier(validMove) - wildCardUsagePenalty(validMove)/2))
+        else validMove.copy(likelihood = scala.math.max(0d, applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState,
+          playerIndicators.getListSetSizeForCard(validMove)) - wildCardUsagePenalty(validMove)/2))
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
     }
   }
@@ -28,41 +28,47 @@ case object GameEngine {
   Prioritizes playing jokers on triples/quads over using probability function
   TODO - Clean up code by using match with guards instead of nested if-else
    */
-  def getSpecialCardMoveHeuristic(validMove: Move, gameState: Move,
-                                  playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
+  def applySpecialCardMoveHeuristic(validMove: Move, gameState: Move,
+                                    playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Move = {
     val randomValue = Random.nextDouble()
     validMove match {
-      case Move(List(NormalCard(_,_), _*)) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
-      case Move(List(Joker, _*)) =>  if (gameState.isEmpty || gameState.parity < 3 ) {
+      case Move(List(NormalCard(_,_), _*), _) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
+      case Move(List(Joker, _*), _) =>  if (gameState.isEmpty || gameState.parity < 3 ) {
         /* We don't care about playing jokers any differently if its a double/single */
-        if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
+        val l = if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
+        validMove.copy(likelihood = l)
       }
       else{
         /* Modifying probability of playing a joker according to :- modifier^(2/(parity-1))
         This is to incentivize playing jokers for triples/quads
         */
-        if (randomValue < applyJokerModifierFunction(playerIndicators.specialCardModifier, gameState.parity)) playerIndicators.specialCardModifier
-        else 0
+        val l = if (randomValue < applyJokerModifierFunction(playerIndicators.specialCardModifier, gameState.parity)) playerIndicators.specialCardModifier else 0
+        validMove.copy(likelihood = l)
       }
       case validSpecialMove =>
         // Meaning that a single 2 is being played
         if(validSpecialMove.parity == 1) {
           // Meaning that the special card is gonna be played on top of (a) game.NormalCard(s)
           if(gameState.isEmpty || gameState.highestCard.intValue > 2) {
-            if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
+            val l = if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
+            validMove.copy(likelihood = l)
           }
           // Meaning that the special card is gonna be played on top of a 2
           else {
             // Prioritizing off-by-one 2-suit burns
-            if(GameUtilities.cardOrderValue(validSpecialMove.highestCard) - GameUtilities.cardOrderValue(gameState.highestCard) == 1) playerIndicators.specialCardModifier
-            else if(randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
+            val l = {
+              if(GameUtilities.cardOrderValue(validSpecialMove.highestCard) - GameUtilities.cardOrderValue(gameState.highestCard) == 1) playerIndicators.specialCardModifier
+              else if(randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier
+              else 0
+            }
+            validMove.copy(likelihood = l)
           }
         }
         // Meaning that multiple 2s are being played
         else {
           // This is being done to de-incentivize playing multiple 2s at once, since that is a pretty expensive move
-          if (randomValue < applyMultipleTwoModifierFunction(playerIndicators.specialCardModifier, validSpecialMove.parity)) playerIndicators.specialCardModifier
-          else 0
+          val l = if (randomValue < applyMultipleTwoModifierFunction(playerIndicators.specialCardModifier, validSpecialMove.parity)) playerIndicators.specialCardModifier else 0
+          validSpecialMove.copy(likelihood = l)
         }
     }
   }
@@ -120,16 +126,13 @@ case object GameEngine {
   1. validMoves will comprise of moves with Special Cards (2s, Jokers) IFF no game.NormalCard moves are available
     1.1 Even then, there isnt a guarantee that the special card will be chosen
    */
-  def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, PlayerIndicators) => Double,
+  def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, PlayerIndicators) => Move,
                                                       playerIndicators: PlayerIndicators): Option[Move] = {
     try {
-      Some(
-        validMoves.moves(validMoves.moves
+      Some(validMoves.moves
           .map(m => heuristic(m, gameState, playerIndicators))
-          .filter(value => value > 0)
-          .zipWithIndex
-          .maxBy(_._1)
-          ._2))
+          .filter(validMoves => validMoves.likelihood > 0)
+          .maxBy(_.likelihood))
     } catch {
       case e: Exception =>
 //        e.printStackTrace()
@@ -142,10 +145,10 @@ case object GameEngine {
     // If normal (non-special, including 3s) moves are available, play them first!
     if(!GameUtilities.isOnlySpecialMovesAvailable(validMoves)) {
       val filteredNonSpecialValidMoves = GameUtilities.filterNonSpecialCardMoves(validMoves)
-      getNextMove(filteredNonSpecialValidMoves, gameState)(getNormalCardMoveHeuristic, playerIndicators)
+      getNextMove(filteredNonSpecialValidMoves, gameState)(applyNormalCardMoveHeuristic, playerIndicators)
     } else {
       // If comprising ONLY of special moves, do nothing
-      getNextMove(validMoves, gameState)(getSpecialCardMoveHeuristic, playerIndicators)
+      getNextMove(validMoves, gameState)(applySpecialCardMoveHeuristic, playerIndicators)
     }
   }
 

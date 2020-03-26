@@ -72,12 +72,12 @@ class DevelopmentTest extends FunSpec {
       //      println(single9 +  " : " + game.GameUtilities.getNormalCardMoveHeuristic(single9, gameState, playerIndicators).toString)
       //      println(single10 +  " : " + game.GameUtilities.getNormalCardMoveHeuristic(single10, gameState, playerIndicators).toString)
       //      println(singleJack +  " : " + game.GameUtilities.getNormalCardMoveHeuristic(singleJack, gameState, playerIndicators).toString)
-      println(single8D +  " : " + GameEngine.getNormalCardMoveHeuristic(single8D, gameState, playerIndicators).toString)
-      println(doubleQueen +  " : " + GameEngine.getNormalCardMoveHeuristic(doubleQueen, gameState, playerIndicators).toString)
-      println(single2D +  " : " + GameEngine.getSpecialCardMoveHeuristic(single2D, gameState, playerIndicators).toString)
-      println(single2C +  " : " + GameEngine.getSpecialCardMoveHeuristic(single2C, gameState, playerIndicators).toString)
-      println(single2H +  " : " + GameEngine.getSpecialCardMoveHeuristic(single2H, gameState, playerIndicators).toString)
-      println(joker +  " : " + GameEngine.getSpecialCardMoveHeuristic(joker, gameState, playerIndicators).toString)
+      println(single8D +  " : " + GameEngine.applyNormalCardMoveHeuristic(single8D, gameState, playerIndicators).toString)
+      println(doubleQueen +  " : " + GameEngine.applyNormalCardMoveHeuristic(doubleQueen, gameState, playerIndicators).toString)
+      println(single2D +  " : " + GameEngine.applySpecialCardMoveHeuristic(single2D, gameState, playerIndicators).toString)
+      println(single2C +  " : " + GameEngine.applySpecialCardMoveHeuristic(single2C, gameState, playerIndicators).toString)
+      println(single2H +  " : " + GameEngine.applySpecialCardMoveHeuristic(single2H, gameState, playerIndicators).toString)
+      println(joker +  " : " + GameEngine.applySpecialCardMoveHeuristic(joker, gameState, playerIndicators).toString)
 
       val validMoves = Moves(List(single8D, doubleQueen, single2D, single2C, single2H, two2s, three2s, joker))
       println("Is only special moves available " + GameUtilities.isOnlySpecialMovesAvailable(validMoves) )
@@ -154,8 +154,8 @@ class DevelopmentTest extends FunSpec {
       val otherMove = Move(List(WildCard(THREE, Heart, 13), NormalCard(KING, Heart)))
       val gs = Move(List(NormalCard(NINE, Heart), NormalCard(NINE, Spade)))
 
-      println(GameEngine.getNormalCardMoveHeuristic(double10s, gs, PlayerIndicators(observedHand)))
-      println(GameEngine.getNormalCardMoveHeuristic(otherMove, gs, PlayerIndicators(observedHand)))
+      println(GameEngine.applyNormalCardMoveHeuristic(double10s, gs, PlayerIndicators(observedHand)))
+      println(GameEngine.applyNormalCardMoveHeuristic(otherMove, gs, PlayerIndicators(observedHand)))
 
       val single3 = Move(List(WildCard(THREE, Diamond, 14)))
 
@@ -163,7 +163,7 @@ class DevelopmentTest extends FunSpec {
 
       val aHand = Hand(List(WildCard(THREE, Diamond), SpecialCard(TWO, Diamond)))
 
-      println(GameEngine.getNormalCardMoveHeuristic(single3, Move(List.empty), PlayerIndicators(aHand)))
+      println(GameEngine.applyNormalCardMoveHeuristic(single3, Move(List.empty), PlayerIndicators(aHand)))
       println(GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(single3))
       println(GameEngine.wildCardUsagePenalty(single3))
 
@@ -188,6 +188,18 @@ class DevelopmentTest extends FunSpec {
       val m2 = Move(List(WildCard(THREE, Club, 14), WildCard(THREE, Spade, 7)))
 
       println(GameUtilities.checkIfBetter(m1, m2))
+
+
+      val gs = Move(List(NormalCard(SIX, Spade)))
+      val pHand = Hand(List(
+        WildCard(THREE, Diamond),
+        NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Heart),NormalCard(EIGHT, Spade),
+        NormalCard(KING, Diamond),NormalCard(KING, Spade),
+        SpecialCard(TWO, Club)
+      ))
+
+      // Here, K-diamond is preferred over playing the 3 - this is WRONG!
+//      val m1 =
 
     }
 

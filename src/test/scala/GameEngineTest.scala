@@ -18,7 +18,7 @@ class GameEngineTest extends FunSpec {
       it("Should return an None") {
         val playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))
         assert(GameEngine.getNextMove(Moves(List.empty), Move(List.empty))
-        (GameEngine.getNormalCardMoveHeuristic, playerIndicators).isEmpty)
+        (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).isEmpty)
       }
     }
 
@@ -26,7 +26,7 @@ class GameEngineTest extends FunSpec {
       it("Should return the validMove") {
         val gameState = Move(List(NormalCard(JACK, Heart)))
         val validMoves = Moves(List(Move(List(NormalCard(QUEEN, Diamond)))))
-        assert(GameEngine.getNextMove(validMoves, gameState)(GameEngine.getNormalCardMoveHeuristic, PlayerIndicators(Hand(List(NormalCard(QUEEN, Diamond)))))
+        assert(GameEngine.getNextMove(validMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(NormalCard(QUEEN, Diamond)))))
           .contains(Move(List(NormalCard(QUEEN, Diamond)))))
       }
     }
@@ -67,25 +67,25 @@ class GameEngineTest extends FunSpec {
 
       describe("When the validMoves are all singles") {
         it("Should pick the lowest single") {
-          assert(GameEngine.getNextMove(allSingles, Move(List.empty))(GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(allSingles.moves.head))
+          assert(GameEngine.getNextMove(allSingles, Move(List.empty))(GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(allSingles.moves.head))
         }
       }
 
       describe("When the validMoves are all doubles") {
         it("Should pick the lowest double") {
-          assert(GameEngine.getNextMove(allDoubles, Move(List.empty))(GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(allDoubles.moves.head))
+          assert(GameEngine.getNextMove(allDoubles, Move(List.empty))(GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(allDoubles.moves.head))
         }
       }
 
       describe("When the validMoves are all triples") {
         it("Should pick the lowest triple") {
-          assert(GameEngine.getNextMove(allTriples, Move(List.empty))(GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(allTriples.moves.head))
+          assert(GameEngine.getNextMove(allTriples, Move(List.empty))(GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(allTriples.moves.head))
         }
       }
 
       describe("When the validMoves are all quads") {
         it("Should pick the lowest quad") {
-          assert(GameEngine.getNextMove(allQuads, Move(List.empty))(GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(allQuads.moves.head))
+          assert(GameEngine.getNextMove(allQuads, Move(List.empty))(GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(allQuads.moves.head))
         }
       }
 
@@ -98,7 +98,7 @@ class GameEngineTest extends FunSpec {
           ))
           val gameState = Move(List.empty)
           assert(GameEngine.getNextMove(validMoves, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(double6s))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(double6s))
         }
       }
 
@@ -109,7 +109,7 @@ class GameEngineTest extends FunSpec {
           val validMoves: Moves = Moves(List(double5s, triple6s))
           val gameState = Move(List.empty)
           assert(GameEngine.getNextMove(validMoves, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(triple6s))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(triple6s))
         }
       }
 
@@ -120,7 +120,7 @@ class GameEngineTest extends FunSpec {
           val validMoves: Moves = Moves(List(single5, triple6s))
           val gameState = Move(List.empty)
           assert(GameEngine.getNextMove(validMoves, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(triple6s))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(triple6s))
         }
       }
 
@@ -131,7 +131,7 @@ class GameEngineTest extends FunSpec {
           val validMoves: Moves = Moves(List(triple5s, quad7s))
           val gameState = Move(List.empty)
           assert(GameEngine.getNextMove(validMoves, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(quad7s))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(quad7s))
         }
       }
 
@@ -142,7 +142,7 @@ class GameEngineTest extends FunSpec {
           val validMoves: Moves = Moves(List(double5s, quad7s))
           val gameState = Move(List.empty)
           assert(GameEngine.getNextMove(validMoves, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(quad7s))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(quad7s))
         }
       }
 
@@ -153,7 +153,7 @@ class GameEngineTest extends FunSpec {
           val validMoves: Moves = Moves(List(single5, quad7s))
           val gameState = Move(List.empty)
           assert(GameEngine.getNextMove(validMoves, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(quad7s))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(quad7s))
         }
       }
 
@@ -169,25 +169,25 @@ class GameEngineTest extends FunSpec {
         describe("When special move is comprised of a single or multiple 2s") {
           it("Should return single2 or None when only single 2s are valid moves") {
             val validMoves = Moves(List(single2))
-            val result = GameEngine.getNextMove(validMoves, gameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+            val result = GameEngine.getNextMove(validMoves, gameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
             assert(result.contains(single2) || result.isEmpty)
           }
 
           it("Should return double2 or None when only double2s are valid moves") {
             val validMoves = Moves(List(double2))
-            val result = GameEngine.getNextMove(validMoves, gameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+            val result = GameEngine.getNextMove(validMoves, gameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
             assert(result.contains(double2) || result.isEmpty)
           }
 
           it("Should return triple2 or None when only triple2s are valid moves") {
             val validMoves = Moves(List(triple2))
-            val result = GameEngine.getNextMove(validMoves, gameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+            val result = GameEngine.getNextMove(validMoves, gameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
             assert(result.contains(triple2) || result.isEmpty)
           }
 
           it("Should return Joker or None when only Joker is a valid move") {
             val validMoves = Moves(List(joker))
-            val result = GameEngine.getNextMove(validMoves, gameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+            val result = GameEngine.getNextMove(validMoves, gameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
             assert(result.contains(joker) || result.isEmpty)
           }
         }
@@ -225,14 +225,14 @@ class GameEngineTest extends FunSpec {
           val gameState = Move(List(NormalCard(FIVE, Club)))
           val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
           assert(GameEngine.getNextMove(allSingles, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(allSingles.moves.head))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(allSingles.moves.head))
         }
 
         it("Should pick a higher single without breaking a set than a lower single that involves breaking a set ") {
           val gameState = Move(List(NormalCard(THREE, Diamond)))
           val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
           assert(GameEngine.getNextMove(allValidMoves, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(Move(List(NormalCard(SEVEN, Diamond)))))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(NormalCard(SEVEN, Diamond)))))
         }
 
       }
@@ -242,7 +242,7 @@ class GameEngineTest extends FunSpec {
           val gameState = Move(List(NormalCard(THREE, Diamond), NormalCard(THREE, Club)))
           val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
           assert(GameEngine.getNextMove(allValidMoves, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)))))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)))))
         }
       }
 
@@ -251,7 +251,7 @@ class GameEngineTest extends FunSpec {
           val gameState = Move(List(NormalCard(THREE, Diamond), NormalCard(THREE, Club), NormalCard(THREE, Heart)))
           val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
           assert(GameEngine.getNextMove(allValidMoves, gameState)
-          (GameEngine.getNormalCardMoveHeuristic, playerIndicators).contains(Move(List(NormalCard(FIVE, Diamond),
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(NormalCard(FIVE, Diamond),
             NormalCard(FIVE, Club), NormalCard(FIVE, Heart)))))
         }
       }
@@ -266,28 +266,28 @@ class GameEngineTest extends FunSpec {
         val triple2 = Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart)))
 
         it("Returns the single2 or none when played on top of a nonEmpty normal card"){
-          val result = GameEngine.getNextMove(Moves(List(single2)), gameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+          val result = GameEngine.getNextMove(Moves(List(single2)), gameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
           assert(result.contains(single2) || result.isEmpty)
         }
 
         it("Returns the double2 or none when played on top of a nonEmpty normal card"){
           val currentGameState = Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart)))
-          val result = GameEngine.getNextMove(Moves(List(double2)), currentGameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+          val result = GameEngine.getNextMove(Moves(List(double2)), currentGameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
           assert(result.contains(double2) || result.isEmpty)
         }
 
         it("Returns the triple2 or none when played on top of a nonEmpty normal cards"){
           val currentGameState = Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))
-          val result = GameEngine.getNextMove(Moves(List(triple2)), currentGameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+          val result = GameEngine.getNextMove(Moves(List(triple2)), currentGameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
           assert(result.contains(triple2) || result.isEmpty)
         }
 
         it("Returns the joker or none when played on top of a nonEmpty normal card(s)"){
           val currentGameState2 = Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart)))
           val currentGameState3 = Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)))
-          val result = GameEngine.getNextMove(Moves(List(joker)), gameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
-          val result2 = GameEngine.getNextMove(Moves(List(joker)), currentGameState2)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
-          val result3 = GameEngine.getNextMove(Moves(List(joker)), currentGameState3)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+          val result = GameEngine.getNextMove(Moves(List(joker)), gameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
+          val result2 = GameEngine.getNextMove(Moves(List(joker)), currentGameState2)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
+          val result3 = GameEngine.getNextMove(Moves(List(joker)), currentGameState3)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
           assert(result.contains(joker) || result.isEmpty)
           assert(result2.contains(joker) || result2.isEmpty)
           assert(result3.contains(joker) || result3.isEmpty)
@@ -314,27 +314,27 @@ class GameEngineTest extends FunSpec {
 
       it("Should play a 2, if its suit is one-greater-than that of the gameState 2") {
         assert(GameEngine.getNextMove(Moves(List(betterTwoGameState, twoGameState2, betterTwoGameState2)), twoGameState)
-        (GameEngine.getSpecialCardMoveHeuristic, playerInd).contains(betterTwoGameState))
+        (GameEngine.applySpecialCardMoveHeuristic, playerInd).contains(betterTwoGameState))
 
         assert(GameEngine.getNextMove(Moves(List(betterTwoGameState2)), twoGameState2)
-        (GameEngine.getSpecialCardMoveHeuristic, playerInd).contains(betterTwoGameState2))
+        (GameEngine.applySpecialCardMoveHeuristic, playerInd).contains(betterTwoGameState2))
       }
 
       it("Should return either a 2, or none, if the suit difference is > 1") {
-        val result = GameEngine.getNextMove(Moves(List(twoGameState2)), twoGameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+        val result = GameEngine.getNextMove(Moves(List(twoGameState2)), twoGameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
         assert(result.contains(twoGameState2) || result.isEmpty)
       }
 
       it("Should return either two 2s, or none, if the gameState involves two 2s") {
-        val result = GameEngine.getNextMove(Moves(List(betterTwo2GameState)), two2GameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+        val result = GameEngine.getNextMove(Moves(List(betterTwo2GameState)), two2GameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
         assert(result.contains(betterTwo2GameState) || result.isEmpty)
       }
 
       it("Should return either Joker or None, if gameState involves single or two 2s"){
-        val result1 = GameEngine.getNextMove(Moves(List(Move(List(Joker)))), betterTwo2GameState)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+        val result1 = GameEngine.getNextMove(Moves(List(Move(List(Joker)))), betterTwo2GameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
         assert(result1.contains(Move(List(Joker))) || result1.isEmpty)
 
-        val result2 = GameEngine.getNextMove(Moves(List(Move(List(Joker)))), betterTwoGameState2)(GameEngine.getSpecialCardMoveHeuristic, playerInd)
+        val result2 = GameEngine.getNextMove(Moves(List(Move(List(Joker)))), betterTwoGameState2)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
         assert(result2.contains(Move(List(Joker))) || result2.isEmpty)
       }
     }
@@ -427,22 +427,22 @@ class GameEngineTest extends FunSpec {
     describe("Throws exception when") {
 
       it("Move involves a joker") {
-        assertThrows[IllegalHeuristicFunctionException](GameEngine.getNormalCardMoveHeuristic(Move(List(Joker)), Move(List.empty)))
+        assertThrows[IllegalHeuristicFunctionException](GameEngine.applyNormalCardMoveHeuristic(Move(List(Joker)), Move(List.empty)))
       }
 
       describe("When move involves a 2") {
         it("is a single 2") {
           assertThrows[IllegalHeuristicFunctionException](GameEngine.
-            getNormalCardMoveHeuristic(Move(List(SpecialCard(TWO, Diamond))), Move(List.empty)))
+            applyNormalCardMoveHeuristic(Move(List(SpecialCard(TWO, Diamond))), Move(List.empty)))
         }
         it("is a double 2") {
           assertThrows[IllegalHeuristicFunctionException](GameEngine.
-            getNormalCardMoveHeuristic(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
+            applyNormalCardMoveHeuristic(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
               Move(List.empty)))
         }
         it("is a triple 2") {
           assertThrows[IllegalHeuristicFunctionException](GameEngine.
-            getNormalCardMoveHeuristic(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
+            applyNormalCardMoveHeuristic(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
               Move(List.empty)))
         }
       }
@@ -454,13 +454,13 @@ class GameEngineTest extends FunSpec {
 
       describe("When validMove is a single 4")  {
         it("should return value") {
-          assert(GameEngine.getNormalCardMoveHeuristic(Move(List(NormalCard(FOUR,Heart))), emptyGameState) == 0.25)
+          assert(GameEngine.applyNormalCardMoveHeuristic(Move(List(NormalCard(FOUR,Heart))), emptyGameState) == 0.25)
         }
       }
 
       describe("When validMove is double4s")  {
         it("should return value") {
-          assert(GameEngine.getNormalCardMoveHeuristic(
+          assert(GameEngine.applyNormalCardMoveHeuristic(
             Move(List(NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
             emptyGameState) == 0.305)
         }
@@ -468,7 +468,7 @@ class GameEngineTest extends FunSpec {
 
       describe("When validMove is triple4s")  {
         it("should return value") {
-          assert(GameEngine.getNormalCardMoveHeuristic(
+          assert(GameEngine.applyNormalCardMoveHeuristic(
             Move(List(NormalCard(FOUR,Club), NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
             emptyGameState) == 0.36)
         }
@@ -476,7 +476,7 @@ class GameEngineTest extends FunSpec {
 
       describe("When validMove is quad4s")  {
         it("should return value") {
-          assert(GameEngine.getNormalCardMoveHeuristic(
+          assert(GameEngine.applyNormalCardMoveHeuristic(
             Move(List(NormalCard(FOUR,Diamond), NormalCard(FOUR,Club),
               NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
             emptyGameState) === 0.415)
@@ -491,7 +491,7 @@ class GameEngineTest extends FunSpec {
         it("should return the right value") {
           val gameState = Move(List(NormalCard(FIVE, Spade)))
           val validMove = Move(List(NormalCard(NINE, Diamond)))
-          assert(GameEngine.getNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
         }
       }
 
@@ -500,7 +500,7 @@ class GameEngineTest extends FunSpec {
         it("should return the right value") {
           val gameState = Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Spade)))
           val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Spade)))
-          assert(GameEngine.getNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
         }
       }
 
@@ -509,7 +509,7 @@ class GameEngineTest extends FunSpec {
           val hand = Hand(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club), NormalCard(NINE, Spade)))
           val gameState = Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
           val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club), NormalCard(NINE, Spade)))
-          assert(GameEngine.getNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
         }
       }
 
@@ -520,7 +520,7 @@ class GameEngineTest extends FunSpec {
             NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
           val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club),
             NormalCard(NINE, Heart), NormalCard(NINE, Spade)))
-          assert(GameEngine.getNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
         }
       }
     }
@@ -545,11 +545,11 @@ class GameEngineTest extends FunSpec {
 
     describe("Throws exception when") {
       it("Move involves a NormalCard") {
-        assertThrows[IllegalHeuristicFunctionException](GameEngine.getSpecialCardMoveHeuristic(Move(List(NormalCard(EIGHT, Heart))), Move(List.empty)))
+        assertThrows[IllegalHeuristicFunctionException](GameEngine.applySpecialCardMoveHeuristic(Move(List(NormalCard(EIGHT, Heart))), Move(List.empty)))
       }
 
       it("Move involves a list of NormalCard"){
-        assertThrows[IllegalHeuristicFunctionException](GameEngine.getSpecialCardMoveHeuristic(
+        assertThrows[IllegalHeuristicFunctionException](GameEngine.applySpecialCardMoveHeuristic(
           Move(List(NormalCard(NINE, Club), NormalCard(NINE, Heart), NormalCard(NINE, Spade))), Move(List.empty)))
       }
     }
@@ -560,15 +560,15 @@ class GameEngineTest extends FunSpec {
 
       describe("When gameState is empty") {
         it("Should return playerModifier.specialCardModifier or 0") {
-          val result = GameEngine.getSpecialCardMoveHeuristic(validMove, Move(List.empty), playerIndicators)
+          val result = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List.empty), playerIndicators)
           assert(result == playerIndicators.specialCardModifier || result == 0)
         }
       }
 
       describe("When gameState is a single or a double") {
         it("Should return playerModifier.specialCardModifier or 0") {
-          val result = GameEngine.getSpecialCardMoveHeuristic(validMove, Move(List(NormalCard(ACE, Heart))), playerIndicators)
-          val result2 = GameEngine.getSpecialCardMoveHeuristic(validMove, Move(List(NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
+          val result = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List(NormalCard(ACE, Heart))), playerIndicators)
+          val result2 = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List(NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
           assert(result == playerIndicators.specialCardModifier || result == 0)
           assert(result2 == playerIndicators.specialCardModifier || result2 == 0)
         }
@@ -576,9 +576,9 @@ class GameEngineTest extends FunSpec {
 
       describe("When gameState is a triple or higher") {
         it("Should return playerModifier.specialCardModifier or 0") {
-          val result = GameEngine.getSpecialCardMoveHeuristic(validMove,
+          val result = GameEngine.applySpecialCardMoveHeuristic(validMove,
             Move(List(NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
-          val result2 = GameEngine.getSpecialCardMoveHeuristic(validMove,
+          val result2 = GameEngine.applySpecialCardMoveHeuristic(validMove,
             Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
           assert(result == playerIndicators.specialCardModifier || result == 0)
           assert(result2 == playerIndicators.specialCardModifier || result2 == 0)
@@ -596,21 +596,21 @@ class GameEngineTest extends FunSpec {
       describe("When validMove consists of a single 2") {
         describe("When gameState is empty") {
           it("Should return playerModifier.specialCardModifier or 0") {
-            val result = GameEngine.getSpecialCardMoveHeuristic(single2, Move(List.empty), playerIndicators)
+            val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List.empty), playerIndicators)
             assert(result == playerIndicators.specialCardModifier || result == 0)
           }
         }
 
         describe("When a single 2 is played on top of a single NormalCard") {
           it("Should return playerModifier.specialCardModifier or 0") {
-            val result = GameEngine.getSpecialCardMoveHeuristic(single2, Move(List(NormalCard(ACE, Diamond))), playerIndicators)
+            val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(NormalCard(ACE, Diamond))), playerIndicators)
             assert(result == playerIndicators.specialCardModifier || result == 0)
           }
         }
 
         describe("When a single 2 is played on top of a double NormalCard"){
           it("Should return playerModifier.specialCardModifier or 0") {
-            val result = GameEngine.getSpecialCardMoveHeuristic(single2,
+            val result = GameEngine.applySpecialCardMoveHeuristic(single2,
               Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Spade))), playerIndicators)
             assert(result == playerIndicators.specialCardModifier || result == 0)
           }
@@ -619,14 +619,14 @@ class GameEngineTest extends FunSpec {
         describe("When a single 2 is played on top of another single 2") {
           describe("When the 2 being played is one-suit-away from the 2 on top") {
             it("Should return playerModifier.specialCardModifier") {
-              val result = GameEngine.getSpecialCardMoveHeuristic(single2, Move(List(SpecialCard(TWO, Club))), playerIndicators)
+              val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(SpecialCard(TWO, Club))), playerIndicators)
               assert(result == playerIndicators.specialCardModifier)
             }
           }
 
           describe("When the 2 being played is not one-suit-away from the 2 on top") {
             it("Should return playerModifier.specialCardModifier or 0") {
-              val result = GameEngine.getSpecialCardMoveHeuristic(single2, Move(List(SpecialCard(TWO, Diamond))), playerIndicators)
+              val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(SpecialCard(TWO, Diamond))), playerIndicators)
               assert(result == playerIndicators.specialCardModifier || result == 0)
             }
           }
@@ -637,7 +637,7 @@ class GameEngineTest extends FunSpec {
       describe("When validMove consists of multiple 2s") {
         describe("When two 2s are being played") {
           it("Should return playerModifier.specialCardModifier or 0") {
-            val result = GameEngine.getSpecialCardMoveHeuristic(double2,
+            val result = GameEngine.applySpecialCardMoveHeuristic(double2,
               Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart))), playerIndicators)
             assert(result == playerIndicators.specialCardModifier || result == 0)
           }
@@ -645,7 +645,7 @@ class GameEngineTest extends FunSpec {
 
         describe("When three 2s are being played") {
           it("Should return playerModifier.specialCardModifier or 0") {
-            val result = GameEngine.getSpecialCardMoveHeuristic(triple2,
+            val result = GameEngine.applySpecialCardMoveHeuristic(triple2,
               Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade))), playerIndicators)
             assert(result == playerIndicators.specialCardModifier || result == 0)
           }
@@ -653,7 +653,7 @@ class GameEngineTest extends FunSpec {
 
         describe("When two 2s are being played on top of existing two 2s"){
           it("should not care about off-by-one suit-burn preferences since it is still an expensive move and return 0/modifier value") {
-            val result = GameEngine.getSpecialCardMoveHeuristic(double2,
+            val result = GameEngine.applySpecialCardMoveHeuristic(double2,
               Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club))), playerIndicators)
             assert(result == playerIndicators.specialCardModifier || result == 0)
           }

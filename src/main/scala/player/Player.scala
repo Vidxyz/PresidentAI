@@ -21,7 +21,8 @@ case class Player(name: String, hand: Hand) {
     val allMoves: Moves = addThreesToMoves(allMovesWithoutThrees, listOfThreesInHand)
     val validMoves: Moves = getValidMoves(allMoves, currentState)
     val validMovesWithWildCardsOptimallyAssigned: Moves = assignWildCardsOptimally(validMoves, currentState)
-    getNextMoveWrapper(validMovesWithWildCardsOptimallyAssigned, currentState)
+    val nextMove: Option[Move] = getNextMoveWrapper(validMovesWithWildCardsOptimallyAssigned, currentState)
+    nextMove
   }
 
 }

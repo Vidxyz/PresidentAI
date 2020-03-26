@@ -278,12 +278,12 @@ case object GameUtilities {
 
       // Apply 3s only on NormalMoves, cannot apply with special cards
       val listOfCardsInNormalMoves: List[List[Card]] = allMoves.moves.filter(move => move match {
-        case Move(List(NormalCard(_,_), _*)) => true
+        case Move(List(NormalCard(_,_), _*), _) => true
         case _ => false
       }).map(move => move.cards)
       val listOfSpecialMoves = allMoves.moves.filter(move => move match {
-        case Move(List(Joker)) => true
-        case Move(List(SpecialCard(_,_), _*)) => true
+        case Move(List(Joker), _) => true
+        case Move(List(SpecialCard(_,_), _*), _) => true
         case _ => false
       })
 
