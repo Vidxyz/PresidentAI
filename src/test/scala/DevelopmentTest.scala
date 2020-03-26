@@ -175,6 +175,20 @@ class DevelopmentTest extends FunSpec {
       println(GameUtilities.checkIfBetter(move1, move2))
       print(GameUtilities.getNextGameState(move1, Some(move2)))
 
+
+
+    }
+
+    it("is a new test") {
+      val m = Move(List(WildCard(THREE, Diamond), WildCard(THREE, Spade, 8), NormalCard(SEVEN, Club)))
+      println(m.highestCard)
+
+      //checkIfBetter
+      val m1 = Move(List(WildCard(THREE, Diamond, 7), NormalCard(SEVEN, Club)))
+      val m2 = Move(List(WildCard(THREE, Club, 14), WildCard(THREE, Spade, 7)))
+
+      println(GameUtilities.checkIfBetter(m1, m2))
+
     }
 
   }

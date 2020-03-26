@@ -362,6 +362,34 @@ case object GameUtilities {
   3. It's assumedValue changes to that of gameState.moveFaceValue + 1, if gameState is not an ACE
    */
   def assignWildCardsOptimally(validMoves: Moves, gameState: Move): Moves = {
-    validMoves
+    Moves(validMoves.moves
+      .map(move => if(GameUtilities.getNumberOfWildCardsInMove(move) == move.parity)
+                      getOptimalWildCardValue(move, gameState)
+                    else move))
   }
+
+  /*
+  Assumption - the move is comprised entirely of 3s
+  It is also a valid move given the gameState
+  Example :- 3(A)-3(A) on top of 9-9
+   */
+  def getOptimalWildCardValue(validMove: Move, gameState: Move): Move = {
+    if(GameUtilities.getNumberOfWildCardsInMove(validMove) != validMove.parity) throw IllegalMoveSuppliedException("Function only accept moves comprised completely of WildCards")
+    else if (gameState.parity == 0) validMove  /* Return highest possible assumed value if gameState is empty */
+    else {
+      validMove.highestCard match {
+        case w: WildCard =>
+          if(cardOrderValue(w.copy(assumedValue=gameState.moveFaceValue)) > cardOrderValue(gameState.highestCard)) {
+            Move(validMove.cards.map(card => card match {
+              case w: WildCard => w.copy(assumedValue=gameState.moveFaceValue)
+              case c: Card => c
+            }))
+          }
+          else validMove
+        case _ => validMove
+      }
+    }
+  }
+
+  case class IllegalMoveSuppliedException(s: String) extends IllegalArgumentException(s)
 }

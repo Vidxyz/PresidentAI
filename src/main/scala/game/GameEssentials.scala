@@ -171,7 +171,7 @@ case class Move(cards: List[Card]) {
   def moveFaceValue: Int = {
     if (cards.isEmpty) 0
     else {
-      cards.head match {
+      highestCard match {
         case w: WildCard => w.assumedValue
         case n: NormalCard => n.intValue
         case s: SpecialCard => s.intValue
