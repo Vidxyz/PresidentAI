@@ -110,11 +110,65 @@ class DevelopmentTest extends FunSpec {
       val testMove = Move(List(WildCard(THREE, Diamond, 7), WildCard(THREE, Club, 7), WildCard(THREE, Heart, 7), WildCard(THREE, Spade, 7),
         NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)
       ))
-      println("-------------")
+
+      val testMove2 = Move(List(
+        NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)
+      ))
+
+      val threeMove = Move(List(WildCard(THREE, Spade, 14)))
+
+      println("--------------------------")
       println(testMove.highestCard)
       println(testMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false}))
 
+
+      println(GameUtilities.getNumberOfWildCardsInMove(testMove))
+      println("--------------------------")
+
+      println(GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(testMove2))
+      println(GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(threeMove))
+      println(GameEngine.wildCardUsagePenalty(threeMove))
+
+
+      println("--------------------------")
+
+
     }
+
+    it("Observer game error secnario where 3-K was preferred over 10-10 for gamestate 9-9") {
+
+      val testMove = Move(List(WildCard(THREE, Diamond, 7), WildCard(THREE, Club, 7), WildCard(THREE, Heart, 7), WildCard(THREE, Spade, 7),
+        NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)
+      ))
+      //<TEN,Diamond>, <TEN,Heart>
+      /*
+      List(<THREE,Heart(0)>, <SEVEN,Club>, <EIGHT,Club>, <EIGHT,Heart>, <TEN,Diamond>, <TEN,Heart>, <KING,Heart>)
+        List(<ACE,Diamond>, <TWO,Club>)
+       */
+      val observedHand = Hand(List(
+        WildCard(THREE, Heart), NormalCard(SEVEN, Club), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart),
+        NormalCard(TEN, Diamond), NormalCard(TEN, Heart), NormalCard(KING, Heart), NormalCard(ACE, Diamond),
+        SpecialCard(TWO, Club)
+      ))
+      val double10s = Move(List(NormalCard(TEN, Diamond), NormalCard(TEN, Heart)))
+      val otherMove = Move(List(WildCard(THREE, Heart, 13), NormalCard(KING, Heart)))
+      val gs = Move(List(NormalCard(NINE, Heart), NormalCard(NINE, Spade)))
+
+      println(GameEngine.getNormalCardMoveHeuristic(double10s, gs, PlayerIndicators(observedHand)))
+      println(GameEngine.getNormalCardMoveHeuristic(otherMove, gs, PlayerIndicators(observedHand)))
+
+      val single3 = Move(List(WildCard(THREE, Diamond, 14)))
+
+      println(testMove.numberOfNormalcards)
+
+      val aHand = Hand(List(WildCard(THREE, Diamond), SpecialCard(TWO, Diamond)))
+
+      println(GameEngine.getNormalCardMoveHeuristic(single3, Move(List.empty), PlayerIndicators(aHand)))
+      println(GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(single3))
+      println(GameEngine.wildCardUsagePenalty(single3))
+
+    }
+
   }
 
 }

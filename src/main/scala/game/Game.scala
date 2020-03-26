@@ -110,7 +110,7 @@ case class Game(startState: Move) {
       }
 
       println("------------------------\n")
-//            Thread.sleep(10)
+//            Thread.sleep(100)
     }
 
     printStats()

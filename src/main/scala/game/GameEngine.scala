@@ -1,5 +1,7 @@
 package game
 
+import game.FaceValue.THREE
+import game.Suits.Diamond
 import player.PlayerIndicators
 import utils.Consants
 
@@ -14,8 +16,8 @@ case object GameEngine {
                                  playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
     validMove.cards match {
       case List(NormalCard(_,_), _*) | List(WildCard(_,_,_), _*) =>
-        if(gameState.isEmpty)  scala.math.max(0, applyNormalCardHeuristicWithMoveSizeModifier(validMove) - wildCardUsagePenalty(validMove))
-        else scala.math.max(0, applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState,
+        if(gameState.isEmpty)  scala.math.max(0d, applyNormalCardHeuristicWithMoveSizeModifier(validMove) - wildCardUsagePenalty(validMove))
+        else scala.math.max(0d, applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState,
               playerIndicators.getListSetSizeForCard(validMove)) - wildCardUsagePenalty(validMove))
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
     }
@@ -70,10 +72,16 @@ case object GameEngine {
 
   /*
   Penalizes the usage of WildCards. Subtracted from heuristic value obtained based on move
+  Greatly Favours higher assumedValue
+  Slightly Favours higher parity
+  Does not favour multiple 3s
    */
   def wildCardUsagePenalty(validMove: Move): Double = {
     if(validMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false})) 0
-    else 0
+    else
+      ((0.25 * (1/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)))
+         + (0.03 * validMove.parity)
+         + (0.17 * 1 / GameUtilities.getNumberOfWildCardsInMove(validMove)))
   }
 
   /*
@@ -81,7 +89,7 @@ case object GameEngine {
   Assumes validMove comprises only of NormalCards
    */
   def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move): Double = {
-    (0.78d * (1d/validMove.moveFaceValue) + (0.22d * validMove.parity/Consants.maxMoveSize))
+    (0.78d * (1d/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
   }
 
   /*
@@ -89,7 +97,7 @@ case object GameEngine {
    */
   def applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove: Move, gameState: Move, maxCards: Int): Double = {
     ((0.22d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)))
-      + (0.78d * 1/(maxCards - validMove.parity + 1)))
+      + (0.78d * 1/(maxCards - validMove.numberOfNormalcards + 1)))
   }
 
   /*
@@ -113,6 +121,7 @@ case object GameEngine {
     1.1 Even then, there isnt a guarantee that the special card will be chosen
    */
   def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, PlayerIndicators) => Double, playerIndicators: PlayerIndicators): Option[Move] = {
+    if(validMoves.moves.size == 1) return Some(validMoves.moves.head)
     try {
       Some(
         validMoves.moves(validMoves.moves
@@ -122,7 +131,9 @@ case object GameEngine {
           .maxBy(_._1)
           ._2))
     } catch {
-      case _: Exception => None
+      case e: Exception =>
+//        e.printStackTrace()
+        None
     }
   }
 
