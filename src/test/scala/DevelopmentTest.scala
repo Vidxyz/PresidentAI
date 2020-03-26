@@ -167,6 +167,13 @@ class DevelopmentTest extends FunSpec {
       println(GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(single3))
       println(GameEngine.wildCardUsagePenalty(single3))
 
+      val move1 = Move(List(WildCard(THREE, Spade, 7), NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))
+      val move2 = Move(List(WildCard(THREE, Diamond, 7), WildCard(THREE, Club, 7), WildCard(THREE, Heart, 7), NormalCard(SEVEN, Spade)))
+      //checkIfBetter
+      println(move1.highestCard)
+      println(move2.highestCard)
+      println(GameUtilities.checkIfBetter(move1, move2))
+
     }
 
   }

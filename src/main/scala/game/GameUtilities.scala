@@ -185,7 +185,6 @@ case object GameUtilities {
                     case other => return move.parity == other - 1
                   }
       }
-
     }
 
     if(move.parity != gameState.parity) false
@@ -204,8 +203,17 @@ case object GameUtilities {
   // 1. move1 and move2 are not EMPTY moves
   // 2. move1 and move2 have same parity - same size of cards
   //    - only exception to the above is 2s and JOKERs
-  def checkIfBetter(move1: Move, move2: Move): Boolean =
-    cardOrderValue(move1.highestCard) > cardOrderValue(move2.highestCard)
+  def checkIfBetter(move1: Move, move2: Move): Boolean = {
+    // This is the case in which 3s are involved, leading to assumedCard being same as original NormalCard
+    if (cardOrderValue(move1.highestCard) == cardOrderValue(move2.highestCard)) {
+      move2.highestCard match {
+        case w: WildCard => true
+        case _ => false
+      }
+    }
+    else cardOrderValue(move1.highestCard) > cardOrderValue(move2.highestCard)
+  }
+
 
   def cardOrderValue(card: Card): Int = {
     card match {

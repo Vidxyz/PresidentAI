@@ -180,6 +180,10 @@ case class Move(cards: List[Card]) {
     }
   }
 
+  /*
+  Returns the highest card in the hand
+  Defined as card with strongest suit
+   */
   def highestCard: Card = {
     if(cards.size == 1) cards.head
     else {
