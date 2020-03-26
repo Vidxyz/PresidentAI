@@ -20,7 +20,8 @@ case class Player(name: String, hand: Hand) {
     val allMovesWithoutThrees: Moves = getAllMoves(intermediateListsWithoutThrees)
     val allMoves: Moves = addThreesToMoves(allMovesWithoutThrees, listOfThreesInHand)
     val validMoves: Moves = getValidMoves(allMoves, currentState)
-    getNextMoveWrapper(validMoves, currentState)
+    val validMovesWithWildCardsOptimallyAssigned: Moves = assignWildCardsOptimally(validMoves, currentState)
+    getNextMoveWrapper(validMovesWithWildCardsOptimallyAssigned, currentState)
   }
 
 }

@@ -349,4 +349,19 @@ case object GameUtilities {
       case None => currentHand
     }
   }
+
+  /*
+  Takes in a list of valid moves and assigns dangling wildcards optimal assumedValues
+  A Dangling Wilcards is defined as a 3 or a set of 3s being played by themself, instead of with a NormalCard
+  For example, upon entry into this function, a Move such as <3> or <3-3> would be assumed to be ACEs by default
+  However, this isnt optimal, and it only suffices for checking validity of move
+  Ideally, the <3> or <3-3> would assume value based on gameState
+  This comes in one of three scenarios :-
+  1. It maintains its assumedValue (highest possible faceValue of card)
+  2. It's assumedValue changes to that of gameState.moveFaceValue, if doing so burns the game state
+  3. It's assumedValue changes to that of gameState.moveFaceValue + 1, if gameState is not an ACE
+   */
+  def assignWildCardsOptimally(validMoves: Moves, gameState: Move): Moves = {
+    validMoves
+  }
 }
