@@ -173,6 +173,7 @@ class DevelopmentTest extends FunSpec {
       println(move1.highestCard)
       println(move2.highestCard)
       println(GameUtilities.checkIfBetter(move1, move2))
+      print(GameUtilities.getNextGameState(move1, Some(move2)))
 
     }
 

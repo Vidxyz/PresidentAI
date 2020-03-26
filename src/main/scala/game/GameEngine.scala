@@ -16,9 +16,9 @@ case object GameEngine {
                                  playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Double = {
     validMove.cards match {
       case List(NormalCard(_,_), _*) | List(WildCard(_,_,_), _*) =>
-        if(gameState.isEmpty)  scala.math.max(0d, applyNormalCardHeuristicWithMoveSizeModifier(validMove) - wildCardUsagePenalty(validMove))
+        if(gameState.isEmpty)  scala.math.max(0d, applyNormalCardHeuristicWithMoveSizeModifier(validMove) - wildCardUsagePenalty(validMove)/2)
         else scala.math.max(0d, applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState,
-              playerIndicators.getListSetSizeForCard(validMove)) - wildCardUsagePenalty(validMove))
+              playerIndicators.getListSetSizeForCard(validMove)) - wildCardUsagePenalty(validMove)/2)
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
     }
   }
@@ -122,10 +122,6 @@ case object GameEngine {
    */
   def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, PlayerIndicators) => Double,
                                                       playerIndicators: PlayerIndicators): Option[Move] = {
-    /* If there is only one move left, and it is the only move available (not even valid), return it */
-    if(validMoves.moves.size == 1
-      && GameUtilities.getNewHand(playerIndicators.hand, Some(validMoves.moves.head)).listOfCards.isEmpty)
-      return Some(validMoves.moves.head)
     try {
       Some(
         validMoves.moves(validMoves.moves

@@ -85,7 +85,7 @@ case class Game(startState: Move) {
       println("The current round state is : " + round.gameState)
       //    println("The pass status is : " + round.roundPassStatus)
 
-      val newHandAfterPlaying = currentPlayerObject.getNewHand(currentPlayerObject.hand, nextMove)
+      val newHandAfterPlaying = GameUtilities.getNewHand(currentPlayerObject.hand, nextMove)
       listOfPlayers.update(round.currentPlayerTurn, Player(currentPlayerObject.name, newHandAfterPlaying))
 
       // Check if playing last move led player to complete
