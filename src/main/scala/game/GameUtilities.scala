@@ -209,8 +209,8 @@ case object GameUtilities {
 
   def cardOrderValue(card: Card): Int = {
     card match {
-      case n: NormalCard => numberToCardMap.find(_._2 == n).map(_._1).getOrElse(-1)
       case w: WildCard => numberToCardMap.find(_._2 == getCardAssumedByWildCard(w)).map(_._1).getOrElse(-1)
+      case _ => numberToCardMap.find(_._2 == card).map(_._1).getOrElse(-1)
     }
   }
 
@@ -317,4 +317,7 @@ case object GameUtilities {
       case _: Exception => List.empty
     }
   }
+
+  def getNumberOfWildCardsInMove(validMove: Move): Int =
+    validMove.cards.foldLeft(0)((total, card) => card match {case c: WildCard => total + 1; case _ => total})
 }
