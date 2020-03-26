@@ -175,6 +175,7 @@ case class Move(cards: List[Card]) {
         case w: WildCard => w.assumedValue
         case n: NormalCard => n.intValue
         case s: SpecialCard => s.intValue
+        case joker: Card => joker.intValue
       }
     }
   }
@@ -189,6 +190,10 @@ case class Move(cards: List[Card]) {
     }
   }
   def parity: Int = cards.size
+  def numberOfNormalcards: Int = cards.count(card => card match {
+    case w: WildCard => false;
+    case _ => true
+  })
   def isEmpty: Boolean = cards.isEmpty
 
   /*
