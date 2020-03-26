@@ -5,6 +5,7 @@ import utils.Consants
 import scala.util.Random
 import game.FaceValue._
 import game.Suits._
+import player.Player
 
 class GameUtilitiesTest extends FunSpec {
 
@@ -1187,6 +1188,50 @@ class GameUtilitiesTest extends FunSpec {
             List(WildCard(THREE, Diamond), WildCard(THREE, Club), WildCard(THREE, Heart), WildCard(THREE, Spade))
           assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 4)
         }
+      }
+    }
+  }
+
+  describe("Tests for getNewHand()") {
+    val currentHand = Hand(List(
+      NormalCard(SIX, Diamond),
+      NormalCard(SIX, Heart),
+      NormalCard(EIGHT, Club),
+      NormalCard(TEN, Heart),
+      NormalCard(ACE, Diamond),
+      NormalCard(ACE, Heart),
+      SpecialCard(TWO, Diamond),
+      Joker,
+    ))
+    val player = Player("Test", currentHand)
+    describe("When the movePlayed is none"){
+      it("Should return the same hand") {
+        assert(GameUtilities.getNewHand(player.hand, None) == currentHand)
+      }
+    }
+
+    describe("When the movePlayed does not involve a hand"){
+      it("Should return the same hand") {
+        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Spade)))))
+          == currentHand)
+      }
+    }
+
+    describe("When the movePlayed involves a card in the hand"){
+      describe("When the move played is a normalCard") {
+        it("Should return the hand minus the played cards") {
+          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart)))))
+            == Hand(currentHand.listOfCards.slice(0,4) ++ currentHand.listOfCards.slice(6, 8)))
+        }
+      }
+    }
+
+    describe("When the move played is a specialCard") {
+      it("Should return the hand minus the played cards") {
+        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(SpecialCard(TWO, Diamond)))))
+          == Hand(currentHand.listOfCards.slice(0,6) ++ currentHand.listOfCards.slice(7, 8)))
+        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(Joker))))
+          == Hand(currentHand.listOfCards.slice(0,7)))
       }
     }
   }

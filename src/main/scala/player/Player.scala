@@ -23,26 +23,6 @@ case class Player(name: String, hand: Hand) {
     getNextMoveWrapper(validMoves, currentState)
   }
 
-  /*
-  Returns the new hand comprising of cards from currentHand that do not appear in movePlayed
-   */
-  def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
-    movePlayed.getOrElse(None) match {
-      case move: Move => Hand(
-        currentHand
-          .listOfCards
-          .filter(c => c match {
-            case w: WildCard =>
-              if(move.cards.exists(mc => mc match {
-                case mwc: WildCard => mwc.suit == w.suit
-                case _ => false
-              })) false
-              else true
-            case _ => !move.cards.contains(c)
-          }))
-      case None => currentHand
-    }
-  }
 }
 
 

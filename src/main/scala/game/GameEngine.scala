@@ -120,8 +120,12 @@ case object GameEngine {
   1. validMoves will comprise of moves with Special Cards (2s, Jokers) IFF no game.NormalCard moves are available
     1.1 Even then, there isnt a guarantee that the special card will be chosen
    */
-  def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, PlayerIndicators) => Double, playerIndicators: PlayerIndicators): Option[Move] = {
-    if(validMoves.moves.size == 1) return Some(validMoves.moves.head)
+  def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, PlayerIndicators) => Double,
+                                                      playerIndicators: PlayerIndicators): Option[Move] = {
+    /* If there is only one move left, and it is the only move available (not even valid), return it */
+    if(validMoves.moves.size == 1
+      && GameUtilities.getNewHand(playerIndicators.hand, Some(validMoves.moves.head)).listOfCards.isEmpty)
+      return Some(validMoves.moves.head)
     try {
       Some(
         validMoves.moves(validMoves.moves

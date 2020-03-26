@@ -328,4 +328,25 @@ case object GameUtilities {
 
   def getNumberOfWildCardsInMove(validMove: Move): Int =
     validMove.cards.foldLeft(0)((total, card) => card match {case c: WildCard => total + 1; case _ => total})
+
+  /*
+  Returns the new hand comprising of cards from currentHand that do not appear in movePlayed
+   */
+  def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
+    movePlayed.getOrElse(None) match {
+      case move: Move => Hand(
+        currentHand
+          .listOfCards
+          .filter(c => c match {
+            case w: WildCard =>
+              if(move.cards.exists(mc => mc match {
+                case mwc: WildCard => mwc.suit == w.suit
+                case _ => false
+              })) false
+              else true
+            case _ => !move.cards.contains(c)
+          }))
+      case None => currentHand
+    }
+  }
 }
