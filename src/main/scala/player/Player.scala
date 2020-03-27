@@ -59,6 +59,13 @@ case object PlayerIndicators {
       case _ => 0
     }
   }
+
+  /*
+  Returns 0-1 value giving the penalty modifier for wildcards as a function of hand size
+   */
+  def applyWildCardPenaltyModifer(sizeOfHand: Int): Double = {
+    1 /(1 + scala.math.exp(-((0.5d * sizeOfHand) - 4)))
+  }
 }
 
 
@@ -68,6 +75,7 @@ case class PlayerIndicators(hand: Hand) {
 
   // Likelihood of playing a special card. Increases as the game moves on (hand nears empty)
   lazy val specialCardModifier: Double = applyCustomSpecialCardModifier(hand.listOfCards.size)/100
+  lazy val wildCardPenaltyModifier: Double = applyWildCardPenaltyModifer(hand.listOfCards.size)
   lazy val highCardModifier: Double =  if(hand.delta == 0) 1d else 1d/hand.delta
 
   /*

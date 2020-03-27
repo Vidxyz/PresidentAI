@@ -16,9 +16,11 @@ case object GameEngine {
                                    playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Move = {
     validMove.cards match {
       case List(NormalCard(_,_), _*) | List(WildCard(_,_,_), _*) =>
-        if(gameState.isEmpty)  validMove.copy(likelihood = scala.math.max(0d, applyNormalCardHeuristicWithMoveSizeModifier(validMove) - wildCardUsagePenalty(validMove)/2))
+        if(gameState.isEmpty)
+          validMove.copy(likelihood = scala.math.max(0d,
+            applyNormalCardHeuristicWithMoveSizeModifier(validMove) - wildCardUsagePenalty(validMove, playerIndicators.wildCardPenaltyModifier)))
         else validMove.copy(likelihood = scala.math.max(0d, applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove, gameState,
-          playerIndicators.getListSetSizeForCard(validMove)) - wildCardUsagePenalty(validMove)/2))
+          playerIndicators.getListSetSizeForCard(validMove)) - wildCardUsagePenalty(validMove, playerIndicators.wildCardPenaltyModifier)))
       case _ => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate special card")
     }
   }
@@ -82,10 +84,10 @@ case object GameEngine {
   Slightly Favours higher parity
   Does not favour multiple 3s
    */
-  def wildCardUsagePenalty(validMove: Move): Double = {
+  def wildCardUsagePenalty(validMove: Move, wildCardPenaltyModifier: Double): Double = {
     if(validMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false})) 0
     else
-      ((0.25 * (1/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)))
+      wildCardPenaltyModifier *  ((0.25 * (1/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)))
          + (0.03 * validMove.parity)
          + (0.17 * 1 / GameUtilities.getNumberOfWildCardsInMove(validMove)))
   }
