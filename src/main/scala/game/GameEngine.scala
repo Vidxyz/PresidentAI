@@ -87,14 +87,16 @@ case object GameEngine {
   def wildCardUsagePenalty(validMove: Move, wildCardPenaltyModifier: Double): Double = {
     if(validMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false})) 0
     else
-      wildCardPenaltyModifier *  ((0.25 * (1/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)))
-         + (0.03 * validMove.parity)
-         + (0.17 * 1 / GameUtilities.getNumberOfWildCardsInMove(validMove)))
+      wildCardPenaltyModifier *
+        ((0.4 * (1/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)))
+         + (0.2 * validMove.parity)
+         + (0.3 * 1 / GameUtilities.getNumberOfWildCardsInMove(validMove)))
   }
 
   /*
   Assumes that gameState is empty. If non-empty, use the heuristic function below this instead
   Assumes validMove comprises only of NormalCards
+  Using base as 3-intValue here because it is the lowest possible to play
    */
   def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move): Double = {
     (0.78d * (1d/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
@@ -104,7 +106,7 @@ case object GameEngine {
   Penalizing the breaking of sets to play this move by giving a 0.78 weighting to holding on to sets
    */
   def applyNormalCardHeuristicWithPenaltyForBreakingSets(validMove: Move, gameState: Move, maxCards: Int): Double = {
-    ((0.22d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue)))
+    ((0.22d * (1d/(validMove.moveFaceValue - gameState.moveFaceValue + 1)))
       + (0.78d * 1/(maxCards - validMove.numberOfNormalcards + 1)))
   }
 
@@ -133,6 +135,7 @@ case object GameEngine {
     try {
       Some(validMoves.moves
           .map(m => heuristic(m, gameState, playerIndicators))
+          .map(m => { println(m); m})
           .filter(validMoves => validMoves.likelihood > 0)
           .maxBy(_.likelihood))
     } catch {
