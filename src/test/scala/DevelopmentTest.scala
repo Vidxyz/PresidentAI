@@ -201,6 +201,8 @@ class DevelopmentTest extends FunSpec {
       // Here, K-diamond is preferred over playing the 3 - this is WRONG!
 //      val m1 =
 
+      // TODO - Make suitBurns not INFINITY- but a real high value
+
     }
 
   }

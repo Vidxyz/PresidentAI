@@ -1,6 +1,7 @@
 import game.FaceValue._
 import game.Suits._
-import game.{Game, GameUtilities, Hand, Joker, Move, NormalCard, SpecialCard}
+import game.{Game, GameUtilities, Hand, Joker, Move, NormalCard, SpecialCard, WildCard}
+import player.Player
 
 object Main extends App {
 
@@ -43,7 +44,7 @@ object Main extends App {
 //  var AI = player.Player("AI", game.GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 //  var computer = player.Player("Computer", game.GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 
-  val listOfNames = List("Player1", "Player2", "Player3", "Player4")
+  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "Player5", "Player6", "Player7", "Player8")
   val listOfNames2 = List("Player1", "Player2")
   // Comment out seed for true randomness
 //  val listOfPlayers = game.GameUtilities.generatePlayersAndDealHands(listOfNames, seed=5).toBuffer
@@ -57,8 +58,19 @@ object Main extends App {
 
   println("The starting state is : " + game.startState)
   println("\n")
-//  game.play(listOfPlayers)
   game.play(listOfPlayers)
+//  game.play(listOfPlayers)
+
+//  val hand4 = Hand(List(NormalCard(ACE, Spade)))
+//  val hand1 = Hand(List(WildCard(THREE, Diamond)))
+//  val hand2 = Hand(List(SpecialCard(TWO, Club)))
+//  val hand3 = Hand(List(NormalCard(KING, Spade)))
+//
+//  val testCasePlayers = List("P4", "P1", "P2", "P3")
+//  val lop = List(Player("P4", hand4), Player("P1", hand1),
+//    Player("P2", hand2), Player("P3", hand3) )
+//
+//  game.play(lop.toBuffer)
 
 }
 

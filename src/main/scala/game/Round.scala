@@ -2,14 +2,40 @@ package game
 
 import player.Player
 
-
-
 case class Round(gameState: Move,
                  lastMovePlayedBy: String,
                  totalNumberOfPlayers: Int,
                  currentPlayerTurn: Int,
                  listOfPlayers: List[Player],
                  roundPassStatus: List[Boolean]) {
+
+  /* Gets the index of the NEXT player who is supposed to play.
+     Defined by the original list of players name
+    */
+  def getIndexOfNextPlayer: Int = {
+    val originalIndexOfPlayerWhoPlayedLastMove: Int = Round.initialListOfPlayerNames
+      .zipWithIndex
+      .filter {
+        case (name, _) => name == lastMovePlayedBy
+      }
+      .map {
+        case (_, index) => index
+      }
+      .head
+
+    var nextPlayerOriginalIndex = if(originalIndexOfPlayerWhoPlayedLastMove + 1 == Round.initialListOfPlayerNames.size) 0
+                                  else originalIndexOfPlayerWhoPlayedLastMove + 1
+    var playerSupposedToPlayNext: String = Round.initialListOfPlayerNames(nextPlayerOriginalIndex)
+
+    while(!listOfPlayers.map(p => p.name).contains(playerSupposedToPlayNext)) {
+       nextPlayerOriginalIndex = if(nextPlayerOriginalIndex + 1 == Round.initialListOfPlayerNames.size) 0
+                                 else nextPlayerOriginalIndex + 1
+      playerSupposedToPlayNext = Round.initialListOfPlayerNames(nextPlayerOriginalIndex)
+    }
+
+    getIndexOf(playerSupposedToPlayNext)
+
+  }
 
   /*
   Return TRUE if everyone has passed, except for the person who played the last move
@@ -61,12 +87,25 @@ case class Round(gameState: Move,
       .head
   }
 
+  /*
+  Updated roundPassStatus having removed the element at the index specified
+  This is used when a player has exited the game and everything needs to be augmented
+   */
+  def updatedRoundPassStatus(indexToRemove: Int): List[Boolean] = {
+    val tempBuffer = roundPassStatus.toBuffer
+    tempBuffer.remove(indexToRemove)
+    tempBuffer.toList
+  }
+
 }
 
 object Round {
   def getNoPassList(numberOfPlayers: Int): List[Boolean] = {
     (1 to numberOfPlayers).toList.map(_ => false)
   }
+
+  /* Maintains the initial list of playernames for future tracking */
+  var initialListOfPlayerNames: List[String] = List.empty
 
   /*
   Throws exception if player names are not unique

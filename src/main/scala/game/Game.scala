@@ -20,6 +20,8 @@ case class Game(startState: Move) {
 
     var currentState = this.startState
 
+    Round.initialListOfPlayerNames = listOfPlayers.map(p => p.name).toList
+
     var round = Round(currentState, "", listOfPlayers.size, 0,
       listOfPlayers.toList, Round.getNoPassList(listOfPlayers.size))
 
@@ -39,7 +41,9 @@ case class Game(startState: Move) {
         val nextPlayerIndex =  try {
           round.getIndexOf(round.lastMovePlayedBy)
         } catch {
-          case e: Exception => round.currentPlayerTurn
+          // If last move is played by someone who doesnt exist anymore
+          // Then next person to play is the one player in starting order
+          case e: Exception => round.getIndexOfNextPlayer
         }
 
         // Update round with index of next player
@@ -92,7 +96,8 @@ case class Game(startState: Move) {
       if(listOfPlayers(round.currentPlayerTurn).status == Complete) {
         println(listOfPlayers(round.currentPlayerTurn).name + " has finished!\n")
         listOfPlayers.remove(round.currentPlayerTurn)
-        round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn - 1, listOfPlayers.toList, round.roundPassStatus)
+        round = Round(currentState, round.lastMovePlayedBy, listOfPlayers.size, round.currentPlayerTurn - 1,
+          listOfPlayers.toList, round.updatedRoundPassStatus(round.currentPlayerTurn))
         playerCompletionOrder += currentPlayerObject.name
       }
 
