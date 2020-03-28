@@ -564,7 +564,7 @@ class GameEngineTest extends FunSpec {
       describe("When gameState is empty") {
         it("Should return playerModifier.specialCardModifier or 0") {
           val result = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List.empty), playerIndicators)
-          assert(result == playerIndicators.specialCardModifier || result == 0)
+          assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
         }
       }
 
@@ -572,8 +572,8 @@ class GameEngineTest extends FunSpec {
         it("Should return playerModifier.specialCardModifier or 0") {
           val result = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List(NormalCard(ACE, Heart))), playerIndicators)
           val result2 = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List(NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
-          assert(result == playerIndicators.specialCardModifier || result == 0)
-          assert(result2 == playerIndicators.specialCardModifier || result2 == 0)
+          assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
+          assert(result2.likelihood == playerIndicators.specialCardModifier || result2.likelihood == 0)
         }
       }
 
@@ -583,8 +583,8 @@ class GameEngineTest extends FunSpec {
             Move(List(NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
           val result2 = GameEngine.applySpecialCardMoveHeuristic(validMove,
             Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
-          assert(result == playerIndicators.specialCardModifier || result == 0)
-          assert(result2 == playerIndicators.specialCardModifier || result2 == 0)
+          assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
+          assert(result2.likelihood == playerIndicators.specialCardModifier || result2.likelihood == 0)
         }
       }
 
@@ -600,14 +600,14 @@ class GameEngineTest extends FunSpec {
         describe("When gameState is empty") {
           it("Should return playerModifier.specialCardModifier or 0") {
             val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List.empty), playerIndicators)
-            assert(result == playerIndicators.specialCardModifier || result == 0)
+            assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
 
         describe("When a single 2 is played on top of a single NormalCard") {
           it("Should return playerModifier.specialCardModifier or 0") {
             val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(NormalCard(ACE, Diamond))), playerIndicators)
-            assert(result == playerIndicators.specialCardModifier || result == 0)
+            assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
 
@@ -615,7 +615,7 @@ class GameEngineTest extends FunSpec {
           it("Should return playerModifier.specialCardModifier or 0") {
             val result = GameEngine.applySpecialCardMoveHeuristic(single2,
               Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Spade))), playerIndicators)
-            assert(result == playerIndicators.specialCardModifier || result == 0)
+            assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
 
@@ -623,14 +623,14 @@ class GameEngineTest extends FunSpec {
           describe("When the 2 being played is one-suit-away from the 2 on top") {
             it("Should return playerModifier.specialCardModifier") {
               val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(SpecialCard(TWO, Club))), playerIndicators)
-              assert(result == playerIndicators.specialCardModifier)
+              assert(result.likelihood == playerIndicators.specialCardModifier)
             }
           }
 
           describe("When the 2 being played is not one-suit-away from the 2 on top") {
             it("Should return playerModifier.specialCardModifier or 0") {
               val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(SpecialCard(TWO, Diamond))), playerIndicators)
-              assert(result == playerIndicators.specialCardModifier || result == 0)
+              assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
             }
           }
         }
@@ -642,7 +642,7 @@ class GameEngineTest extends FunSpec {
           it("Should return playerModifier.specialCardModifier or 0") {
             val result = GameEngine.applySpecialCardMoveHeuristic(double2,
               Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart))), playerIndicators)
-            assert(result == playerIndicators.specialCardModifier || result == 0)
+            assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
 
@@ -650,7 +650,7 @@ class GameEngineTest extends FunSpec {
           it("Should return playerModifier.specialCardModifier or 0") {
             val result = GameEngine.applySpecialCardMoveHeuristic(triple2,
               Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade))), playerIndicators)
-            assert(result == playerIndicators.specialCardModifier || result == 0)
+            assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
 
@@ -658,7 +658,7 @@ class GameEngineTest extends FunSpec {
           it("should not care about off-by-one suit-burn preferences since it is still an expensive move and return 0/modifier value") {
             val result = GameEngine.applySpecialCardMoveHeuristic(double2,
               Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club))), playerIndicators)
-            assert(result == playerIndicators.specialCardModifier || result == 0)
+            assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
 
@@ -718,70 +718,70 @@ class GameEngineTest extends FunSpec {
     describe("When it is a single in a move and a single in the Hand") {
       it("Should not be penalized") {
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, gameState, 1) ===
-          ((0.22d * (1d / (single7.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1 / (1 - single7.parity + 1)))
+          ((0.22d * (1d / (single7.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1 / (1 - single7.parity + 1)))
       }
     }
 
     describe("When it is a single in a move and a double in the Hand"){
       it("Should be penalized"){
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, gameState, 2) ===
-          ((0.22d * (1d/(single7.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(2 - single7.parity + 1)))
+          ((0.22d * (1d/(single7.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(2 - single7.parity + 1)))
       }
      }
 
     describe("When it is a single in a move and a triple in the Hand"){
       it("Should be penalized"){
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, gameState, 3) ===
-          ((0.22d * (1d/(single7.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(3 - single7.parity + 1)))
+          ((0.22d * (1d/(single7.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(3 - single7.parity + 1)))
       }
     }
 
     describe("When it is a single in a move and a quadruple in the Hand"){
       it("Should be penalized"){
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, gameState, 4) ===
-          ((0.22d * (1d/(single7.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(4 - single7.parity + 1)))
+          ((0.22d * (1d/(single7.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(4 - single7.parity + 1)))
       }
     }
 
     describe("When it is a double in a move and a triple in the Hand"){
       it("Should be penalized"){
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(double7s, gameState, 3) ===
-          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(3 - double7s.parity + 1)))
+          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(3 - double7s.parity + 1)))
       }
     }
 
     describe("When it is a double in a move and a quadruple in the Hand"){
       it("Should be penalized"){
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(double7s, gameState, 4) ===
-          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(4 - double7s.parity + 1)))
+          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(4 - double7s.parity + 1)))
       }
     }
 
     describe("When it is a triple in a move and a quadruple in the Hand"){
       it("Should be penalized"){
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(triple7s, gameState, 4) ===
-          ((0.22d * (1d/(triple7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(4 - triple7s.parity + 1)))
+          ((0.22d * (1d/(triple7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(4 - triple7s.parity + 1)))
       }
     }
 
     describe("When it is a quadruple in a move and a quadruple in the Hand"){
       it("Should not be penalized"){
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(quad7s, gameState, 4) ===
-          ((0.22d * (1d/(quad7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(4 - quad7s.parity + 1)))
+          ((0.22d * (1d/(quad7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(4 - quad7s.parity + 1)))
       }
     }
 
     describe("When it is a triple in a move and a triple in the Hand"){
       it("Should not be penalized"){
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(triple7s, gameState, 3) ===
-          ((0.22d * (1d/(triple7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(3 - triple7s.parity + 1)))
+          ((0.22d * (1d/(triple7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(3 - triple7s.parity + 1)))
       }
     }
 
     describe("When it is a double in a move and a double in the Hand"){
       it("Should not be penalized"){
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(double7s, gameState, 2) ===
-          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue)))) + (0.78d * 1/(2 - double7s.parity + 1)))
+          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(2 - double7s.parity + 1)))
       }
     }
 
