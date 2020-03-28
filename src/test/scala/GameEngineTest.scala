@@ -574,27 +574,23 @@ class GameEngineTest extends FunSpec {
   describe("tests for getSpecialCardMoveHeuristic()") {
 
     val hand = Hand(List(
-      NormalCard(SEVEN, Heart),
-      NormalCard(NINE, Diamond),
-      NormalCard(JACK, Club),
-      NormalCard(JACK, Diamond),
-      NormalCard(ACE, Spade),
-      SpecialCard(TWO, Diamond),
-      SpecialCard(TWO, Club),
-      SpecialCard(TWO, Heart),
-      Joker,
+      SEVEN_Heart,
+      NINE_Diamond,
+      JACK_Club, JACK_Diamond,
+      ACE_Spade,
+      TWO_Diamond, TWO_Club, TWO_Heart, Joker
     ))
 
     val playerIndicators = PlayerIndicators(hand)
 
     describe("Throws exception when") {
-      it("Move involves a NormalCard") {
-        assertThrows[IllegalHeuristicFunctionException](GameEngine.applySpecialCardMoveHeuristic(Move(List(NormalCard(EIGHT, Heart))), Move(List.empty)))
+      it("Move involves a single NormalCard") {
+        assertThrows[IllegalHeuristicFunctionException](GameEngine.applySpecialCardMoveHeuristic(Move(List(EIGHT_Heart)), Move(List.empty)))
       }
 
-      it("Move involves a list of NormalCard"){
+      it("Move involves multiple of NormalCard"){
         assertThrows[IllegalHeuristicFunctionException](GameEngine.applySpecialCardMoveHeuristic(
-          Move(List(NormalCard(NINE, Club), NormalCard(NINE, Heart), NormalCard(NINE, Spade))), Move(List.empty)))
+          Move(List(NINE_Club, NINE_Heart, NINE_Spade)), Move(List.empty)))
       }
     }
 
@@ -611,8 +607,8 @@ class GameEngineTest extends FunSpec {
 
       describe("When gameState is a single or a double") {
         it("Should return playerModifier.specialCardModifier or 0") {
-          val result = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List(NormalCard(ACE, Heart))), playerIndicators)
-          val result2 = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List(NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
+          val result = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List(ACE_Heart)), playerIndicators)
+          val result2 = GameEngine.applySpecialCardMoveHeuristic(validMove, Move(List(ACE_Heart, ACE_Spade)), playerIndicators)
           assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           assert(result2.likelihood == playerIndicators.specialCardModifier || result2.likelihood == 0)
         }
@@ -621,9 +617,9 @@ class GameEngineTest extends FunSpec {
       describe("When gameState is a triple or higher") {
         it("Should return playerModifier.specialCardModifier or 0") {
           val result = GameEngine.applySpecialCardMoveHeuristic(validMove,
-            Move(List(NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
+            Move(List(ACE_Club, ACE_Heart, ACE_Spade)), playerIndicators)
           val result2 = GameEngine.applySpecialCardMoveHeuristic(validMove,
-            Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade))), playerIndicators)
+            Move(List(ACE_Diamond , ACE_Club, ACE_Heart, ACE_Spade)), playerIndicators)
           assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           assert(result2.likelihood == playerIndicators.specialCardModifier || result2.likelihood == 0)
         }
@@ -633,9 +629,9 @@ class GameEngineTest extends FunSpec {
 
     describe("When validMove comprises of a single/multiple 2s") {
 
-      val single2 = Move(List(SpecialCard(TWO, Heart)))
-      val double2 = Move(List(SpecialCard(TWO, Heart), SpecialCard(TWO, Spade)))
-      val triple2 = Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart)))
+      val single2 = Move(List(TWO_Heart))
+      val double2 = Move(List(TWO_Heart, TWO_Spade))
+      val triple2 = Move(List(TWO_Diamond, TWO_Club, TWO_Heart))
 
       describe("When validMove consists of a single 2") {
         describe("When gameState is empty") {
@@ -647,7 +643,7 @@ class GameEngineTest extends FunSpec {
 
         describe("When a single 2 is played on top of a single NormalCard") {
           it("Should return playerModifier.specialCardModifier or 0") {
-            val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(NormalCard(ACE, Diamond))), playerIndicators)
+            val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(ACE_Diamond)), playerIndicators)
             assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
@@ -655,7 +651,7 @@ class GameEngineTest extends FunSpec {
         describe("When a single 2 is played on top of a double NormalCard"){
           it("Should return playerModifier.specialCardModifier or 0") {
             val result = GameEngine.applySpecialCardMoveHeuristic(single2,
-              Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Spade))), playerIndicators)
+              Move(List(ACE_Diamond, ACE_Spade)), playerIndicators)
             assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
@@ -663,14 +659,14 @@ class GameEngineTest extends FunSpec {
         describe("When a single 2 is played on top of another single 2") {
           describe("When the 2 being played is one-suit-away from the 2 on top") {
             it("Should return playerModifier.specialCardModifier") {
-              val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(SpecialCard(TWO, Club))), playerIndicators)
+              val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(TWO_Club)), playerIndicators)
               assert(result.likelihood == playerIndicators.specialCardModifier)
             }
           }
 
           describe("When the 2 being played is not one-suit-away from the 2 on top") {
             it("Should return playerModifier.specialCardModifier or 0") {
-              val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(SpecialCard(TWO, Diamond))), playerIndicators)
+              val result = GameEngine.applySpecialCardMoveHeuristic(single2, Move(List(TWO_Diamond)), playerIndicators)
               assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
             }
           }
@@ -682,7 +678,7 @@ class GameEngineTest extends FunSpec {
         describe("When two 2s are being played") {
           it("Should return playerModifier.specialCardModifier or 0") {
             val result = GameEngine.applySpecialCardMoveHeuristic(double2,
-              Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart))), playerIndicators)
+              Move(List(EIGHT_Diamond, EIGHT_Club, EIGHT_Heart)), playerIndicators)
             assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
@@ -690,7 +686,7 @@ class GameEngineTest extends FunSpec {
         describe("When three 2s are being played") {
           it("Should return playerModifier.specialCardModifier or 0") {
             val result = GameEngine.applySpecialCardMoveHeuristic(triple2,
-              Move(List(NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade))), playerIndicators)
+              Move(List(EIGHT_Diamond, EIGHT_Club, EIGHT_Heart, EIGHT_Spade)), playerIndicators)
             assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
@@ -698,7 +694,7 @@ class GameEngineTest extends FunSpec {
         describe("When two 2s are being played on top of existing two 2s"){
           it("should not care about off-by-one suit-burn preferences since it is still an expensive move and return 0/modifier value") {
             val result = GameEngine.applySpecialCardMoveHeuristic(double2,
-              Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club))), playerIndicators)
+              Move(List(TWO_Diamond, TWO_Club)), playerIndicators)
             assert(result.likelihood == playerIndicators.specialCardModifier || result.likelihood == 0)
           }
         }
@@ -711,14 +707,14 @@ class GameEngineTest extends FunSpec {
   describe("tests for applyNormalCardHeuristicWithMoveSizeModifier()") {
     describe("When multiple validMoves exist when gameState is Empty") {
       it("Should return the highest value to the most desirable move of the lot") {
-        val move1 = Move(List(NormalCard(FOUR, Spade)))
-        val move2 = Move(List(NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)))
-        val move3 = Move(List(NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)))
-        val move4 = Move(List(NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)))
-        val move5 = Move(List(NormalCard(QUEEN, Diamond), NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
-        val move6 = Move(List(NormalCard(QUEEN, Club), NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
-        val move7 = Move(List(NormalCard(QUEEN, Heart), NormalCard(QUEEN, Spade)))
-        val move8 = Move(List( NormalCard(QUEEN, Spade)))
+        val move1 = Move(List(FOUR_Spade))
+        val move2 = Move(List(FOUR_Heart, FOUR_Spade))
+        val move3 = Move(List(FOUR_Club, FOUR_Heart, FOUR_Spade))
+        val move4 = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart, FOUR_Spade))
+        val move5 = Move(List(QUEEN_Diamond, QUEEN_Club, QUEEN_Heart, QUEEN_Spade))
+        val move6 = Move(List(QUEEN_Club, QUEEN_Heart, QUEEN_Spade))
+        val move7 = Move(List(QUEEN_Heart, QUEEN_Spade))
+        val move8 = Move(List(QUEEN_Spade))
 
         val r1 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move1)
         val r2 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move2)
@@ -742,15 +738,15 @@ class GameEngineTest extends FunSpec {
   }
 
   describe("tests for applyNormalCardHeuristicWithPenaltyForBreakingSets()") {
-    val single7 = Move(List(NormalCard(SEVEN, Heart)))
-    val double7s = Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
-    val triple7s = Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))
-    val quad7s = Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
-    val gameState = Move(List(NormalCard(SIX, Heart)))
+    val single7 = Move(List(SEVEN_Heart))
+    val double7s = Move(List(SEVEN_Heart, SEVEN_Spade))
+    val triple7s = Move(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart))
+    val quad7s = Move(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
+    val gameState = Move(List(SIX_Heart))
 
     describe("When the moveFaceValue and the gameStateFaceValue are the same (suit-burn") {
       it("Should return 1") {
-        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, Move(List(NormalCard(SEVEN, Club))), 1) == 1.0d)
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, Move(List(SEVEN_Club)), 1) == 1.0d)
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(double7s,
           Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club))), 2) == 1.0d)
       }
@@ -824,6 +820,27 @@ class GameEngineTest extends FunSpec {
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(double7s, gameState, 2) ===
           ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(2 - double7s.parity + 1)))
       }
+    }
+
+    describe("When the move involves WildCards in it") {
+     it("Should not be penalized when all cards of its kind are used"){
+       val wildcardDouble7s = Move(List(THREE_Heart(7), SEVEN_Spade))
+       assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(wildcardDouble7s, gameState, 1) ===
+         ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(1 - wildcardDouble7s.numberOfNormalcards + 1)))
+     }
+
+      it("Should be penalized when not all cards of its kind are used") {
+        val wildcardQuad7s = Move(List(THREE_Diamond(7), THREE_Club(7), THREE_Heart(7), SEVEN_Spade))
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(wildcardQuad7s, gameState, 3) ===
+          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d * 1/(3 - wildcardQuad7s.numberOfNormalcards + 1)))
+      }
+
+      it("Should not be penalized when all cards involved are wildcards") {
+        val wildcardQuad7s = Move(List(THREE_Diamond(7), THREE_Club(7), THREE_Heart(7), THREE_Spade(7)))
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(wildcardQuad7s, gameState, 0) ===
+          ((0.22d * (1d/(double7s.moveFaceValue - gameState.moveFaceValue + 1)))) + (0.78d))
+      }
+
     }
 
   }

@@ -87,8 +87,8 @@ case class PlayerIndicators(hand: Hand) {
   If not, leads to an exception being thrown, and the nextMove defaulting to None
    */
   def getListSetSizeForCard(validMove: Move): Int = {
-    // If the move is comprised entirely of wildcards, then return parity of move
-    if(GameUtilities.getNumberOfWildCardsInMove(validMove) == validMove.parity) validMove.parity
+    // If the move is comprised entirely of wildcards, then return 0
+    if(GameUtilities.getNumberOfWildCardsInMove(validMove) == validMove.parity) 0
     else hand.listOfSimilarCards.filter(l => l.head.intValue == validMove.moveFaceValue).head.size
   }
 
