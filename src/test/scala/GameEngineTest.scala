@@ -425,7 +425,7 @@ class GameEngineTest extends FunSpec {
 
   }
 
-  describe("tests for getNormalCardMoveHeuristic()") {
+  describe("tests for applyNormalCardMoveHeuristic()") {
 
     describe("Throws exception when") {
 
@@ -436,16 +436,16 @@ class GameEngineTest extends FunSpec {
       describe("When move involves a 2") {
         it("is a single 2") {
           assertThrows[IllegalHeuristicFunctionException](GameEngine.
-            applyNormalCardMoveHeuristic(Move(List(SpecialCard(TWO, Diamond))), Move(List.empty)))
+            applyNormalCardMoveHeuristic(Move(List(TWO_Diamond)), Move(List.empty)))
         }
         it("is a double 2") {
           assertThrows[IllegalHeuristicFunctionException](GameEngine.
-            applyNormalCardMoveHeuristic(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
+            applyNormalCardMoveHeuristic(Move(List(TWO_Diamond, TWO_Heart)),
               Move(List.empty)))
         }
         it("is a triple 2") {
           assertThrows[IllegalHeuristicFunctionException](GameEngine.
-            applyNormalCardMoveHeuristic(Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
+            applyNormalCardMoveHeuristic(Move(List(TWO_Diamond, TWO_Heart, TWO_Spade)),
               Move(List.empty)))
         }
       }
@@ -457,14 +457,14 @@ class GameEngineTest extends FunSpec {
 
       describe("When validMove is a single 4")  {
         it("should return value") {
-          assert(GameEngine.applyNormalCardMoveHeuristic(Move(List(NormalCard(FOUR,Heart))), emptyGameState).likelihood == 0.25)
+          assert(GameEngine.applyNormalCardMoveHeuristic(Move(List(FOUR_Heart)), emptyGameState).likelihood == 0.25)
         }
       }
 
       describe("When validMove is double4s")  {
         it("should return value") {
           assert(GameEngine.applyNormalCardMoveHeuristic(
-            Move(List(NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
+            Move(List(FOUR_Heart, FOUR_Spade)),
             emptyGameState).likelihood == 0.305)
         }
       }
@@ -472,7 +472,7 @@ class GameEngineTest extends FunSpec {
       describe("When validMove is triple4s")  {
         it("should return value") {
           assert(GameEngine.applyNormalCardMoveHeuristic(
-            Move(List(NormalCard(FOUR,Club), NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
+            Move(List(FOUR_Club, FOUR_Heart, FOUR_Spade)),
             emptyGameState).likelihood == 0.36)
         }
       }
@@ -480,9 +480,28 @@ class GameEngineTest extends FunSpec {
       describe("When validMove is quad4s")  {
         it("should return value") {
           assert(GameEngine.applyNormalCardMoveHeuristic(
-            Move(List(NormalCard(FOUR,Diamond), NormalCard(FOUR,Club),
-              NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
+            Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart, FOUR_Spade)),
             emptyGameState).likelihood === 0.415)
+        }
+      }
+
+      describe("When validMove involves a WildCard in it") {
+        it("Should return value less than when no wildcards are involved") {
+          assert(GameEngine.applyNormalCardMoveHeuristic(
+            Move(List(THREE_Heart(4), FOUR_Club, FOUR_Heart, FOUR_Spade)),
+            emptyGameState).likelihood < 0.415)
+        }
+
+        it("Should return value less than when one wildcard is involved") {
+          assert(GameEngine.applyNormalCardMoveHeuristic(
+            Move(List(THREE_Heart(4), THREE_Spade(4), FOUR_Heart, FOUR_Spade)),
+            emptyGameState).likelihood < 0.406)
+        }
+
+        it("Should return value less than when two wildcards are involved") {
+          assert(GameEngine.applyNormalCardMoveHeuristic(
+            Move(List(THREE_Diamond(4), THREE_Heart(4), THREE_Spade(4), FOUR_Spade)),
+            emptyGameState).likelihood < 0.404)
         }
       }
     }
@@ -492,8 +511,8 @@ class GameEngineTest extends FunSpec {
       describe("When gameState is a single") {
         val hand = Hand(List(NormalCard(NINE, Spade)))
         it("should return the right value") {
-          val gameState = Move(List(NormalCard(FIVE, Spade)))
-          val validMove = Move(List(NormalCard(NINE, Diamond)))
+          val gameState = Move(List(FIVE_Spade))
+          val validMove = Move(List(NINE_Diamond))
           assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood === 0.824)
         }
       }
@@ -501,30 +520,52 @@ class GameEngineTest extends FunSpec {
       describe("When gameState is a double") {
         val hand = Hand(List(NormalCard(NINE, Club), NormalCard(NINE, Spade)))
         it("should return the right value") {
-          val gameState = Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Spade)))
-          val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Spade)))
+          val gameState = Move(List(FIVE_Club, FIVE_Spade))
+          val validMove = Move(List(NINE_Diamond, NINE_Spade))
           assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood === 0.824)
         }
       }
 
       describe("When gameState is a triple") {
         it("should return the right value") {
-          val hand = Hand(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club), NormalCard(NINE, Spade)))
-          val gameState = Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
-          val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club), NormalCard(NINE, Spade)))
+          val hand = Hand(List(NINE_Diamond, NINE_Club, NINE_Spade))
+          val gameState = Move(List(FIVE_Club, FIVE_Heart, FIVE_Spade))
+          val validMove = Move(List(NINE_Diamond, NINE_Club, NINE_Spade))
           assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood === 0.824)
         }
       }
 
       describe("When gameState is a quadruple") {
-        val hand = Hand(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club), NormalCard(NINE, Heart), NormalCard(NINE, Spade)))
+        val hand = Hand(List(NINE_Diamond, NINE_Club, NINE_Heart, NINE_Spade))
         it("should return the right value") {
-          val gameState = Move(List(NormalCard(FIVE, Diamond), NormalCard(FIVE, Club),
-            NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
-          val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club),
-            NormalCard(NINE, Heart), NormalCard(NINE, Spade)))
+          val gameState = Move(List(FIVE_Diamond, FIVE_Club, FIVE_Heart, FIVE_Spade))
+          val validMove = Move(List(NINE_Diamond, NINE_Club, NINE_Heart, NINE_Spade))
           assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood === 0.824)
         }
+      }
+
+      describe("When move involves WildCard(s) in it ") {
+        it("Should return value less than without a wildcard") {
+          val hand = Hand(List(NINE_Diamond, NINE_Club, NINE_Heart, NINE_Spade))
+          val gameState = Move(List(FIVE_Diamond, FIVE_Club, FIVE_Heart, FIVE_Spade))
+          val validMove = Move(List(THREE_Diamond(9), NINE_Club, NINE_Heart, NINE_Spade))
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood < 0.824)
+        }
+
+        it("Should return value less than with one wildcard") {
+          val hand = Hand(List(NINE_Diamond, NINE_Club, NINE_Heart, NINE_Spade))
+          val gameState = Move(List(FIVE_Diamond, FIVE_Club, FIVE_Heart, FIVE_Spade))
+          val validMove = Move(List(THREE_Diamond(9), THREE_Club(9), NINE_Heart, NINE_Spade))
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood < 0.416)
+        }
+
+        it("Should return value less than with two wildcards") {
+          val hand = Hand(List(NINE_Diamond, NINE_Club, NINE_Heart, NINE_Spade))
+          val gameState = Move(List(FIVE_Diamond, FIVE_Club, FIVE_Heart, FIVE_Spade))
+          val validMove = Move(List(THREE_Diamond(9), THREE_Club(9), THREE_Heart(9), NINE_Spade))
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood < 0.277)
+        }
+
       }
     }
 

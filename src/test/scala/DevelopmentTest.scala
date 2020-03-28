@@ -265,6 +265,10 @@ class DevelopmentTest extends FunSpec {
       println(GameEngine.applyNormalCardMoveHeuristic(m2, gameState, pi).likelihood + GameEngine.wildCardUsagePenalty(m2, pi.wildCardPenaltyModifier))
       println(GameEngine.wildCardUsagePenalty(m2, pi.wildCardPenaltyModifier))
 
+
+
+      println("0000")
+      println(PlayerIndicators.applyWildCardPenaltyModifer(0))
     }
 
   }
