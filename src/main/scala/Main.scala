@@ -44,7 +44,7 @@ object Main extends App {
 //  var AI = player.Player("AI", game.GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 //  var computer = player.Player("Computer", game.GameUtilities.dealNewHand(numberOfPlayers, totalNormalCards))
 
-  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "Player5", "Player6", "Player7", "Player8")
+  val listOfNames = List("Player1", "Player2", "Player3")
   val listOfNames2 = List("Player1", "Player2")
   // Comment out seed for true randomness
 //  val listOfPlayers = game.GameUtilities.generatePlayersAndDealHands(listOfNames, seed=5).toBuffer

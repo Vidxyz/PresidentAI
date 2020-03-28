@@ -245,7 +245,7 @@ class GameUtilitiesTest extends FunSpec {
     describe("When the hand is comprised of all possible cards") {
       it("Should return 13 sets of four cards of each suit and 1 set of two Jokers"){
         val expectedResult = List(
-          List(NormalCard(THREE, Diamond), NormalCard(THREE, Club), NormalCard(THREE, Heart), NormalCard(THREE, Spade)),
+          List(WildCard(THREE, Diamond), WildCard(THREE, Club), WildCard(THREE, Heart), WildCard(THREE, Spade)),
           List(NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)),
           List(NormalCard(FIVE, Diamond), NormalCard(FIVE, Club), NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)),
           List(NormalCard(SIX, Diamond), NormalCard(SIX, Club), NormalCard(SIX, Heart), NormalCard(SIX, Spade)),
@@ -967,7 +967,7 @@ class GameUtilitiesTest extends FunSpec {
     describe("When moves involving all types of cards are available") {
       it("Should return false") {
         val validMoves = Moves(List(
-          Move(List(NormalCard(THREE, Diamond))),
+          Move(List(WildCard(THREE, Diamond))),
           Move(List(NormalCard(SEVEN, Club))),
           Move(List(NormalCard(NINE, Heart))),
           Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),

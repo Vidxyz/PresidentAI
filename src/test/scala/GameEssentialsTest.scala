@@ -1,4 +1,4 @@
-import game.{Hand, NormalCard}
+import game.{Hand, NormalCard, WildCard}
 import org.scalatest.FunSpec
 import game.FaceValue._
 import game.Suits._
@@ -27,7 +27,8 @@ class GameEssentialsTest extends FunSpec {
 
       it("should return a weaknessFactor of 3") {
         val hand = Hand(List(
-          NormalCard(THREE, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Spade),
+          WildCard(THREE, Diamond),
+          NormalCard(FOUR, Club), NormalCard(FOUR, Spade),
           NormalCard(FIVE, Club),
           NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Spade),
           NormalCard(JACK, Club),
@@ -37,12 +38,13 @@ class GameEssentialsTest extends FunSpec {
         assert(hand.weaknessFactor == 3)
       }
 
-      it("should return a weaknessFactor of 11") {
+      it("should return a weaknessFactor of 10 and not include threes in the calculation") {
         val hand = Hand(List(
-          NormalCard(THREE, Diamond), NormalCard(THREE, Club), NormalCard(THREE, Spade),
+          WildCard(THREE, Diamond), WildCard(THREE, Club), WildCard(THREE, Spade),
+          NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Spade),
           NormalCard(ACE, Diamond), NormalCard(ACE, Heart), NormalCard(ACE, Spade)
         ))
-        assert(hand.weaknessFactor == 11)
+        assert(hand.weaknessFactor == 10)
       }
 
     }

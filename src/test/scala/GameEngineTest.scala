@@ -684,12 +684,14 @@ class GameEngineTest extends FunSpec {
         val r6 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move6)
         val r7 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move7)
         val r8 = GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(move8)
-        val results = List(r1, r2, r3, r4, r5, r6, r7, r8)
+        val results = List(move1.copy(likelihood=r1),move2.copy(likelihood=r2), move3.copy(likelihood=r3),
+                        move4.copy(likelihood=r4), move5.copy(likelihood=r5), move6.copy(likelihood=r6),
+                        move7.copy(likelihood=r7), move8.copy(likelihood=r8))
         val expected: List[Double] = List(0.25, 0.305, 0.36, 0.415, 0.285, 0.23, 0.175, 0.12)
 
-        assert(results.max == r4)
-        assert(results.min == r8)
-        assert(((results zip expected).map(tuple => tuple._1 === tuple._2).forall(x => x)))
+        assert(results.maxBy(_.likelihood).likelihood == r4)
+        assert(results.minBy(_.likelihood).likelihood == r8)
+        assert(((results zip expected).map(tuple => tuple._1.likelihood === tuple._2).forall(x => x)))
 
       }
     }
@@ -703,8 +705,8 @@ class GameEngineTest extends FunSpec {
     val gameState = Move(List(NormalCard(SIX, Heart)))
 
     describe("When the moveFaceValue and the gameStateFaceValue are the same (suit-burn") {
-      it("Should return infinity") {
-        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, Move(List(NormalCard(SEVEN, Club))), 1).isInfinite)
+      it("Should return 1") {
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, Move(List(NormalCard(SEVEN, Club))), 1) == 1.0d)
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7,
           Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club))), 1).isInfinite)
       }
