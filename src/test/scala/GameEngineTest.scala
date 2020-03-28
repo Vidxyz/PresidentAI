@@ -707,8 +707,8 @@ class GameEngineTest extends FunSpec {
     describe("When the moveFaceValue and the gameStateFaceValue are the same (suit-burn") {
       it("Should return 1") {
         assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7, Move(List(NormalCard(SEVEN, Club))), 1) == 1.0d)
-        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(single7,
-          Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club))), 1).isInfinite)
+        assert(GameEngine.applyNormalCardHeuristicWithPenaltyForBreakingSets(double7s,
+          Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club))), 2) == 1.0d)
       }
     }
 

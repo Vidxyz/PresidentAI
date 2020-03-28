@@ -160,6 +160,11 @@ object Consants {
   def THREE_Heart: WildCard = WildCard(THREE, Heart)
   def THREE_Spade: WildCard = WildCard(THREE, Spade)
 
+  def THREE_Diamond(assumedValue: Int): WildCard = WildCard(THREE, Diamond, assumedValue)
+  def THREE_Club(assumedValue: Int): WildCard = WildCard(THREE, Club, assumedValue)
+  def THREE_Heart(assumedValue: Int): WildCard = WildCard(THREE, Heart, assumedValue)
+  def THREE_Spade(assumedValue: Int): WildCard = WildCard(THREE, Spade, assumedValue)
+
   def FOUR_Diamond: NormalCard = NormalCard(FOUR, Diamond)
   def FOUR_Club: NormalCard = NormalCard(FOUR, Club)
   def FOUR_Heart: NormalCard = NormalCard(FOUR, Heart)
@@ -219,6 +224,5 @@ object Consants {
   def TWO_Club: SpecialCard = SpecialCard(TWO, Club)
   def TWO_Heart: SpecialCard = SpecialCard(TWO, Heart)
   def TWO_Spade: SpecialCard = SpecialCard(TWO, Spade)
-
 
 }

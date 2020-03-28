@@ -88,9 +88,9 @@ case object GameEngine {
     if(validMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false})) 0
     else
       wildCardPenaltyModifier *
-        ((0.4 * (1/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)))
-         + (0.2 * validMove.parity)
-         + (0.3 * 1 / GameUtilities.getNumberOfWildCardsInMove(validMove)))
+        ((0.35 * (1/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)))
+         + (0.2 * (1/validMove.parity))
+         + (0.45 * 1 / (Consants.maxMoveSize - GameUtilities.getNumberOfWildCardsInMove(validMove))))
   }
 
   /*
@@ -99,7 +99,7 @@ case object GameEngine {
   Using base as 3-intValue here because it is the lowest possible to play
    */
   def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move): Double = {
-    (0.78d * (1d/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
+    (0.78d * (1d/(validMove.moveFaceValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
   }
 
   /*

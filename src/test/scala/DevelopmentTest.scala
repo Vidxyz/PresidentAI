@@ -1,6 +1,7 @@
 import game.FaceValue._
 import game.Suits._
 import game._
+import utils.Consants._
 import org.scalatest.FunSpec
 import player.PlayerIndicators
 
@@ -201,7 +202,68 @@ class DevelopmentTest extends FunSpec {
       // Here, K-diamond is preferred over playing the 3 - this is WRONG!
 //      val m1 =
 
-      // TODO - Make suitBurns not INFINITY- but a real high value
+
+    }
+
+    it("Is anoter real scenario") {
+
+      val gameState = Move(List(JACK_Diamond, JACK_Club, JACK_Spade))
+      val pHand = Hand(List(
+        WildCard(THREE, Club), WildCard(THREE, Spade),
+        NormalCard(FOUR, Diamond), NormalCard(FOUR, Heart),
+        NormalCard(FIVE, Club), NormalCard(SIX, Club),
+        NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Spade),
+        NormalCard(NINE, Diamond), NormalCard(QUEEN, Diamond),
+        NormalCard(ACE, Diamond), NormalCard(ACE, Spade)
+      ))
+
+      val m1 = Move(List(THREE_Club(14), ACE_Diamond, ACE_Spade))
+      val m2 = Move(List(THREE_Club(12), THREE_Spade(12), QUEEN_Diamond))
+
+      val pi = PlayerIndicators(pHand)
+
+      println("Wildcardpenalty modifier is " + pi.wildCardPenaltyModifier)
+
+
+      println(
+        ((0.4 * (1/(m1.moveFaceValue - WildCard(THREE, Diamond).intValue)))
+          + (0.2 * (1/ m1.parity))
+          + (0.4 * 1 / (maxMoveSize -  GameUtilities.getNumberOfWildCardsInMove(m1))))
+      )
+
+      println("m2 heuristic : " + GameEngine.applyNormalCardMoveHeuristic(m1, gameState, pi).likelihood )
+      println("wilcard penal m1 :  "+GameEngine.wildCardUsagePenalty(m1, pi.wildCardPenaltyModifier))
+      println("-----------")
+      println("m2 heuristic : " + GameEngine.applyNormalCardMoveHeuristic(m2, gameState, pi).likelihood )
+      println(
+        ((0.4 * (1/(m2.moveFaceValue - WildCard(THREE, Diamond).intValue)))
+          + (0.2 * (1/m2.parity))
+          + (0.4 * 1 / (maxMoveSize - GameUtilities.getNumberOfWildCardsInMove(m2))))
+      )
+
+      println("wilcard penal m2 "+ GameEngine.wildCardUsagePenalty(m2, pi.wildCardPenaltyModifier))
+
+    }
+
+
+    it("Is another scenario") {
+
+      val hand = Hand(List(
+        THREE_Diamond, THREE_Heart, FIVE_Diamond, JACK_Heart, QUEEN_Diamond, TWO_Heart
+      ))
+
+      val m1 = Move(List(THREE_Diamond(5), FIVE_Diamond))
+      val m2 = Move(List(THREE_Diamond(5), THREE_Heart(5), FIVE_Diamond))
+      val pi = PlayerIndicators(hand)
+      val gameState = Move(List.empty)
+
+      println(m1)
+      println(GameEngine.applyNormalCardMoveHeuristic(m1, gameState, pi).likelihood + GameEngine.wildCardUsagePenalty(m1, pi.wildCardPenaltyModifier))
+      println(GameEngine.wildCardUsagePenalty(m1, pi.wildCardPenaltyModifier))
+
+      println(m2)
+      println(GameEngine.applyNormalCardMoveHeuristic(m2, gameState, pi).likelihood + GameEngine.wildCardUsagePenalty(m2, pi.wildCardPenaltyModifier))
+      println(GameEngine.wildCardUsagePenalty(m2, pi.wildCardPenaltyModifier))
 
     }
 
