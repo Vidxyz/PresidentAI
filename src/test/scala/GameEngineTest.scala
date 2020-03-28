@@ -457,7 +457,7 @@ class GameEngineTest extends FunSpec {
 
       describe("When validMove is a single 4")  {
         it("should return value") {
-          assert(GameEngine.applyNormalCardMoveHeuristic(Move(List(NormalCard(FOUR,Heart))), emptyGameState) == 0.25)
+          assert(GameEngine.applyNormalCardMoveHeuristic(Move(List(NormalCard(FOUR,Heart))), emptyGameState).likelihood == 0.25)
         }
       }
 
@@ -465,7 +465,7 @@ class GameEngineTest extends FunSpec {
         it("should return value") {
           assert(GameEngine.applyNormalCardMoveHeuristic(
             Move(List(NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
-            emptyGameState) == 0.305)
+            emptyGameState).likelihood == 0.305)
         }
       }
 
@@ -473,7 +473,7 @@ class GameEngineTest extends FunSpec {
         it("should return value") {
           assert(GameEngine.applyNormalCardMoveHeuristic(
             Move(List(NormalCard(FOUR,Club), NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
-            emptyGameState) == 0.36)
+            emptyGameState).likelihood == 0.36)
         }
       }
 
@@ -482,7 +482,7 @@ class GameEngineTest extends FunSpec {
           assert(GameEngine.applyNormalCardMoveHeuristic(
             Move(List(NormalCard(FOUR,Diamond), NormalCard(FOUR,Club),
               NormalCard(FOUR,Heart), NormalCard(FOUR,Spade))),
-            emptyGameState) === 0.415)
+            emptyGameState).likelihood === 0.415)
         }
       }
     }
@@ -494,7 +494,7 @@ class GameEngineTest extends FunSpec {
         it("should return the right value") {
           val gameState = Move(List(NormalCard(FIVE, Spade)))
           val validMove = Move(List(NormalCard(NINE, Diamond)))
-          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood === 0.824)
         }
       }
 
@@ -503,7 +503,7 @@ class GameEngineTest extends FunSpec {
         it("should return the right value") {
           val gameState = Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Spade)))
           val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Spade)))
-          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood === 0.824)
         }
       }
 
@@ -512,7 +512,7 @@ class GameEngineTest extends FunSpec {
           val hand = Hand(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club), NormalCard(NINE, Spade)))
           val gameState = Move(List(NormalCard(FIVE, Club), NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
           val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club), NormalCard(NINE, Spade)))
-          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood === 0.824)
         }
       }
 
@@ -523,7 +523,7 @@ class GameEngineTest extends FunSpec {
             NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)))
           val validMove = Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club),
             NormalCard(NINE, Heart), NormalCard(NINE, Spade)))
-          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)) === 0.835)
+          assert(GameEngine.applyNormalCardMoveHeuristic(validMove, gameState, PlayerIndicators(hand)).likelihood === 0.824)
         }
       }
     }
