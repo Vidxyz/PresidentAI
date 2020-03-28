@@ -127,11 +127,13 @@ case class Hand(listOfCards: List[Card]) {
   We always want to minimize this
    */
   def weaknessFactor: Int = {
-    if(listOfSimilarCards.size == 1) 0 else {
-      var lastIntValueSeen  = listOfSimilarCards.tail.head.head.intValue
-      listOfSimilarCards
+    val intermediateListWithoutThrees = listOfSimilarCards.filter(listOfCard => listOfCard.head.intValue != 3)
+    if(listOfSimilarCards.size == 1 || intermediateListWithoutThrees.size == 1) 0
+    else {
+      var lastIntValueSeen  = intermediateListWithoutThrees.tail.head.head.intValue
+      intermediateListWithoutThrees
         .tail.tail
-        .foldLeft(listOfSimilarCards.tail.head.head.intValue - listOfSimilarCards.head.head.intValue)(
+        .foldLeft(intermediateListWithoutThrees.tail.head.head.intValue - intermediateListWithoutThrees.head.head.intValue)(
           (maxDifferenceSoFar, list) => {
             if (list.head.intValue - lastIntValueSeen > maxDifferenceSoFar) {
               val newDifference = list.head.intValue - lastIntValueSeen
@@ -211,6 +213,18 @@ case class Move(cards: List[Card], likelihood: Double = 0) {
       case c: NormalCard => c.intValue
     }
   }
+
+  /*
+  Override equals method to match on everything but likelihood
+   */
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case obj: Move => obj.canEqual(this) && this.cards == obj.cards
+      case _ => false
+    }
+  }
+
+  def canEqual(a: Any): Boolean = a.isInstanceOf[Move]
 }
 
 /*
