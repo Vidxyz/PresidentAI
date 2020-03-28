@@ -1,11 +1,12 @@
 import game.FaceValue._
 import game.GameEngine.IllegalHeuristicFunctionException
-import game.{GameEngine, GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard}
+import game.{Card, GameEngine, GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard, WildCard}
 import game.Suits._
 import org.scalactic.{Equality, TolerantNumerics}
 import org.scalatest.FunSpec
 import player.PlayerIndicators
 import utils.Consants
+import utils.Consants._
 
 class GameEngineTest extends FunSpec {
 
@@ -223,13 +224,12 @@ class GameEngineTest extends FunSpec {
       describe("When gameState is a low single") {
         it("Should pick the lowest single that minimizes the delta in faceValue") {
           val gameState = Move(List(NormalCard(FIVE, Club)))
-          val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
           assert(GameEngine.getNextMove(allSingles, gameState)
-          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(allSingles.moves.head))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(SEVEN_Diamond))))
         }
 
         it("Should pick a higher single without breaking a set than a lower single that involves breaking a set ") {
-          val gameState = Move(List(NormalCard(THREE, Diamond)))
+          val gameState = Move(List(FOUR_Diamond))
           val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
           assert(GameEngine.getNextMove(allValidMoves, gameState)
           (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(NormalCard(SEVEN, Diamond)))))
@@ -239,7 +239,7 @@ class GameEngineTest extends FunSpec {
 
       describe("When gameState is a low double") {
         it("Should pick a higher double without breaking a set than a lower double that involves breaking a set ") {
-          val gameState = Move(List(NormalCard(THREE, Diamond), NormalCard(THREE, Club)))
+          val gameState = Move(List(FOUR_Diamond, FOUR_Club))
           val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
           assert(GameEngine.getNextMove(allValidMoves, gameState)
           (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)))))
@@ -248,11 +248,10 @@ class GameEngineTest extends FunSpec {
 
       describe("When gameState is a low triple") {
         it("Should pick a higher triple without breaking a set than a lower triple that involves breaking a set ") {
-          val gameState = Move(List(NormalCard(THREE, Diamond), NormalCard(THREE, Club), NormalCard(THREE, Heart)))
+          val gameState = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart))
           val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
           assert(GameEngine.getNextMove(allValidMoves, gameState)
-          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(NormalCard(FIVE, Diamond),
-            NormalCard(FIVE, Club), NormalCard(FIVE, Heart)))))
+          (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(FIVE_Diamond, FIVE_Club, FIVE_Heart))))
         }
       }
 
@@ -364,7 +363,11 @@ class GameEngineTest extends FunSpec {
         ))
         val gameState = Move(List.empty)
         val result = GameEngine.getNextMoveWrapper(validMoves, gameState)(playerInd)
-        assert(result.contains(Move(List(SpecialCard(TWO, Diamond)))) || result.isEmpty)
+        assert(result.isEmpty || result.get.cards.map{
+        case s: SpecialCard => true
+        case n: NormalCard => false
+        case w: WildCard => false
+        case j: Card => true}.forall(x => x))
       }
     }
 
