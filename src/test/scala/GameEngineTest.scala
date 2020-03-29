@@ -459,7 +459,8 @@ class GameEngineTest extends FunSpec {
       }
 
       describe("When wildcardPenaltyModifier is sufficiently high enough") {
-        val aHand = GameUtilities.dealNewHand(4, Consants.totalNumberOfCards)
+        val aHand = Hand(List(THREE_Diamond, THREE_Club, THREE_Heart, THREE_Spade, FIVE_Diamond, FIVE_Club, FIVE_Heart,
+          SIX_Club, SEVEN_Diamond, EIGHT_Spade, NINE_Spade, TEN_Club, JACK_Heart, QUEEN_Spade))
         val pi = PlayerIndicators(aHand)
 
         it("Should not return the singular wildcard move") {
@@ -482,7 +483,7 @@ class GameEngineTest extends FunSpec {
 
         it("Should not return the quad involving three wildcards") {
           val gameState = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart, FOUR_Spade))
-          val allValidMoves = Moves(List(Move(List(THREE_Heart(5)))))
+          val allValidMoves = Moves(List(Move(List(THREE_Club(5), THREE_Heart(5), THREE_Spade(5), FIVE_Spade))))
           assert(GameEngine.getNextMove(allValidMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, pi).isEmpty)
         }
 
@@ -571,16 +572,17 @@ class GameEngineTest extends FunSpec {
       }
     }
 
-    describe("When only normal moves are available") {
+    describe("When only normal moves (moves with wildcards/normalcards) are available") {
       it("Should definitively return a move") {
-        val hand = Hand(List(SIX_Diamond, QUEEN_Heart, ACE_Diamond, ACE_Heart))
+        val hand = Hand(List(THREE_Spade, SIX_Diamond, QUEEN_Heart, KING_Club, KING_Heart))
         val playerInd = PlayerIndicators(hand)
         val validMoves = Moves(List(
+          Move(List(THREE_Spade(14))),
           Move(List(SIX_Diamond)),
           Move(List(QUEEN_Heart)),
-          Move(List(ACE_Diamond)),
-          Move(List(ACE_Heart)),
-          Move(List(ACE_Diamond, ACE_Heart))
+          Move(List(KING_Heart)),
+          Move(List(KING_Club)),
+          Move(List(KING_Club, KING_Heart))
         ))
         val gameState = Move(List.empty)
         val result = GameEngine.getNextMoveWrapper(validMoves, gameState)(playerInd)
@@ -588,16 +590,17 @@ class GameEngineTest extends FunSpec {
       }
     }
 
-    describe("When both normal and special moves are available") {
+    describe("When both normal (moves with normalcard/wildcard) and special moves are available") {
       it("Should only return a normalCard move and NOT a specialCard move") {
-        val hand = Hand(List(SIX_Diamond, QUEEN_Heart, ACE_Diamond, ACE_Heart, TWO_Spade, Joker))
+        val hand = Hand(List(THREE_Spade, SIX_Diamond, QUEEN_Heart, KING_Diamond, KING_Heart, TWO_Spade, Joker))
         val playerInd = PlayerIndicators(hand)
         val validMoves = Moves(List(
+          Move(List(THREE_Spade(14))),
           Move(List(SEVEN_Diamond)),
           Move(List(QUEEN_Heart)),
-          Move(List(ACE_Diamond)),
-          Move(List(ACE_Heart)),
-          Move(List(ACE_Diamond, ACE_Heart)),
+          Move(List(KING_Diamond)),
+          Move(List(KING_Heart)),
+          Move(List(KING_Diamond, KING_Heart)),
           Move(List(TWO_Spade)),
           Move(List(Joker)),
         ))
@@ -605,7 +608,7 @@ class GameEngineTest extends FunSpec {
         val result = GameEngine.getNextMoveWrapper(validMoves, gameState)(playerInd)
         assert(result.contains(Move(List(SEVEN_Diamond))))
         assert(result.get.cards match {
-          case List(NormalCard(_,_), _*) => true
+          case List(NormalCard(_,_), _*) | List(WildCard(_,_,_), _*) => true
           case _ => false
         })
       }
@@ -653,7 +656,7 @@ class GameEngineTest extends FunSpec {
         it("should return value") {
           assert(GameEngine.applyNormalCardMoveHeuristic(
             Move(List(FOUR_Heart, FOUR_Spade)),
-            emptyGameState).likelihood == 0.305)
+            emptyGameState).likelihood === 0.3)
         }
       }
 
@@ -661,7 +664,7 @@ class GameEngineTest extends FunSpec {
         it("should return value") {
           assert(GameEngine.applyNormalCardMoveHeuristic(
             Move(List(FOUR_Club, FOUR_Heart, FOUR_Spade)),
-            emptyGameState).likelihood == 0.36)
+            emptyGameState).likelihood === 0.35)
         }
       }
 
@@ -669,7 +672,7 @@ class GameEngineTest extends FunSpec {
         it("should return value") {
           assert(GameEngine.applyNormalCardMoveHeuristic(
             Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart, FOUR_Spade)),
-            emptyGameState).likelihood === 0.415)
+            emptyGameState).likelihood === 0.4)
         }
       }
 
@@ -915,8 +918,7 @@ class GameEngineTest extends FunSpec {
         val results = List(move1.copy(likelihood=r1),move2.copy(likelihood=r2), move3.copy(likelihood=r3),
                         move4.copy(likelihood=r4), move5.copy(likelihood=r5), move6.copy(likelihood=r6),
                         move7.copy(likelihood=r7), move8.copy(likelihood=r8))
-        val expected: List[Double] = List(0.25, 0.305, 0.36, 0.415, 0.285, 0.23, 0.175, 0.12)
-
+        val expected: List[Double] = List(0.25, 0.3, 0.35, 0.4, 0.2667, 0.2167, 0.1667, 0.1167)
         assert(results.maxBy(_.likelihood).likelihood == r4)
         assert(results.minBy(_.likelihood).likelihood == r8)
         assert(((results zip expected).map(tuple => tuple._1.likelihood === tuple._2).forall(x => x)))

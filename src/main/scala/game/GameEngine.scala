@@ -116,7 +116,7 @@ Assumes faceValue is between 4 and 11
   Using base as 3-intValue here because it is the lowest possible to play
    */
   def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move): Double = {
-    (0.78d * (1d/(validMove.moveFaceValue)) + (0.22d * validMove.parity/Consants.maxMoveSize))
+    (0.8d * (1d/(validMove.moveFaceValue)) + (0.2d * validMove.parity/Consants.maxMoveSize))
   }
 
   /*
