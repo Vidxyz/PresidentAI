@@ -23,12 +23,23 @@ class GameEngineTest extends FunSpec {
       }
     }
 
-    describe("When validMoves.size is 1 and it is a normalCard") {
-      it("Should return the validMove") {
-        val gameState = Move(List(JACK_Heart))
-        val validMoves = Moves(List(Move(List(QUEEN_Diamond))))
-        assert(GameEngine.getNextMove(validMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(QUEEN_Diamond))))
-          .contains(Move(List(QUEEN_Diamond))))
+    describe("When validMoves.size is 1") {
+      describe("and it is a normalCard") {
+        it("Should return the validMove") {
+          val gameState = Move(List(JACK_Heart))
+          val validMoves = Moves(List(Move(List(QUEEN_Diamond))))
+          assert(GameEngine.getNextMove(validMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(QUEEN_Diamond))))
+            .contains(Move(List(QUEEN_Diamond))))
+        }
+      }
+
+      describe("And it is a Wildcard") {
+        it("Should return the validMove") {
+          val gameState = Move(List(JACK_Heart))
+          val validMoves = Moves(List(Move(List(THREE_Club(14)))))
+          assert(GameEngine.getNextMove(validMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(THREE_Club))))
+            .contains(Move(List(THREE_Club(14)))))
+        }
       }
     }
 
@@ -194,6 +205,40 @@ class GameEngineTest extends FunSpec {
         }
       }
 
+      describe("When moves involving WildCards are available and wildCardPenalty is almost 0") {
+        val gameState = Move(List.empty)
+
+        it("Should play a single 3 as an ACE when no other singles are available") {
+          val validMoves = Moves(List(Move(List(THREE_Club(14)))))
+          assert(GameEngine.getNextMove(validMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic,
+            PlayerIndicators(Hand(List.empty))).contains(Move(List(THREE_Club(14)))))
+        }
+
+        it("Should pick the lower double involving a wildcard") {
+          val move1 = Move(List(THREE_Club(5), FIVE_Spade))
+          val move2 = Move(List(SIX_Diamond, SIX_Club))
+          val validMoves = Moves(List(move1, move2))
+          assert(GameEngine.getNextMove(validMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic,
+            PlayerIndicators(Hand(List.empty))).contains(move1))
+        }
+
+        it("Should pick the lower triple involving the wildcard") {
+          val move1 = Move(List(THREE_Club(5), THREE_Heart(5), FIVE_Spade))
+          val move2 = Move(List(SIX_Diamond, SIX_Club, SIX_Heart))
+          val validMoves = Moves(List(move1, move2))
+          assert(GameEngine.getNextMove(validMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic,
+            PlayerIndicators(Hand(List.empty))).contains(move1))
+        }
+
+        it("Should pick the lower quad involving the wildcard") {
+          val move1 = Move(List(THREE_Club(5), THREE_Heart(5), THREE_Spade(5), FIVE_Spade))
+          val move2 = Move(List(SIX_Diamond, SIX_Club, SIX_Heart, SIX_Club))
+          val validMoves = Moves(List(move1, move2))
+          assert(GameEngine.getNextMove(validMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic,
+            PlayerIndicators(Hand(List.empty))).contains(move1))
+        }
+      }
+
     }
 
     describe("When gameState is comprised only of NormalCards") {
@@ -214,6 +259,7 @@ class GameEngineTest extends FunSpec {
         Move(List(SEVEN_Diamond))))
 
       val sampleHand = Hand(List(
+        THREE_Diamond, THREE_Club, THREE_Heart,  THREE_Spade,
         FOUR_Diamond, FOUR_Club, FOUR_Heart, FOUR_Spade,
         FIVE_Diamond, FIVE_Club, FIVE_Heart,
         SIX_Diamond, SIX_Club,
@@ -230,9 +276,32 @@ class GameEngineTest extends FunSpec {
 
         it("Should pick a higher single without breaking a set than a lower single that involves breaking a set ") {
           val gameState = Move(List(FOUR_Diamond))
-          val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
+          val allValidMoves = GameUtilities.getValidMoves(GameUtilities.assignWildCardsOptimally(
+            GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState), gameState)
           assert(GameEngine.getNextMove(allValidMoves, gameState)
           (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(SEVEN_Diamond))))
+        }
+
+        it("Should pick the next move to suit-burn if possible") {
+          val gameState = Move(List(FOUR_Diamond))
+          val allValidMoves = Moves(List(Move(List(FOUR_Spade))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(FOUR_Spade)))).contains(Move(List(FOUR_Spade))))
+        }
+
+        it("Should pick a single-3 to play as a suit burn") {
+          val gameState = Move(List(TEN_Club))
+          val allValidMoves = GameUtilities.getValidMoves(
+            GameUtilities.assignWildCardsOptimally(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState), gameState)
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List.empty))).contains(Move(List(THREE_Heart(10)))))
+        }
+
+        it("Should pick the real NormalCard to play as a suit burn over a 3 assuming same value") {
+          val gameState = Move(List(THREE_Spade(10)))
+          val allValidMoves = Moves(List(Move(List(TEN_Spade))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(TEN_Spade)))).contains(Move(List(TEN_Spade))))
         }
 
       }
@@ -240,18 +309,88 @@ class GameEngineTest extends FunSpec {
       describe("When gameState is a low double") {
         it("Should pick a higher double without breaking a set than a lower double that involves breaking a set ") {
           val gameState = Move(List(FOUR_Diamond, FOUR_Club))
-          val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
+          val allValidMoves = GameUtilities.getValidMoves(GameUtilities.assignWildCardsOptimally(
+            GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState), gameState)
           assert(GameEngine.getNextMove(allValidMoves, gameState)
           (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(SIX_Diamond, SIX_Club))))
         }
+
+        it("Should pick the next move to suit-burn if possible") {
+          val gameState = Move(List(FOUR_Diamond, FOUR_Club))
+          val allValidMoves = Moves(List(Move(List(FOUR_Heart, FOUR_Spade))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(FOUR_Heart, FOUR_Spade))))
+            .contains(Move(List(FOUR_Heart, FOUR_Spade))))
+        }
+
+        it("Should pick a wildcard to make a double to play as a suit burn") {
+          val gameState = Move(List(TEN_Club, TEN_Heart))
+          val allValidMoves = GameUtilities.getValidMoves(
+            GameUtilities.assignWildCardsOptimally(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState), gameState)
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List.empty)))
+            .contains(Move(List(THREE_Diamond(10), THREE_Spade(10)))))
+        }
+
+        it("Should pick the real NormalCard to play as a suit burn over a 3 assuming same value") {
+          val gameState = Move(List(TEN_Club, THREE_Spade(10)))
+          val allValidMoves = Moves(List(Move(List(TEN_Diamond, TEN_Spade))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(TEN_Diamond, TEN_Spade)))).contains(Move(List(TEN_Diamond, TEN_Spade))))
+        }
+
       }
 
       describe("When gameState is a low triple") {
         it("Should pick a higher triple without breaking a set than a lower triple that involves breaking a set ") {
           val gameState = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart))
-          val allValidMoves = GameUtilities.getValidMoves(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState)
+          val allValidMoves = GameUtilities.getValidMoves(GameUtilities.assignWildCardsOptimally(
+            GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState), gameState)
           assert(GameEngine.getNextMove(allValidMoves, gameState)
           (GameEngine.applyNormalCardMoveHeuristic, playerIndicators).contains(Move(List(FIVE_Diamond, FIVE_Club, FIVE_Heart))))
+        }
+
+        it("Should pick the next move to suit-burn if possible") {
+          val gameState = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart))
+          val allValidMoves = Moves(List(Move(List(THREE_Diamond(4), THREE_Club(4), FOUR_Spade))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(FOUR_Spade))))
+            .contains(Move(List(THREE_Diamond(4), THREE_Club(4), FOUR_Spade))))
+        }
+
+        it("Should pick a wildcard to make a triple to play as a suit burn") {
+          val gameState = Move(List(TEN_Diamond, TEN_Club, TEN_Heart))
+          val allValidMoves = GameUtilities.getValidMoves(
+            GameUtilities.assignWildCardsOptimally(GameUtilities.getAllMoves(sampleHand.listOfSimilarCards), gameState), gameState)
+          print(allValidMoves)
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List.empty)))
+            .contains(Move(List(THREE_Diamond(10), THREE_Club(10), THREE_Spade(10)))))
+        }
+
+        it("Should pick the real NormalCard to play as a suit burn over a 3 assuming same value") {
+          val gameState = Move(List(TEN_Club, THREE_Spade(10)))
+          val allValidMoves = Moves(List(Move(List(TEN_Diamond, TEN_Spade))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(TEN_Diamond, TEN_Spade)))).contains(Move(List(TEN_Diamond, TEN_Spade))))
+        }
+      }
+
+      describe("When gameState is a quad with a Wildcard") {
+        it("Should pick the next move to suit-burn if possible") {
+          val gameState = Move(List(THREE_Diamond(4), THREE_Club(4), FOUR_Club, FOUR_Heart))
+          val allValidMoves = Moves(List(Move(List(THREE_Heart(4), THREE_Spade(4),
+            FOUR_Diamond, FOUR_Spade))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(FOUR_Diamond, FOUR_Spade))))
+            .contains(Move(List(THREE_Heart(4), THREE_Spade(4), FOUR_Diamond, FOUR_Spade))))
+        }
+
+        it("Should burn it with the real card of its type") {
+          val gameState = Move(List(TEN_Diamond, TEN_Club, TEN_Heart, THREE_Spade(10)))
+          val allValidMoves = Moves(List(Move(List(THREE_Diamond(10), THREE_Club(10), THREE_Heart(10),  TEN_Spade))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)
+          (GameEngine.applyNormalCardMoveHeuristic, PlayerIndicators(Hand(List(TEN_Spade)))).contains(allValidMoves.moves.head))
         }
       }
 
@@ -293,7 +432,68 @@ class GameEngineTest extends FunSpec {
         }
       }
 
+      describe("When the only valid moves involve WildCards") {
 
+        describe("When wilcardPenaltyModifier is sufficiently low enough") {
+
+          it("Should return the wildcard move as an ACE if it cannot burn ") {
+            val hand = Hand(List(THREE_Heart, FOUR_Spade, SIX_Club))
+            val pi = PlayerIndicators(hand)
+            val gameState = Move(List(TEN_Spade))
+            val allValidMoves = Moves(List(Move(List(THREE_Heart(14)))))
+            println(allValidMoves)
+            assert(GameEngine.getNextMove(allValidMoves, gameState)
+            (GameEngine.applyNormalCardMoveHeuristic, pi).contains(Move(List(THREE_Heart(14)))))
+          }
+
+          it("Should return the wildcard move as the same face value of gameState if it can burn") {
+            val hand = Hand(List(THREE_Heart, FOUR_Spade, SIX_Club))
+            val pi = PlayerIndicators(hand)
+            val gameState = Move(List(TEN_Club))
+            val allValidMoves = Moves(List(Move(List(THREE_Heart(10)))))
+            println(allValidMoves)
+            assert(GameEngine.getNextMove(allValidMoves, gameState)
+            (GameEngine.applyNormalCardMoveHeuristic, pi).contains(Move(List(THREE_Heart(10)))))
+          }
+        }
+      }
+
+      describe("When wildcardPenaltyModifier is sufficiently high enough") {
+        val aHand = GameUtilities.dealNewHand(4, Consants.totalNumberOfCards)
+        val pi = PlayerIndicators(aHand)
+
+        it("Should not return the singular wildcard move") {
+          val gameState = Move(List(FOUR_Spade))
+          val allValidMoves = Moves(List(Move(List(THREE_Heart(5)))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, pi).isEmpty)
+        }
+
+        it("Should not return the double involving a wildcard") {
+          val gameState = Move(List(FOUR_Diamond, FOUR_Spade))
+          val allValidMoves = Moves(List(Move(List(THREE_Heart(5), FIVE_Diamond))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, pi).isEmpty)
+        }
+
+        it("Should not return the triple involving two wildcards") {
+          val gameState = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Spade))
+          val allValidMoves = Moves(List(Move(List(THREE_Heart(5), THREE_Spade(5), FIVE_Club))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, pi).isEmpty)
+        }
+
+        it("Should not return the quad involving three wildcards") {
+          val gameState = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart, FOUR_Spade))
+          val allValidMoves = Moves(List(Move(List(THREE_Heart(5)))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, pi).isEmpty)
+        }
+
+        it("Should not return the quad comprised fully of wildcards") {
+          val gameState = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart, FOUR_Spade))
+          val allValidMoves = Moves(List(Move(List(THREE_Club(5), THREE_Heart(5),
+            THREE_Club(5), THREE_Spade(5)))))
+          assert(GameEngine.getNextMove(allValidMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, pi).isEmpty)
+        }
+
+      }
 
     }
 

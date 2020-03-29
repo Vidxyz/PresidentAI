@@ -86,12 +86,29 @@ case object GameEngine {
    */
   def wildCardUsagePenalty(validMove: Move, wildCardPenaltyModifier: Double): Double = {
     if(validMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false})) 0
-    else
+    else {
+      val d1 = 1 - applyCardFaceValueStepFunction(validMove.moveFaceValue)
+      val d2 =  1 - (validMove.parity/(Consants.maxMoveSize + 1))
+      val d3 = Consants.maxMoveSize - GameUtilities.getNumberOfWildCardsInMove(validMove) + 1
       wildCardPenaltyModifier *
-        ((0.35 * (1/(validMove.moveFaceValue - WildCard(THREE, Diamond).intValue)))
-         + (0.2 * (1/validMove.parity))
-         + (0.45 * 1 / (Consants.maxMoveSize - GameUtilities.getNumberOfWildCardsInMove(validMove))))
+          ((0.5 * d1)
+         + (0.4 * d2)
+         + (0.3 * 1/d3))
+    }
   }
+
+  /*
+Divides 0.0-1.0 into 11 equal intervals, each interval corresponds to a card (4,5,...K,A)
+Returns the interval the faceValue of the card falls under
+Example :- faceValue = 4, Returns --> [1 * (1/11)]
+Example :- faceValue = 14, Returns -> [11 * (1/11)]
+Assumes faceValue is between 4 and 11
+ */
+  def applyCardFaceValueStepFunction(faceValue: Int): Double = {
+    if(faceValue < 4 || faceValue > 14) throw IllegalFaceValueException("FaceValue must be between FOUR(4) and ACE(14)")
+    else (faceValue - 3) * (1/11)
+  }
+
 
   /*
   Assumes that gameState is empty. If non-empty, use the heuristic function below this instead
@@ -139,9 +156,7 @@ case object GameEngine {
           .filter(validMoves => validMoves.likelihood > 0)
           .maxBy(_.likelihood))
     } catch {
-      case e: Exception =>
-//        e.printStackTrace()
-        None
+      case u: UnsupportedOperationException => None // If any other exception we want to terminate
     }
   }
 
