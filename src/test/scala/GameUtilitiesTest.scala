@@ -1162,6 +1162,15 @@ class GameUtilitiesTest extends FunSpec {
 
   describe("tests for getWildCardListFromIntermediateList()") {
 
+    val intermediateList = List(
+      List(FOUR_Heart),
+      List(SIX_Diamond, SIX_Club),
+      List(EIGHT_Club, EIGHT_Heart, EIGHT_Spade),
+      List(TEN_Diamond, TEN_Club, TEN_Heart, TEN_Spade),
+      List(TWO_Spade),
+      List(Joker)
+    )
+
     describe("When intermediate list is empty") {
       it("Should return empty list") {
         val intermediateList = List.empty
@@ -1178,31 +1187,15 @@ class GameUtilitiesTest extends FunSpec {
 
     describe("When intermediateList does NOT have a list of cards with 3s in it") {
       it("Should return empty list") {
-        val intermediateList = List(
-          List(NormalCard(FOUR, Heart)),
-          List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)),
-          List(NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade)),
-          List(NormalCard(TEN, Diamond), NormalCard(TEN, Club), NormalCard(TEN, Heart), NormalCard(TEN, Spade)),
-          List(SpecialCard(TWO, Spade)),
-          List(Joker)
-        )
         assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList).isEmpty)
       }
     }
 
     describe("When intermediateList has a list of card(s) with 3s in it") {
-      val intermediateList = List(
-        List(NormalCard(FOUR, Heart)),
-        List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)),
-        List(NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade)),
-        List(NormalCard(TEN, Diamond), NormalCard(TEN, Club), NormalCard(TEN, Heart), NormalCard(TEN, Spade)),
-        List(SpecialCard(TWO, Spade)),
-        List(Joker)
-      )
 
       describe("When the list of 3s is of size 1") {
         it("Should return a list of size 1") {
-          val intermediate: List[List[Card]] = intermediateList :+ List(WildCard(THREE, Diamond))
+          val intermediate: List[List[Card]] = intermediateList :+ List(THREE_Diamond)
           assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 1)
         }
       }
@@ -1210,7 +1203,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When the list of 3s is of size 2") {
         it("Should return a list of size 2") {
           val intermediate: List[List[Card]] = intermediateList :+
-            List(WildCard(THREE, Diamond), WildCard(THREE, Club))
+            List(THREE_Diamond, THREE_Club)
           assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 2)
         }
       }
@@ -1218,7 +1211,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When the list of 3s is of size 3") {
         it("Should return a list of size 3") {
           val intermediate: List[List[Card]] = intermediateList :+
-            List(WildCard(THREE, Diamond), WildCard(THREE, Club), WildCard(THREE, Heart))
+            List(THREE_Diamond, THREE_Club, THREE_Heart)
           assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 3)
         }
       }
@@ -1226,7 +1219,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When the list of 3s is of size 4") {
         it("Should return a list of size 4") {
           val intermediate: List[List[Card]] = intermediateList :+
-            List(WildCard(THREE, Diamond), WildCard(THREE, Club), WildCard(THREE, Heart), WildCard(THREE, Spade))
+            List(THREE_Diamond, THREE_Club, THREE_Heart, THREE_Spade)
           assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 4)
         }
       }
@@ -1235,45 +1228,63 @@ class GameUtilitiesTest extends FunSpec {
 
   describe("Tests for getNewHand()") {
     val currentHand = Hand(List(
-      NormalCard(SIX, Diamond),
-      NormalCard(SIX, Heart),
-      NormalCard(EIGHT, Club),
-      NormalCard(TEN, Heart),
-      NormalCard(ACE, Diamond),
-      NormalCard(ACE, Heart),
-      SpecialCard(TWO, Diamond),
-      Joker,
-    ))
+      THREE_Club, THREE_Heart,
+      SIX_Diamond, SIX_Heart,
+      EIGHT_Club, TEN_Heart,
+      ACE_Diamond, ACE_Heart,
+      TWO_Diamond, Joker))
     val player = Player("Test", currentHand)
+
     describe("When the movePlayed is none"){
       it("Should return the same hand") {
         assert(GameUtilities.getNewHand(player.hand, None) == currentHand)
       }
     }
 
-    describe("When the movePlayed does not involve a hand"){
-      it("Should return the same hand") {
-        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Spade)))))
+    describe("When the movePlayed does not involve a card in the hand"){
+      it("Should return the same hand when the move is composed of Normal Cards") {
+        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(SEVEN_Diamond, SEVEN_Spade))))
           == currentHand)
       }
+
+      it("Should return the same hand when the move is composed of Special Cards") {
+        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(TWO_Club, TWO_Heart))))
+          == currentHand)
+      }
+
+      it("Should return the same hand when the move is composed of WildCards") {
+        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(THREE_Diamond(8), THREE_Spade(8)))))
+          == currentHand)
+      }
+
     }
 
     describe("When the movePlayed involves a card in the hand"){
+
       describe("When the move played is a normalCard") {
         it("Should return the hand minus the played cards") {
-          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart)))))
-            == Hand(currentHand.listOfCards.slice(0,4) ++ currentHand.listOfCards.slice(6, 8)))
+          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(ACE_Diamond, ACE_Heart))))
+            == Hand(currentHand.listOfCards.slice(0,6) ++ currentHand.listOfCards.slice(8, 10)))
         }
       }
-    }
 
-    describe("When the move played is a specialCard") {
-      it("Should return the hand minus the played cards") {
-        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(SpecialCard(TWO, Diamond)))))
-          == Hand(currentHand.listOfCards.slice(0,6) ++ currentHand.listOfCards.slice(7, 8)))
-        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(Joker))))
-          == Hand(currentHand.listOfCards.slice(0,7)))
+      describe("When the move played is a specialCard") {
+        it("Should return the hand minus the played cards") {
+          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(TWO_Diamond))))
+            == Hand(currentHand.listOfCards.slice(0,8) ++ currentHand.listOfCards.slice(9, 10)))
+          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(Joker))))
+            == Hand(currentHand.listOfCards.slice(0,9)))
+        }
       }
+
+      describe("When the move played is a WildCard") {
+        it("Should return the hand minus the played cards") {
+          assert(GameUtilities.getNewHand(player.hand,
+            Some(Move(List(THREE_Club(14), THREE_Heart(14), ACE_Diamond, ACE_Heart))))
+          == Hand(currentHand.listOfCards.slice(2, 6) ++ currentHand.listOfCards.slice(8,10)))
+        }
+      }
+
     }
   }
 
@@ -1357,6 +1368,22 @@ class GameUtilitiesTest extends FunSpec {
         assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList :+ oneWildCardList) == oneWildCardList)
       }
     }
+
+  }
+
+  describe("tests for getNewHand()") {
+
+  }
+
+  describe("tests for addThreesToMoves()") {
+
+  }
+
+  describe("tests for getOptimalWildCardValue()") {
+
+  }
+
+  describe("tests for assignWildCardsOptimally()") {
 
   }
 
