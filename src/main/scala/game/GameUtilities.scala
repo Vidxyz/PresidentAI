@@ -1,7 +1,7 @@
 package game
 
-import game.FaceValue.{ACE, FOUR}
-import game.Suits.Spade
+import game.FaceValue._
+import game.Suits._
 import player.{Player, PlayerIndicators}
 import utils.Consants
 import utils.Consants._
@@ -11,8 +11,51 @@ import scala.util.Random
 
 case object GameUtilities {
 
+  private val wildcardMatcher = """3\([0-9].+\)""".r
+
   implicit class Crossable[X](xs: List[List[Card]]) {
     def cross(ys: List[List[Card]]): List[List[Card]] = for { x <- xs; y <- ys } yield x ++ y
+  }
+
+  def getFaceValueFromString(value: String): Value = {
+    value  match {
+      case "2" => TWO
+      case wildcardMatcher(_*) => THREE
+      case "4" => FOUR
+      case "5" => FIVE
+      case "6" => SIX
+      case "7" => SEVEN
+      case "8" => EIGHT
+      case "9" => NINE
+      case "10" => TEN
+      case "J" => JACK
+      case "Q" => QUEEN
+      case "K" => KING
+      case "A" => ACE
+      case s => throw IllegalMoveSuppliedException("Bad FaceValue: " + s)
+    }
+  }
+
+  def getCardFromMoveStrings(value: String, suit: String): Card = {
+    if(value match { case "Joker" => true; case _ => false}) return Joker
+
+    val faceValue = getFaceValueFromString(value)
+
+    val assumedValue: Int = faceValue match {
+      case THREE => value.drop(1).drop(1).dropRight(1).toInt
+      case _ => -1
+    }
+
+    val moveSuit = suit.toLowerCase match {
+      case "diamond" => Diamond
+      case "club" => Club
+      case "heart" => Heart
+      case "spade" => Spade
+    }
+
+    if(faceValue == TWO) SpecialCard(TWO, moveSuit)
+    else if(faceValue == THREE) WildCard(THREE, moveSuit, assumedValue)
+    else NormalCard(faceValue, moveSuit)
   }
 
   def generatePlayersAndDealHands(listOfNames: List[String], seed: Int = 0): List[Player] = {

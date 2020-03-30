@@ -50,7 +50,9 @@ object Main extends App {
 //  val listOfPlayers = game.GameUtilities.generatePlayersAndDealHands(listOfNames, seed=5).toBuffer
   // 77 and 13 are good seeds
 //  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames, seed=13).toBuffer
-  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames).toBuffer
+//  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames).toBuffer
+  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames, seed=13)
+                      .map(player => if(player.name == "Player1") player.copy(isRealPlayer = true) else player).toBuffer
   val listOfPlayers2 = GameUtilities.generatePlayersAndDealHands(listOfNames2, seed=77).toBuffer
 
   val game = Game(Move(List.empty))

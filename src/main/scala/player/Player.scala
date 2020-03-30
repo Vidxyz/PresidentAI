@@ -3,8 +3,9 @@ package player
 import game.GameUtilities._
 import game.GameEngine.getNextMoveWrapper
 import game._
+import scala.io.StdIn._
 
-case class Player(name: String, hand: Hand) {
+case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
 
   lazy val status: PlayerStatus = if (hand.listOfCards.isEmpty) Complete else Active
   implicit lazy val playerIndicators: PlayerIndicators = PlayerIndicators(hand)
@@ -13,16 +14,36 @@ case class Player(name: String, hand: Hand) {
   Returns the move chosen to play, given current hand and current state
    */
   def playNextMove(currentHand: Hand, currentState: Move): Option[Move] = {
-    val sortedHand = Hand(sortCards(currentHand.listOfCards))
-    val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
-    val intermediateListsWithoutThrees: List[List[Card]] = intermediateLists.filter(list => list.head.intValue != 3)
-    val listOfThreesInHand: List[Card] = getWildCardListFromIntermediateList(intermediateLists)
-    val allMovesWithoutThrees: Moves = getAllMoves(intermediateListsWithoutThrees)
-    val allMoves: Moves = addThreesToMoves(allMovesWithoutThrees, listOfThreesInHand)
-    val validMoves: Moves = getValidMoves(allMoves, currentState)
-    val validMovesWithWildCardsOptimallyAssigned: Moves = assignWildCardsOptimally(validMoves, currentState)
-    val nextMove: Option[Move] = getNextMoveWrapper(validMovesWithWildCardsOptimallyAssigned, currentState)
-    nextMove
+    if(isRealPlayer) Some(promptForNextMove(currentHand, currentState))
+    else {
+      val sortedHand = Hand(sortCards(currentHand.listOfCards))
+      val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
+      val intermediateListsWithoutThrees: List[List[Card]] = intermediateLists.filter(list => list.head.intValue != 3)
+      val listOfThreesInHand: List[Card] = getWildCardListFromIntermediateList(intermediateLists)
+      val allMovesWithoutThrees: Moves = getAllMoves(intermediateListsWithoutThrees)
+      val allMoves: Moves = addThreesToMoves(allMovesWithoutThrees, listOfThreesInHand)
+      val validMoves: Moves = getValidMoves(allMoves, currentState)
+      val validMovesWithWildCardsOptimallyAssigned: Moves = assignWildCardsOptimally(validMoves, currentState)
+      val nextMove: Option[Move] = getNextMoveWrapper(validMovesWithWildCardsOptimallyAssigned, currentState)
+      nextMove
+    }
+  }
+
+  /*
+  Prompts user for next move in the following format
+  <3,Spade> <10,Club> <10,Heart>
+  <Joker>
+  <2,Diamond> <2,Club>
+  <3,Club(8)> <3,Spade(8)>
+  aka - cards are space separated, and 3s have to be explicitly assigned if played by themselves
+   */
+  def promptForNextMove(currentHand: Hand, gameState: Move): Move = {
+    val userMove = readLine("Enter your move : ")
+    Move(GameUtilities.sortCards(userMove.split(" ")
+      .map(cardString => {
+        val pair = cardString.split(",").map(section => section.filter(character => character != '<' && character != '>')).toList
+        val tuple = pair match {case List(a, b) => (a, b); case List(a) => (a, a) }
+        GameUtilities.getCardFromMoveStrings(tuple._1, tuple._2)}).toList))
   }
 
 }
