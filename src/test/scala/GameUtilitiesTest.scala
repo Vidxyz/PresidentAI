@@ -1470,7 +1470,79 @@ class GameUtilitiesTest extends FunSpec {
 
   }
 
-  describe("tests for getOptimalWildCardValue()") {
+  describe("tests for getMoveWithOptimalWildCardValue()") {
+
+    describe("When move is not fully comprised of WildCards") {
+      it("Should throw an exception when move supplied has a normalCard in it") {
+        val validMove = Move(List(THREE_Club(14), THREE_Heart(14), THREE_Spade(14), ACE_Spade))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getMoveWithOptimalWildCardValue(validMove, Move(List.empty)))
+      }
+
+      it("Should throw an exception when move supplied has a specialCard in it") {
+        val validMove = Move(List(TWO_Spade))
+        val validMove2 = Move(List(Joker))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getMoveWithOptimalWildCardValue(validMove, Move(List.empty)))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getMoveWithOptimalWildCardValue(validMove2, Move(List.empty)))
+      }
+    }
+
+    describe("When move is comprised fully of wildcards") {
+      describe("When gameState is EMPTY") {
+        it("Should return the move itself") {
+          val validMove = Move(List(THREE_Heart(14), THREE_Spade(14)))
+          assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, Move(List.empty)) == validMove)
+        }
+      }
+
+      describe("When gameState is NON EMPTY") {
+
+        describe("When gameState is a single") {
+          it("Should return move itself when it cannot burn") {
+            val validMove = Move(List(THREE_Spade(14)))
+            val gameState = Move(List(TEN_Spade))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState) == validMove)
+          }
+
+          it("Should return move with faceValue == gameState.moveFaceValue if it CAN burn") {
+            val validMove = Move(List(THREE_Spade(14)))
+            val gameState = Move(List(TEN_Heart))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState) == Move(List(THREE_Spade(10))))
+          }
+        }
+
+        describe("When gameState is a double") {
+          it("Should return move itself when it cannot burn") {
+            val validMove = Move(List(THREE_Heart(14), THREE_Spade(14)))
+            val gameState = Move(List(TEN_Heart, TEN_Spade))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState) == validMove)
+          }
+
+          it("Should return move with faceValue == gameState.moveFaceValue if it CAN burn") {
+            val validMove = Move(List(THREE_Heart(14), THREE_Spade(14)))
+            val gameState = Move(List(TEN_Diamond, TEN_Club))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState)
+              == Move(List(THREE_Heart(10), THREE_Spade(10))))
+          }
+        }
+
+        describe("When gameState is a triple") {
+          it("Should return move itself when it cannot burn") {
+            val validMove = Move(List(THREE_Diamond(14), THREE_Club(14), THREE_Heart(14)))
+            val gameState = Move(List(TEN_Club, TEN_Heart, TEN_Spade))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState) == validMove)
+          }
+
+          it("Should return move with faceValue == gameState.moveFaceValue if it CAN burn") {
+            val validMove = Move(List(THREE_Club(14), THREE_Heart(14), THREE_Spade(14)))
+            val gameState = Move(List(TEN_Diamond, TEN_Club, TEN_Heart))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState)
+              == Move(List(THREE_Club(10), THREE_Heart(10), THREE_Spade(10))))
+          }
+        }
+
+      }
+
+    }
 
   }
 

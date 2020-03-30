@@ -368,7 +368,7 @@ case object GameUtilities {
   def assignWildCardsOptimally(validMoves: Moves, gameState: Move): Moves = {
     Moves(validMoves.moves
       .map(move => if(GameUtilities.getNumberOfWildCardsInMove(move) == move.parity)
-                      getOptimalWildCardValue(move, gameState)
+                      getMoveWithOptimalWildCardValue(move, gameState)
                     else move))
   }
 
@@ -377,7 +377,7 @@ case object GameUtilities {
   It is also a valid move given the gameState
   Example :- 3(A)-3(A) on top of 9-9
    */
-  def getOptimalWildCardValue(validMove: Move, gameState: Move): Move = {
+  def getMoveWithOptimalWildCardValue(validMove: Move, gameState: Move): Move = {
     if(GameUtilities.getNumberOfWildCardsInMove(validMove) != validMove.parity) throw IllegalMoveSuppliedException("Function only accept moves comprised completely of WildCards")
     else if (gameState.parity == 0) validMove  /* Return highest possible assumed value if gameState is empty */
     else {
