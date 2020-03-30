@@ -33,6 +33,18 @@ class PlayerTest extends FunSpec{
       }
     }
 
+    describe("Tests for applyWildCardPenaltyModifier()") {
+      it("Should get the modifier value based on the function (1 /(1 + e^[-((0.5d * sizeOfHand) - 4)]))") {
+        assert(PlayerIndicators.applyWildCardPenaltyModifer(0) === 0.0179)
+        assert(PlayerIndicators.applyWildCardPenaltyModifer(1) === 0.0293)
+        assert(PlayerIndicators.applyWildCardPenaltyModifer(5) === 0.1824)
+        assert(PlayerIndicators.applyWildCardPenaltyModifer(10) === 0.7310)
+        assert(PlayerIndicators.applyWildCardPenaltyModifer(15) === 0.9706)
+        assert(PlayerIndicators.applyWildCardPenaltyModifer(20) === 0.9975)
+        assert(PlayerIndicators.applyWildCardPenaltyModifer(27) === 0.9999)
+      }
+    }
+
     // TODO - update these tests for Wildcards
     describe("Tests for getListSetSizeForCard()") {
 
