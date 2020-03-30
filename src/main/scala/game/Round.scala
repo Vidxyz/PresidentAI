@@ -9,7 +9,8 @@ case class Round(gameState: Move,
                  listOfPlayers: List[Player],
                  roundPassStatus: List[Boolean]) {
 
-  /* Gets the index of the NEXT player who is supposed to play.
+  /* Used when round.lastMovePlayedBy is played by someone who does not exist anymore (completed)
+     Gets the index of the NEXT player who is supposed to play.
      Defined by the original list of players name
     */
   def getIndexOfNextPlayer: Int = {
