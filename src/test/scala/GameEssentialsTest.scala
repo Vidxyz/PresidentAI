@@ -104,6 +104,51 @@ class GameEssentialsTest extends FunSpec {
 
     }
 
+    describe("Tests for numberOfNormalCards()") {
+
+      describe("When numberOfNormalCards is 0") {
+        it("Should return 0 when move is comprised of special cards") {
+          val move = Move(List(TWO_Heart, TWO_Spade))
+          val move2 = Move(List(Joker))
+          assert(move.numberOfNormalcards == 0)
+          assert(move2.numberOfNormalcards == 0)
+        }
+
+        it("Should return 0 when move is comprised of WildCards") {
+          val move = Move(List(THREE_Diamond(12), THREE_Club(12)))
+          assert(move.numberOfNormalcards == 0)
+        }
+      }
+
+      describe("When numberOfNormalCards is 1") {
+        it("Should return 1") {
+          val move = Move(List(THREE_Diamond(11), THREE_Club(11), THREE_Heart(11), JACK_Spade))
+          assert(move.numberOfNormalcards == 1)
+        }
+      }
+
+      describe("When numberOfNormalCards is 2") {
+        it("Should return 2") {
+          val move = Move(List(THREE_Diamond(11), THREE_Club(11), JACK_Heart, JACK_Spade))
+          assert(move.numberOfNormalcards == 2)
+        }
+      }
+
+      describe("When numberOfNormalCards is 3") {
+        it("Should return 3") {
+          val move = Move(List(THREE_Diamond(11), JACK_Club, JACK_Heart, JACK_Spade))
+          assert(move.numberOfNormalcards == 3)
+        }
+      }
+
+      describe("When numberOfNormalCards is 4") {
+        it("Should return 4") {
+          val move = Move(List(JACK_Diamond, JACK_Club, JACK_Heart, JACK_Spade))
+          assert(move.numberOfNormalcards == 4)
+        }
+      }
+    }
+
   }
 
 

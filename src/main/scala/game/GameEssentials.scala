@@ -201,8 +201,8 @@ case class Move(cards: List[Card], likelihood: Double = 0) {
   def parity: Int = cards.size
 
   def numberOfNormalcards: Int = cards.count(card => card match {
-    case w: WildCard => false;
-    case _ => true
+    case w: NormalCard => true
+    case _ => false
   })
 
   def isEmpty: Boolean = cards.isEmpty
