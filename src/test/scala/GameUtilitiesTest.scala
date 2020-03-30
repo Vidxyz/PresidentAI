@@ -933,6 +933,11 @@ class GameUtilitiesTest extends FunSpec {
     it("should return the right value when supplied card is a Joker") {
       assert(GameUtilities.cardOrderValue(Joker) == 52)
     }
+
+    it("Should return the right value when supplied card is a WildCard assuming another card") {
+      assert(GameUtilities.cardOrderValue(THREE_Spade(8)) == GameUtilities.cardOrderValue(EIGHT_Spade))
+    }
+
   }
 
   describe("tests for isOnlySpecialMovesAvailable()") {
