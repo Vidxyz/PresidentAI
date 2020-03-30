@@ -33,6 +33,7 @@ class PlayerTest extends FunSpec{
       }
     }
 
+    // TODO - update these tests for Wildcards
     describe("Tests for getListSetSizeForCard()") {
 
       describe("When validMove size is 1") {

@@ -52,8 +52,6 @@ class GameEssentialsTest extends FunSpec {
 
   }
 
-
-
   describe("Tests for Move case class") {
 
     describe("Tests for highestCard()") {

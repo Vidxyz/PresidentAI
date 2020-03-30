@@ -173,4 +173,12 @@ class RoundTest extends FunSpec {
 
   }
 
+  describe("tests for getIndexOfNextPlayer()") {
+
+  }
+
+  describe("tests for updatedRoundPassStatus") {
+
+  }
+
 }
