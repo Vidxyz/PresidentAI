@@ -1323,5 +1323,41 @@ class GameUtilitiesTest extends FunSpec {
     }
   }
 
+  describe("tests for getWildCardListFromIntermediateList") {
+    val intermediateList = List(
+      List(FOUR_Diamond, FOUR_Spade),
+      List(NINE_Spade),
+      List(JACK_Diamond, JACK_Heart, JACK_Spade),
+      List(ACE_Diamond, ACE_Club, ACE_Heart, ACE_Spade)
+    )
+    describe("When no wildcards are present in intermediate list") {
+      it("returns an empty list") {
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList) == List.empty)
+      }
+    }
+
+    describe("When wildcards are present in intermediate list") {
+      it("Should return a list of size 1 when number of wildcards is 1") {
+        val oneWildCardList = List(THREE_Diamond)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList :+ oneWildCardList) == oneWildCardList)
+      }
+
+      it("Should return a list of size 2 when number of wildcards is 2") {
+        val oneWildCardList = List(THREE_Diamond, THREE_Club)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList :+ oneWildCardList) == oneWildCardList)
+      }
+
+      it("Should return a list of size 3 when number of wildcards is 3") {
+        val oneWildCardList = List(THREE_Diamond, THREE_Club, THREE_Heart)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList :+ oneWildCardList) == oneWildCardList)
+      }
+
+      it("Should return a list of size 4 when number of wildcards is 4") {
+        val oneWildCardList = List(THREE_Diamond,  THREE_Club, THREE_Heart, THREE_Spade)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList :+ oneWildCardList) == oneWildCardList)
+      }
+    }
+
+  }
 
 }
