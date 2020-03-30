@@ -4,6 +4,7 @@ import utils.Consants
 
 import scala.util.Random
 import game.FaceValue._
+import game.GameUtilities.IllegalMoveSuppliedException
 import game.Suits._
 import player.Player
 import utils.Consants._
@@ -1371,11 +1372,72 @@ class GameUtilitiesTest extends FunSpec {
 
   }
 
-  describe("tests for getNewHand()") {
-
-  }
-
   describe("tests for addThreesToMoves()") {
+    val allMoves = Moves(List(
+      Move(List(SIX_Club, SIX_Diamond)),
+      Move(List(SEVEN_Heart)),
+      Move(List(KING_Heart, KING_Diamond, KING_Club)),
+      Move(List(TWO_Spade)), Move(List(Joker))))
+
+    describe("When suppliedMoves has a wildcard in it") {
+      it("Throws an exception") {
+        val moves = Moves(List(
+          Move(List(SIX_Club)),
+          Move(List(KING_Club, KING_Diamond)),
+          Move(List(THREE_Spade(9), NINE_Spade, NINE_Heart))
+        ))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.addThreesToMoves(moves, List(THREE_Spade)))
+      }
+    }
+
+    describe("When listOfThrees is empty") {
+      it("Should return allMoves without any changes") {
+        assert(GameUtilities.addThreesToMoves(allMoves, List.empty) == allMoves)
+      }
+    }
+
+    describe("When listOfThrees is nonEmpty") {
+
+      describe("When listOfThrees is of size 1") {
+        it("Should return result as expected") {
+          val listOfThrees = List(THREE_Diamond)
+          val expectedResult = Moves(allMoves.moves.slice(0, 3) ++ List(
+            Move(List(THREE_Diamond(6), SIX_Club, SIX_Diamond)),
+            Move(List(THREE_Diamond(7), SEVEN_Heart)),
+            Move(List(THREE_Diamond(13), KING_Heart, KING_Diamond, KING_Club)),
+            Move(List(THREE_Diamond(14))),
+            Move(List(TWO_Spade)), Move(List(Joker))))
+          println(expectedResult)
+          assert(GameUtilities.addThreesToMoves(allMoves, listOfThrees) == expectedResult)
+        }
+      }
+
+      describe("When listOfThrees is of size 2") {
+        it("Should return result as expected") {
+          val listOfThrees = List(THREE_Heart, THREE_Spade)
+          val expectedResult = Moves(allMoves.moves.slice(0, 3) ++ List(
+          Move(List(THREE_Heart(6), SIX_Club, SIX_Diamond)),
+          Move(List(THREE_Heart(7), SEVEN_Heart)),
+          Move(List(THREE_Heart(13), KING_Heart, KING_Diamond, KING_Club)),
+
+          Move(List(THREE_Spade(6), SIX_Club, SIX_Diamond)),
+          Move(List(THREE_Spade(7), SEVEN_Heart)),
+          Move(List(THREE_Spade(13), KING_Heart, KING_Diamond, KING_Club)),
+
+          Move(List(THREE_Heart(6), THREE_Spade(6), SIX_Club, SIX_Diamond)),
+          Move(List(THREE_Heart(7), THREE_Spade(7), SEVEN_Heart)),
+          Move(List(THREE_Heart(13), THREE_Spade(13),  KING_Heart, KING_Diamond, KING_Club)),
+
+          Move(List(THREE_Heart(14))),
+          Move(List(THREE_Spade(14))),
+          Move(List(THREE_Heart(14), THREE_Spade(14))),
+
+          Move(List(TWO_Spade)), Move(List(Joker))))
+          assert(GameUtilities.addThreesToMoves(allMoves, listOfThrees) == expectedResult)
+        }
+      }
+
+    }
 
   }
 

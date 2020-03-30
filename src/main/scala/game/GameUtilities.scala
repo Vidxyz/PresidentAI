@@ -266,6 +266,7 @@ case object GameUtilities {
 
   /*
   Applies all possible combinations of threes to allMoves and returns them
+  Assumes inbound moves do not contain any WildCards
    */
   def addThreesToMoves(allMoves: Moves, listOfThrees: List[Card]): Moves = {
     if(listOfThrees.isEmpty) allMoves
@@ -279,6 +280,7 @@ case object GameUtilities {
       // Apply 3s only on NormalMoves, cannot apply with special cards
       val listOfCardsInNormalMoves: List[List[Card]] = allMoves.moves.filter(move => move match {
         case Move(List(NormalCard(_,_), _*), _) => true
+        case Move(List(WildCard(_,_,_), _*), _) => throw IllegalMoveSuppliedException("This method does not accept WildCard as part of allMoves")
         case _ => false
       }).map(move => move.cards)
       val listOfSpecialMoves = allMoves.moves.filter(move => move match {
@@ -291,6 +293,8 @@ case object GameUtilities {
         allPossibleCombinationsOfThrees.filter(l => l.nonEmpty).map(listOfCard => Move(listOfCard)) ++
         listOfSpecialMoves
 
+      // Making 3s assume values of the set they're a part of, or ACE for now
+      // Cards get reassigned values later if they can be used to burn
       Moves(totalMoves
         .map(move => move.cards)
           .map(listOfCard =>
