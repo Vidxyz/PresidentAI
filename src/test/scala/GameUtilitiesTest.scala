@@ -1296,5 +1296,32 @@ class GameUtilitiesTest extends FunSpec {
   }
 
 
+  describe(" tests for getNumberOfWildCardsInMove()"){
+    it("Should return 0") {
+      val move = Move(List(ACE_Diamond, ACE_Club, ACE_Heart, ACE_Spade))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 0)
+    }
+
+    it("Should return 1") {
+      val move = Move(List(THREE_Diamond(14), ACE_Club, ACE_Heart, ACE_Spade))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 1)
+    }
+
+    it("Should return 2") {
+      val move = Move(List(THREE_Diamond(14), THREE_Club(14), ACE_Heart, ACE_Spade))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 2)
+    }
+
+    it("Should return 3") {
+      val move = Move(List(THREE_Diamond(14), THREE_Club(14), THREE_Heart(14), ACE_Spade))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 3)
+    }
+
+    it("Should return 4") {
+      val move = Move(List(THREE_Diamond(14), THREE_Club(14), THREE_Heart(14), THREE_Spade(14)))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 4)
+    }
+  }
+
 
 }
