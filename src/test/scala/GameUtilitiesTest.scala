@@ -6,6 +6,7 @@ import scala.util.Random
 import game.FaceValue._
 import game.Suits._
 import player.Player
+import utils.Consants._
 
 class GameUtilitiesTest extends FunSpec {
 
@@ -908,6 +909,18 @@ class GameUtilitiesTest extends FunSpec {
       }
     }
 
+    describe("When moves in question involve the same faceValue with Wildcard/Normalcard") {
+      val move1 = Move(List(THREE_Spade(7), SEVEN_Diamond, SEVEN_Heart))
+      val move2 = Move(List(THREE_Heart(7), SEVEN_Club, SEVEN_Spade))
+
+      it("Should return false when the gameState has the NormalCard") {
+        assert(!GameUtilities.checkIfBetter(move1, move2))
+      }
+
+      it("Should return true when the gameState has the WildCard") {
+        assert(GameUtilities.checkIfBetter(move2, move1))
+      }
+    }
   }
 
   describe("tests for cardOrderValue()") {
