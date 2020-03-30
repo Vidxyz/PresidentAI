@@ -14,7 +14,7 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   Returns the move chosen to play, given current hand and current state
    */
   def playNextMove(currentHand: Hand, currentState: Move): Option[Move] = {
-    if(isRealPlayer) Some(promptForNextMove(currentHand, currentState))
+    if(isRealPlayer) promptForNextMove(currentHand, currentState)
     else {
       val sortedHand = Hand(sortCards(currentHand.listOfCards))
       val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
@@ -37,15 +37,21 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   <3,Club(8)> <3,Spade(8)>
   aka - cards are space separated, and 3s have to be explicitly assigned if played by themselves
    */
-  def promptForNextMove(currentHand: Hand, gameState: Move): Move = {
+  def promptForNextMove(currentHand: Hand, gameState: Move): Option[Move] = {
     val userMove = readLine("Enter your move : ")
-    Move(GameUtilities.sortCards(userMove.split(" ")
-      .map(cardString => {
-        val pair = cardString.split(",").map(section => section.filter(character => character != '<' && character != '>')).toList
-        val tuple = pair match {case List(a, b) => (a, b); case List(a) => (a, a) }
-        GameUtilities.getCardFromMoveStrings(tuple._1, tuple._2)}).toList))
+    if(userMove.toLowerCase == "pass") None
+    else {
+      Some(Move(GameUtilities.sortCards(userMove.split(" ")
+        .map(cardString => {
+          val pair = cardString.split(",").map(section => section.filter(character => character != '<' && character != '>')).toList
+          val tuple = pair match {
+            case List(a, b) => (a, b);
+            case List(a) => (a, a)
+          }
+          GameUtilities.getCardFromMoveStrings(tuple._1, tuple._2)
+        }).toList)))
+    }
   }
-
 }
 
 
