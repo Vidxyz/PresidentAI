@@ -1,6 +1,7 @@
 import game.FaceValue._
 import game.Suits._
-import game.{GameEngine, GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard}
+import game._
+import utils.Consants._
 import org.scalatest.FunSpec
 import player.PlayerIndicators
 
@@ -72,12 +73,12 @@ class DevelopmentTest extends FunSpec {
       //      println(single9 +  " : " + game.GameUtilities.getNormalCardMoveHeuristic(single9, gameState, playerIndicators).toString)
       //      println(single10 +  " : " + game.GameUtilities.getNormalCardMoveHeuristic(single10, gameState, playerIndicators).toString)
       //      println(singleJack +  " : " + game.GameUtilities.getNormalCardMoveHeuristic(singleJack, gameState, playerIndicators).toString)
-      println(single8D +  " : " + GameEngine.getNormalCardMoveHeuristic(single8D, gameState, playerIndicators).toString)
-      println(doubleQueen +  " : " + GameEngine.getNormalCardMoveHeuristic(doubleQueen, gameState, playerIndicators).toString)
-      println(single2D +  " : " + GameEngine.getSpecialCardMoveHeuristic(single2D, gameState, playerIndicators).toString)
-      println(single2C +  " : " + GameEngine.getSpecialCardMoveHeuristic(single2C, gameState, playerIndicators).toString)
-      println(single2H +  " : " + GameEngine.getSpecialCardMoveHeuristic(single2H, gameState, playerIndicators).toString)
-      println(joker +  " : " + GameEngine.getSpecialCardMoveHeuristic(joker, gameState, playerIndicators).toString)
+      println(single8D +  " : " + GameEngine.applyNormalCardMoveHeuristic(single8D, gameState, playerIndicators).toString)
+      println(doubleQueen +  " : " + GameEngine.applyNormalCardMoveHeuristic(doubleQueen, gameState, playerIndicators).toString)
+      println(single2D +  " : " + GameEngine.applySpecialCardMoveHeuristic(single2D, gameState, playerIndicators).toString)
+      println(single2C +  " : " + GameEngine.applySpecialCardMoveHeuristic(single2C, gameState, playerIndicators).toString)
+      println(single2H +  " : " + GameEngine.applySpecialCardMoveHeuristic(single2H, gameState, playerIndicators).toString)
+      println(joker +  " : " + GameEngine.applySpecialCardMoveHeuristic(joker, gameState, playerIndicators).toString)
 
       val validMoves = Moves(List(single8D, doubleQueen, single2D, single2C, single2H, two2s, three2s, joker))
       println("Is only special moves available " + GameUtilities.isOnlySpecialMovesAvailable(validMoves) )
@@ -86,6 +87,200 @@ class DevelopmentTest extends FunSpec {
       //      println(game.GameUtilities.getNextMoveV2(game.Moves(List(validMove1, validMove12, validMove3)), gameState))
 
     }
+
+    it("is used for developing wildcard"){
+
+      val allMoves = Moves(List(
+        Move(List(NormalCard(SEVEN, Spade))),
+        Move(List(NormalCard(EIGHT, Heart), NormalCard(EIGHT, Spade))),
+        Move(List(NormalCard(NINE, Club), NormalCard(NINE, Heart), NormalCard(NINE, Spade))),
+        Move(List(NormalCard(TEN, Diamond), NormalCard(TEN, Club), NormalCard(TEN, Heart), NormalCard(TEN, Spade))),
+        Move(List(SpecialCard(TWO, Heart))),
+        Move(List(Joker))
+      ))
+
+      val threes = List(WildCard(THREE, Diamond), WildCard(THREE, Spade))
+      val allMovesWithThrees = GameUtilities.addThreesToMoves(allMoves, threes)
+
+      println(allMovesWithThrees)
+
+      println(GameUtilities.getValidMoves(allMovesWithThrees,
+        Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club)))))
+
+
+      val testMove = Move(List(WildCard(THREE, Diamond, 7), WildCard(THREE, Club, 7), WildCard(THREE, Heart, 7), WildCard(THREE, Spade, 7),
+        NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)
+      ))
+
+      val testMove2 = Move(List(
+        NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)
+      ))
+
+      val threeMove = Move(List(WildCard(THREE, Spade, 14)))
+
+      println("--------------------------")
+      println(testMove.highestCard)
+      println(testMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false}))
+
+
+      println(GameUtilities.getNumberOfWildCardsInMove(testMove))
+      println("--------------------------")
+
+      println(GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(testMove2))
+      println(GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(threeMove))
+//      println(GameEngine.wildCardUsagePenalty(threeMove))
+
+
+      println("--------------------------")
+
+
+    }
+
+    it("Observer game error secnario where 3-K was preferred over 10-10 for gamestate 9-9") {
+
+      val testMove = Move(List(WildCard(THREE, Diamond, 7), WildCard(THREE, Club, 7), WildCard(THREE, Heart, 7), WildCard(THREE, Spade, 7),
+        NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)
+      ))
+      //<TEN,Diamond>, <TEN,Heart>
+      /*
+      List(<THREE,Heart(0)>, <SEVEN,Club>, <EIGHT,Club>, <EIGHT,Heart>, <TEN,Diamond>, <TEN,Heart>, <KING,Heart>)
+        List(<ACE,Diamond>, <TWO,Club>)
+       */
+      val observedHand = Hand(List(
+        WildCard(THREE, Heart), NormalCard(SEVEN, Club), NormalCard(EIGHT, Club), NormalCard(EIGHT, Heart),
+        NormalCard(TEN, Diamond), NormalCard(TEN, Heart), NormalCard(KING, Heart), NormalCard(ACE, Diamond),
+        SpecialCard(TWO, Club)
+      ))
+      val double10s = Move(List(NormalCard(TEN, Diamond), NormalCard(TEN, Heart)))
+      val otherMove = Move(List(WildCard(THREE, Heart, 13), NormalCard(KING, Heart)))
+      val gs = Move(List(NormalCard(NINE, Heart), NormalCard(NINE, Spade)))
+
+      println(GameEngine.applyNormalCardMoveHeuristic(double10s, gs, PlayerIndicators(observedHand)))
+      println(GameEngine.applyNormalCardMoveHeuristic(otherMove, gs, PlayerIndicators(observedHand)))
+
+      val single3 = Move(List(WildCard(THREE, Diamond, 14)))
+
+      println(testMove.numberOfNormalcards)
+
+      val aHand = Hand(List(WildCard(THREE, Diamond), SpecialCard(TWO, Diamond)))
+
+      println(GameEngine.applyNormalCardMoveHeuristic(single3, Move(List.empty), PlayerIndicators(aHand)))
+      println(GameEngine.applyNormalCardHeuristicWithMoveSizeModifier(single3))
+//      println(GameEngine.wildCardUsagePenalty(single3))
+
+      val move1 = Move(List(WildCard(THREE, Spade, 7), NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))
+      val move2 = Move(List(WildCard(THREE, Diamond, 7), WildCard(THREE, Club, 7), WildCard(THREE, Heart, 7), NormalCard(SEVEN, Spade)))
+      //checkIfBetter
+      println(move1.highestCard)
+      println(move2.highestCard)
+      println(GameUtilities.checkIfBetter(move1, move2))
+      print(GameUtilities.getNextGameState(move1, Some(move2)))
+
+
+
+    }
+
+    it("is a new test") {
+      val m = Move(List(WildCard(THREE, Diamond), WildCard(THREE, Spade, 8), NormalCard(SEVEN, Club)))
+      println(m.highestCard)
+
+      //checkIfBetter
+      val m1 = Move(List(WildCard(THREE, Diamond, 7), NormalCard(SEVEN, Club)))
+      val m2 = Move(List(WildCard(THREE, Club, 14), WildCard(THREE, Spade, 7)))
+
+      println(GameUtilities.checkIfBetter(m1, m2))
+
+
+      val gs = Move(List(NormalCard(SIX, Spade)))
+      val pHand = Hand(List(
+        WildCard(THREE, Diamond),
+        NormalCard(EIGHT, Diamond), NormalCard(EIGHT, Heart),NormalCard(EIGHT, Spade),
+        NormalCard(KING, Diamond),NormalCard(KING, Spade),
+        SpecialCard(TWO, Club)
+      ))
+
+      // Here, K-diamond is preferred over playing the 3 - this is WRONG!
+//      val m1 =
+
+
+    }
+
+    it("Is anoter real scenario") {
+
+      val gameState = Move(List(JACK_Diamond, JACK_Club, JACK_Spade))
+      val pHand = Hand(List(
+        WildCard(THREE, Club), WildCard(THREE, Spade),
+        NormalCard(FOUR, Diamond), NormalCard(FOUR, Heart),
+        NormalCard(FIVE, Club), NormalCard(SIX, Club),
+        NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Spade),
+        NormalCard(NINE, Diamond), NormalCard(QUEEN, Diamond),
+        NormalCard(ACE, Diamond), NormalCard(ACE, Spade)
+      ))
+
+      val m1 = Move(List(THREE_Club(14), ACE_Diamond, ACE_Spade))
+      val m2 = Move(List(THREE_Club(12), THREE_Spade(12), QUEEN_Diamond))
+
+      val pi = PlayerIndicators(pHand)
+
+      println("Wildcardpenalty modifier is " + pi.wildCardPenaltyModifier)
+
+
+      println(
+        ((0.4 * (1/(m1.moveFaceValue - WildCard(THREE, Diamond).intValue)))
+          + (0.2 * (1/ m1.parity))
+          + (0.4 * 1 / (maxMoveSize -  GameUtilities.getNumberOfWildCardsInMove(m1))))
+      )
+
+      println("m2 heuristic : " + GameEngine.applyNormalCardMoveHeuristic(m1, gameState, pi).likelihood )
+      println("wilcard penal m1 :  "+GameEngine.wildCardUsagePenalty(m1, pi.wildCardPenaltyModifier))
+      println("-----------")
+      println("m2 heuristic : " + GameEngine.applyNormalCardMoveHeuristic(m2, gameState, pi).likelihood )
+      println(
+        ((0.4 * (1/(m2.moveFaceValue - WildCard(THREE, Diamond).intValue)))
+          + (0.2 * (1/m2.parity))
+          + (0.4 * 1 / (maxMoveSize - GameUtilities.getNumberOfWildCardsInMove(m2))))
+      )
+
+      println("wilcard penal m2 "+ GameEngine.wildCardUsagePenalty(m2, pi.wildCardPenaltyModifier))
+
+    }
+
+
+    it("Is another scenario") {
+
+      val hand = Hand(List(
+        THREE_Diamond, THREE_Heart, FIVE_Diamond, JACK_Heart, QUEEN_Diamond, TWO_Heart
+      ))
+
+      val m1 = Move(List(THREE_Diamond(5), FIVE_Diamond))
+      val m2 = Move(List(THREE_Diamond(5), THREE_Heart(5), FIVE_Diamond))
+      val pi = PlayerIndicators(hand)
+      val gameState = Move(List.empty)
+
+      println(m1)
+      println(GameEngine.applyNormalCardMoveHeuristic(m1, gameState, pi).likelihood + GameEngine.wildCardUsagePenalty(m1, pi.wildCardPenaltyModifier))
+      println(GameEngine.wildCardUsagePenalty(m1, pi.wildCardPenaltyModifier))
+
+      println(m2)
+      println(GameEngine.applyNormalCardMoveHeuristic(m2, gameState, pi).likelihood + GameEngine.wildCardUsagePenalty(m2, pi.wildCardPenaltyModifier))
+      println(GameEngine.wildCardUsagePenalty(m2, pi.wildCardPenaltyModifier))
+
+
+
+      println("0000")
+      println(PlayerIndicators.applyWildCardPenaltyModifer(0))
+
+    }
+
+
+    it("faillign tst") {
+      val move1 = Move(List(THREE_Club(5), THREE_Heart(5), THREE_Spade(5), FIVE_Spade))
+      val move2 = Move(List(THREE_Club(5), THREE_Heart(5), THREE_Club(5), THREE_Spade(5)))
+      val m = 0.9706877692486436
+      println(GameEngine.wildCardUsagePenalty(move1, m))
+      println(GameEngine.wildCardUsagePenalty(move2, m))
+    }
+
   }
 
 }

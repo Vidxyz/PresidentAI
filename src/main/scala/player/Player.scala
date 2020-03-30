@@ -15,23 +15,16 @@ case class Player(name: String, hand: Hand) {
   def playNextMove(currentHand: Hand, currentState: Move): Option[Move] = {
     val sortedHand = Hand(sortCards(currentHand.listOfCards))
     val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
-    val allMoves: Moves = getAllMoves(intermediateLists)
+    val intermediateListsWithoutThrees: List[List[Card]] = intermediateLists.filter(list => list.head.intValue != 3)
+    val listOfThreesInHand: List[Card] = getWildCardListFromIntermediateList(intermediateLists)
+    val allMovesWithoutThrees: Moves = getAllMoves(intermediateListsWithoutThrees)
+    val allMoves: Moves = addThreesToMoves(allMovesWithoutThrees, listOfThreesInHand)
     val validMoves: Moves = getValidMoves(allMoves, currentState)
-    getNextMoveWrapper(validMoves, currentState)
+    val validMovesWithWildCardsOptimallyAssigned: Moves = assignWildCardsOptimally(validMoves, currentState)
+    val nextMove: Option[Move] = getNextMoveWrapper(validMovesWithWildCardsOptimallyAssigned, currentState)
+    nextMove
   }
 
-  /*
-  Returns the new hand comprising of cards from currentHand that do not appear in movePlayed
-   */
-  def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
-    movePlayed.getOrElse(None) match {
-      case move: Move => Hand(
-        currentHand
-          .listOfCards
-          .filter(c => !move.cards.contains(c)))
-      case None => currentHand
-    }
-  }
 }
 
 
@@ -66,6 +59,13 @@ case object PlayerIndicators {
       case _ => 0
     }
   }
+
+  /*
+  Returns 0-1 value giving the penalty modifier for wildcards as a function of hand size
+   */
+  def applyWildCardPenaltyModifer(sizeOfHand: Int): Double = {
+    1 /(1 + scala.math.exp(-((0.5d * sizeOfHand) - 4)))
+  }
 }
 
 
@@ -75,14 +75,21 @@ case class PlayerIndicators(hand: Hand) {
 
   // Likelihood of playing a special card. Increases as the game moves on (hand nears empty)
   lazy val specialCardModifier: Double = applyCustomSpecialCardModifier(hand.listOfCards.size)/100
+  lazy val wildCardPenaltyModifier: Double = applyWildCardPenaltyModifer(hand.listOfCards.size)
   lazy val highCardModifier: Double =  if(hand.delta == 0) 1d else 1d/hand.delta
 
   /*
+  Gets the total number of cards of the type that is being played
+  Returns
+  Generally speaking, it is desirable to play all cards of the same type at once
+  Example :- Playing quad4s when you have 4-4-4-4 in your hand, over triple4s, double4s, single4s
   Assumes that the card used in the validMove is present in Hand.
   If not, leads to an exception being thrown, and the nextMove defaulting to None
    */
   def getListSetSizeForCard(validMove: Move): Int = {
-    hand.listOfSimilarCards.filter(l => l.head.intValue == validMove.moveFaceValue).head.size
+    // If the move is comprised entirely of wildcards, then parity of move itself
+    if(GameUtilities.getNumberOfWildCardsInMove(validMove) == validMove.parity) validMove.parity
+    else hand.listOfSimilarCards.filter(l => l.head.intValue == validMove.moveFaceValue).head.size
   }
 
 }

@@ -173,4 +173,126 @@ class RoundTest extends FunSpec {
 
   }
 
+  describe("tests for getIndexOfNextPlayer()") {
+    Round.initialListOfPlayerNames = List("p1", "p2", "p3", "p4")
+    val players = GameUtilities.generatePlayersAndDealHands(Round.initialListOfPlayerNames)
+
+    describe("When the player who's turn it is exists still") {
+
+      it("Should return their index when it is at the start of the list") {
+        val round = Round(Move(List.empty), "p1", 4, 3, players, Round.getNoPassList(4))
+        assert(round.getIndexOfNextPlayer == 1)
+      }
+
+      it("Should return index when it is at the end of the list") {
+        val round = Round(Move(List.empty), "p4", 4, 3, players, Round.getNoPassList(4))
+        assert(round.getIndexOfNextPlayer == 0)
+      }
+
+      it("Should return index when it is in the middle of the list") {
+        val round = Round(Move(List.empty), "p2", 4, 3, players, Round.getNoPassList(4))
+        assert(round.getIndexOfNextPlayer == 2)
+      }
+
+    }
+
+    describe("When the player who's turn it is does not exist anymore") {
+
+      describe("When only one player has completed the game") {
+
+        describe("When the player who completed started the game") {
+          it("Should return index 0") {
+            val round = Round(Move(List.empty), "p1", 4, 3, players.drop(1), Round.getNoPassList(4))
+            assert(round.getIndexOfNextPlayer == 0)
+          }
+        }
+
+        describe("When the player who completed went last in the first round") {
+          it("Should return index 0") {
+            val round = Round(Move(List.empty), "p4", 4, 3, players.take(3), Round.getNoPassList(4))
+            assert(round.getIndexOfNextPlayer == 0)
+          }
+        }
+
+        describe("When the player who completed went 2nd in the first round") {
+          it("Should return index 0") {
+            val round = Round(Move(List.empty), "p2", 4, 3, players.slice(0,1) ++ players.slice(2, 4), Round.getNoPassList(4))
+            assert(round.getIndexOfNextPlayer == 1)
+          }
+        }
+
+      }
+
+      describe("When two players have completed the game") {
+        describe("When the player who completed most recently is p2 - after p3") {
+          it("Should return index 1 pertaining to p4") {
+            val round = Round(Move(List.empty), "p2", 4, 3, players.slice(0,1) ++ players.slice(3, 4), Round.getNoPassList(4))
+            assert(round.getIndexOfNextPlayer == 1)
+          }
+        }
+
+        describe("When the player who completed most recently is p4 - after p3") {
+          it("Should return index 0 pertaining to p1") {
+            val round = Round(Move(List.empty), "p4", 4, 3, players.slice(0,2), Round.getNoPassList(4))
+            assert(round.getIndexOfNextPlayer == 0)
+          }
+        }
+
+        describe("When the player who completed most recently is p1 - after p3") {
+          it("Should return index 0 pertaining to p2") {
+            val round = Round(Move(List.empty), "p1", 4, 3, players.slice(1,2) ++ players.slice(3,4), Round.getNoPassList(4))
+            assert(round.getIndexOfNextPlayer == 0)
+          }
+        }
+
+        describe("When the player who completed most recently is p3 - after p2") {
+          it("Should return index 1 pertaining to p4") {
+            val round = Round(Move(List.empty), "p1", 4, 3, players.slice(0,1) ++ players.slice(3,4), Round.getNoPassList(4))
+            assert(round.getIndexOfNextPlayer == 1)
+          }
+        }
+      }
+
+    }
+
+  }
+
+  describe("tests for updatedRoundPassStatus") {
+    Round.initialListOfPlayerNames = List("p1", "p2", "p3", "p4")
+    val players = GameUtilities.generatePlayersAndDealHands(Round.initialListOfPlayerNames)
+
+    describe("When index is at the beginning") {
+      it("Should return expected value") {
+        val round = Round(Move(List.empty), "p2", 4, 3, players, List(true, false, true, false))
+        val expected = List(false, true, false)
+        assert(round.updatedRoundPassStatus(0) == expected)
+      }
+    }
+
+    describe("When indexToRemove is at the end") {
+      it("Should return expected value") {
+        val round = Round(Move(List.empty), "p2", 4, 3, players, List(true, false, true, false))
+        val expected = List(true, false, true)
+        assert(round.updatedRoundPassStatus(3) == expected)
+      }
+    }
+
+    describe("When indexToRemove is in the middle") {
+      it("Should return expected value") {
+        val round = Round(Move(List.empty), "p2", 4, 3, players, List(true, false, true, false))
+        val expected = List(true, true, false)
+        assert(round.updatedRoundPassStatus(1) == expected)
+      }
+    }
+
+    describe("When indexToRemove is greater than size of roundPassStatus") {
+      it("Should return same value") {
+        val round = Round(Move(List.empty), "p2", 4, 3, players, List(true, false, true, false))
+        val expected = List(true, false, true, false)
+        assertThrows[IndexOutOfBoundsException](round.updatedRoundPassStatus(5) == expected)
+      }
+    }
+
+  }
+
 }

@@ -8,7 +8,6 @@ sealed trait Value
 sealed trait Card {
   def value: String = "game.Card"
   val intValue: Int
-  val isFaceCard: Boolean
 }
 
 case object Active extends PlayerStatus
@@ -43,14 +42,12 @@ case object Joker extends Card {
   override def toString: String = "<JOKER>"
   override def value: String = "JOKER"
   override val intValue: Int = -1
-  override val isFaceCard: Boolean = false
 }
 
 case class NormalCard(faceValue: Value, suit: Suit) extends Card {
   override def toString: String = "<" + faceValue.toString + "," + suit.toString + ">"
   override def value: String = faceValue.toString
   override val intValue: Int = faceValue match {
-    case THREE => 3
     case FOUR => 4
     case FIVE => 5
     case SIX => 6
@@ -62,9 +59,17 @@ case class NormalCard(faceValue: Value, suit: Suit) extends Card {
     case QUEEN => 12
     case KING => 13
     case ACE => 14
-    case _ => throw IllegalFaceValueException("Normal game.Card provided with illegal face value")
+    case _ => throw IllegalFaceValueException("NormalCard provided with illegal face value")
   }
-  override lazy val isFaceCard: Boolean = if(intValue > 10) true else false
+}
+
+case class WildCard(faceValue: Value, suit: Suit, assumedValue: Int = 0) extends Card {
+  override def toString: String = "<" + faceValue.toString + "," + suit.toString + "(" + assumedValue + ")>"
+  override def value: String = faceValue.toString
+  override val intValue: Int = faceValue match {
+    case THREE => 3
+    case _ => throw IllegalFaceValueException("WildCard provided with illegal face value")
+  }
 }
 
 case class SpecialCard(faceValue: Value = TWO, suit: Suit) extends Card {
@@ -72,9 +77,8 @@ case class SpecialCard(faceValue: Value = TWO, suit: Suit) extends Card {
   override def value: String = faceValue.toString
   override val intValue: Int = faceValue match {
     case TWO => 2
-    case _ => throw IllegalFaceValueException("Special game.Card provided with illegal face value")
+    case _ => throw IllegalFaceValueException("SpecialCard provided with illegal face value")
   }
-  override val isFaceCard: Boolean = false
 }
 
 case class Hand(listOfCards: List[Card]) {
@@ -123,11 +127,13 @@ case class Hand(listOfCards: List[Card]) {
   We always want to minimize this
    */
   def weaknessFactor: Int = {
-    if(listOfSimilarCards.size == 1) 0 else {
-      var lastIntValueSeen  = listOfSimilarCards.tail.head.head.intValue
-      listOfSimilarCards
+    val intermediateListWithoutThrees = listOfSimilarCards.filter(listOfCard => listOfCard.head.intValue != 3)
+    if(listOfSimilarCards.size == 1 || intermediateListWithoutThrees.size == 1) 0
+    else {
+      var lastIntValueSeen  = intermediateListWithoutThrees.tail.head.head.intValue
+      intermediateListWithoutThrees
         .tail.tail
-        .foldLeft(listOfSimilarCards.tail.head.head.intValue - listOfSimilarCards.head.head.intValue)(
+        .foldLeft(intermediateListWithoutThrees.tail.head.head.intValue - intermediateListWithoutThrees.head.head.intValue)(
           (maxDifferenceSoFar, list) => {
             if (list.head.intValue - lastIntValueSeen > maxDifferenceSoFar) {
               val newDifference = list.head.intValue - lastIntValueSeen
@@ -161,27 +167,57 @@ case class Hand(listOfCards: List[Card]) {
 /*
 A move is classified as a sorted List[game.Card] sorted as per numberToCardMap
  */
-case class Move(cards: List[Card]) {
-  override def toString: String = if(cards.nonEmpty) "game.Move(" + cards + ")" else "EMPTY"
+case class Move(cards: List[Card], likelihood: Double = 0) {
+  override def toString: String = if(cards.nonEmpty) "game.Move(" + cards + ")" +
+    (if (likelihood > 0) s"[$likelihood]" else "") else "EMPTY"
 
   def moveFaceValue: Int = {
     if (cards.isEmpty) 0
-    else cards.head.intValue
+    else {
+      highestCard match {
+        case w: WildCard => w.assumedValue
+        case n: NormalCard => n.intValue
+        case s: SpecialCard => s.intValue
+        case joker: Card => joker.intValue
+      }
+    }
   }
-  def highestCard: Card = cards.last
+
+  /*
+  Returns the highest card in the hand
+  Defined as card with strongest suit === Highest cardOrderValue
+  In case of ties, picks the one first encountered
+   */
+  def highestCard: Card = {
+    if(cards.size == 1) cards.head
+    else {
+      cards.foldLeft(cards.head)((highestCard, currentCard) =>
+        if(GameUtilities.cardOrderValue(currentCard) >
+          GameUtilities.cardOrderValue(highestCard)) currentCard
+        else highestCard)
+    }
+  }
+
   def parity: Int = cards.size
+
+  def numberOfNormalcards: Int = cards.count(card => card match {
+    case w: NormalCard => true
+    case _ => false
+  })
+
   def isEmpty: Boolean = cards.isEmpty
 
   /*
-  More thought needs to be put into this
+  Override equals method to match on everything but likelihood
    */
-  def getMoveNormalCardModifier: Double = {
-    cards.head match {
-      case Joker => -1
-      case SpecialCard(_,_) => -1
-      case c: NormalCard => c.intValue
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case obj: Move => obj.canEqual(this) && this.cards == obj.cards
+      case _ => false
     }
   }
+
+  def canEqual(a: Any): Boolean = a.isInstanceOf[Move]
 }
 
 /*

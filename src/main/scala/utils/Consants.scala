@@ -2,7 +2,7 @@ package utils
 
 import game.FaceValue._
 import game.Suits._
-import game.{Card, Hand, Joker, NormalCard, SpecialCard}
+import game.{Card, Hand, Joker, NormalCard, SpecialCard, Value, WildCard}
 
 object Consants {
 
@@ -11,10 +11,10 @@ object Consants {
   val maxMoveSize = 4
 
   val numberToCardMap: Map[Int, Card] = Map(
-    0 -> NormalCard(THREE, Diamond),
-    1 -> NormalCard(THREE, Club),
-    2 -> NormalCard(THREE, Heart),
-    3 -> NormalCard(THREE, Spade),
+    0 -> WildCard(THREE, Diamond),
+    1 -> WildCard(THREE, Club),
+    2 -> WildCard(THREE, Heart),
+    3 -> WildCard(THREE, Spade),
 
     4 -> NormalCard(FOUR, Diamond),
     5 -> NormalCard(FOUR, Club),
@@ -81,10 +81,10 @@ object Consants {
   )
 
   val sortedHandWithAllCards: Hand = Hand(List(
-    NormalCard(THREE, Diamond),
-    NormalCard(THREE, Club),
-    NormalCard(THREE, Heart),
-    NormalCard(THREE, Spade),
+    WildCard(THREE, Diamond),
+    WildCard(THREE, Club),
+    WildCard(THREE, Heart),
+    WildCard(THREE, Spade),
     NormalCard(FOUR, Diamond),
     NormalCard(FOUR, Club),
     NormalCard(FOUR, Heart),
@@ -136,5 +136,93 @@ object Consants {
     Joker,
     Joker,
   ))
+
+  val numberToFaceValueMap: Map[Int, Value] = Map(
+    4 -> FOUR,
+    5 -> FIVE,
+    6 -> SIX,
+    7 -> SEVEN,
+    8 -> EIGHT,
+    9 -> NINE,
+    10 -> TEN,
+    11-> JACK,
+    12 -> QUEEN,
+    13 -> KING,
+    14 -> ACE
+  )
+
+  /*
+  These are all shorthand method for defining cards
+  Aids in clarity of code later
+   */
+  def THREE_Diamond: WildCard = WildCard(THREE, Diamond)
+  def THREE_Club: WildCard = WildCard(THREE, Club)
+  def THREE_Heart: WildCard = WildCard(THREE, Heart)
+  def THREE_Spade: WildCard = WildCard(THREE, Spade)
+
+  def THREE_Diamond(assumedValue: Int): WildCard = WildCard(THREE, Diamond, assumedValue)
+  def THREE_Club(assumedValue: Int): WildCard = WildCard(THREE, Club, assumedValue)
+  def THREE_Heart(assumedValue: Int): WildCard = WildCard(THREE, Heart, assumedValue)
+  def THREE_Spade(assumedValue: Int): WildCard = WildCard(THREE, Spade, assumedValue)
+
+  def FOUR_Diamond: NormalCard = NormalCard(FOUR, Diamond)
+  def FOUR_Club: NormalCard = NormalCard(FOUR, Club)
+  def FOUR_Heart: NormalCard = NormalCard(FOUR, Heart)
+  def FOUR_Spade: NormalCard = NormalCard(FOUR, Spade)
+
+  def FIVE_Diamond: NormalCard = NormalCard(FIVE, Diamond)
+  def FIVE_Club: NormalCard = NormalCard(FIVE, Club)
+  def FIVE_Heart: NormalCard = NormalCard(FIVE, Heart)
+  def FIVE_Spade: NormalCard = NormalCard(FIVE, Spade)
+
+  def SIX_Diamond: NormalCard = NormalCard(SIX, Diamond)
+  def SIX_Club: NormalCard = NormalCard(SIX, Club)
+  def SIX_Heart: NormalCard = NormalCard(SIX, Heart)
+  def SIX_Spade: NormalCard = NormalCard(SIX, Spade)
+
+  def SEVEN_Diamond: NormalCard = NormalCard(SEVEN, Diamond)
+  def SEVEN_Club: NormalCard = NormalCard(SEVEN, Club)
+  def SEVEN_Heart: NormalCard = NormalCard(SEVEN, Heart)
+  def SEVEN_Spade: NormalCard = NormalCard(SEVEN, Spade)
+
+  def EIGHT_Diamond: NormalCard = NormalCard(EIGHT, Diamond)
+  def EIGHT_Club: NormalCard = NormalCard(EIGHT, Club)
+  def EIGHT_Heart: NormalCard = NormalCard(EIGHT, Heart)
+  def EIGHT_Spade: NormalCard = NormalCard(EIGHT, Spade)
+
+  def NINE_Diamond: NormalCard = NormalCard(NINE, Diamond)
+  def NINE_Club: NormalCard = NormalCard(NINE, Club)
+  def NINE_Heart: NormalCard = NormalCard(NINE, Heart)
+  def NINE_Spade: NormalCard = NormalCard(NINE, Spade)
+
+  def TEN_Diamond: NormalCard = NormalCard(TEN, Diamond)
+  def TEN_Club: NormalCard = NormalCard(TEN, Club)
+  def TEN_Heart: NormalCard = NormalCard(TEN, Heart)
+  def TEN_Spade: NormalCard = NormalCard(TEN, Spade)
+
+  def JACK_Diamond: NormalCard = NormalCard(JACK, Diamond)
+  def JACK_Club: NormalCard = NormalCard(JACK, Club)
+  def JACK_Heart: NormalCard = NormalCard(JACK, Heart)
+  def JACK_Spade: NormalCard = NormalCard(JACK, Spade)
+
+  def QUEEN_Diamond: NormalCard = NormalCard(QUEEN, Diamond)
+  def QUEEN_Club: NormalCard = NormalCard(QUEEN, Club)
+  def QUEEN_Heart: NormalCard = NormalCard(QUEEN, Heart)
+  def QUEEN_Spade: NormalCard = NormalCard(QUEEN, Spade)
+
+  def KING_Diamond: NormalCard = NormalCard(KING, Diamond)
+  def KING_Club: NormalCard = NormalCard(KING, Club)
+  def KING_Heart: NormalCard = NormalCard(KING, Heart)
+  def KING_Spade: NormalCard = NormalCard(KING, Spade)
+
+  def ACE_Diamond: NormalCard = NormalCard(ACE, Diamond)
+  def ACE_Club: NormalCard = NormalCard(ACE, Club)
+  def ACE_Heart: NormalCard = NormalCard(ACE, Heart)
+  def ACE_Spade: NormalCard = NormalCard(ACE, Spade)
+
+  def TWO_Diamond: SpecialCard = SpecialCard(TWO, Diamond)
+  def TWO_Club: SpecialCard = SpecialCard(TWO, Club)
+  def TWO_Heart: SpecialCard = SpecialCard(TWO, Heart)
+  def TWO_Spade: SpecialCard = SpecialCard(TWO, Spade)
 
 }

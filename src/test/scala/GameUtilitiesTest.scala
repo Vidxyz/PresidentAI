@@ -1,10 +1,13 @@
-import game.{GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard}
+import game.{Card, GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard, WildCard}
 import org.scalatest.FunSpec
 import utils.Consants
 
 import scala.util.Random
 import game.FaceValue._
+import game.GameUtilities.IllegalMoveSuppliedException
 import game.Suits._
+import player.Player
+import utils.Consants._
 
 class GameUtilitiesTest extends FunSpec {
 
@@ -244,7 +247,7 @@ class GameUtilitiesTest extends FunSpec {
     describe("When the hand is comprised of all possible cards") {
       it("Should return 13 sets of four cards of each suit and 1 set of two Jokers"){
         val expectedResult = List(
-          List(NormalCard(THREE, Diamond), NormalCard(THREE, Club), NormalCard(THREE, Heart), NormalCard(THREE, Spade)),
+          List(WildCard(THREE, Diamond), WildCard(THREE, Club), WildCard(THREE, Heart), WildCard(THREE, Spade)),
           List(NormalCard(FOUR, Diamond), NormalCard(FOUR, Club), NormalCard(FOUR, Heart), NormalCard(FOUR, Spade)),
           List(NormalCard(FIVE, Diamond), NormalCard(FIVE, Club), NormalCard(FIVE, Heart), NormalCard(FIVE, Spade)),
           List(NormalCard(SIX, Diamond), NormalCard(SIX, Club), NormalCard(SIX, Heart), NormalCard(SIX, Spade)),
@@ -907,6 +910,18 @@ class GameUtilitiesTest extends FunSpec {
       }
     }
 
+    describe("When moves in question involve the same faceValue with Wildcard/Normalcard") {
+      val move1 = Move(List(THREE_Spade(7), SEVEN_Diamond, SEVEN_Heart))
+      val move2 = Move(List(THREE_Heart(7), SEVEN_Club, SEVEN_Spade))
+
+      it("Should return false when the gameState has the NormalCard") {
+        assert(!GameUtilities.checkIfBetter(move1, move2))
+      }
+
+      it("Should return true when the gameState has the WildCard") {
+        assert(GameUtilities.checkIfBetter(move2, move1))
+      }
+    }
   }
 
   describe("tests for cardOrderValue()") {
@@ -919,6 +934,11 @@ class GameUtilitiesTest extends FunSpec {
     it("should return the right value when supplied card is a Joker") {
       assert(GameUtilities.cardOrderValue(Joker) == 52)
     }
+
+    it("Should return the right value when supplied card is a WildCard assuming another card") {
+      assert(GameUtilities.cardOrderValue(THREE_Spade(8)) == GameUtilities.cardOrderValue(EIGHT_Spade))
+    }
+
   }
 
   describe("tests for isOnlySpecialMovesAvailable()") {
@@ -966,7 +986,7 @@ class GameUtilitiesTest extends FunSpec {
     describe("When moves involving all types of cards are available") {
       it("Should return false") {
         val validMoves = Moves(List(
-          Move(List(NormalCard(THREE, Diamond))),
+          Move(List(WildCard(THREE, Diamond))),
           Move(List(NormalCard(SEVEN, Club))),
           Move(List(NormalCard(NINE, Heart))),
           Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club))),
@@ -1083,7 +1103,7 @@ class GameUtilitiesTest extends FunSpec {
     }
   }
 
-  describe("tests for filterOnlyNormalCardMoves") {
+  describe("tests for filterNonSpecialCardMoves()") {
 
     val listOfSpecialMoves = List(
       Move(List(SpecialCard(TWO, Diamond))),
@@ -1095,28 +1115,434 @@ class GameUtilitiesTest extends FunSpec {
       Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club))),
       Move(List(NormalCard(JACK, Diamond), NormalCard(JACK, Club), NormalCard(JACK, Heart))),
       Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade))))
+    val listOfWilcardMoves = List(
+      Move(List(THREE_Spade(7), SEVEN_Club)),
+      Move(List(THREE_Diamond(9), THREE_Spade(9), NINE_Spade))
+    )
     val validSpecialMoves = Moves(listOfSpecialMoves)
     val validNormalMoves = Moves(listOfNormalMoves)
+    val validWildCardMoves = Moves(listOfWilcardMoves)
+    val validNormalWildcardMoves = Moves(listOfWilcardMoves ++ listOfNormalMoves)
 
     describe("When validMoves comprise only of NormalCard moves") {
-
       it("Should return the validMoves itself") {
-        assert(GameUtilities.filterOnlyNormalCardMoves(validNormalMoves) == validNormalMoves)
+        assert(GameUtilities.filterNonSpecialCardMoves(validNormalMoves) == validNormalMoves)
+      }
+    }
+
+    describe("When validMoves comprise only of WildCard moves") {
+      it("Should return the validMoves itself") {
+        assert(GameUtilities.filterNonSpecialCardMoves(validWildCardMoves) == validWildCardMoves)
       }
     }
 
     describe("When validMoves comprise only of SpecialCard moves") {
       it("Should return empty list") {
-        assert(GameUtilities.filterOnlyNormalCardMoves(validSpecialMoves).moves.isEmpty)
+        assert(GameUtilities.filterNonSpecialCardMoves(validSpecialMoves).moves.isEmpty)
       }
     }
 
     describe("When validMoves comprise of both specialCard moves and NormalCard moves"){
       it("Should return list containing only NormalCard moves") {
-        assert(GameUtilities.filterOnlyNormalCardMoves(Moves(listOfSpecialMoves ++ listOfNormalMoves)) == validNormalMoves)
+        assert(GameUtilities.filterNonSpecialCardMoves(Moves(listOfSpecialMoves ++ listOfNormalMoves)) == validNormalMoves)
       }
     }
 
+    describe("When validMoves comprise of both NormalCard and WildCard moves") {
+      it("Should return list containing everything") {
+        assert(GameUtilities.filterNonSpecialCardMoves(Moves(listOfWilcardMoves ++ listOfNormalMoves)) == validNormalWildcardMoves)
+      }
+    }
+
+    describe("When validMoves comprise of both SpecialCard and WildCard moves") {
+      it("Should return list containing only wilcardMoves") {
+        assert(GameUtilities.filterNonSpecialCardMoves(Moves(listOfWilcardMoves ++ listOfSpecialMoves)) == validWildCardMoves)
+      }
+    }
+  }
+
+  describe("tests for getWildCardListFromIntermediateList()") {
+
+    val intermediateList = List(
+      List(FOUR_Heart),
+      List(SIX_Diamond, SIX_Club),
+      List(EIGHT_Club, EIGHT_Heart, EIGHT_Spade),
+      List(TEN_Diamond, TEN_Club, TEN_Heart, TEN_Spade),
+      List(TWO_Spade),
+      List(Joker)
+    )
+
+    describe("When intermediate list is empty") {
+      it("Should return empty list") {
+        val intermediateList = List.empty
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList).isEmpty)
+      }
+    }
+
+    describe("When intermediate list is a List(List.empty)") {
+      it("Should return empty list") {
+        val intermediateList = List(List.empty)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList).isEmpty)
+      }
+    }
+
+    describe("When intermediateList does NOT have a list of cards with 3s in it") {
+      it("Should return empty list") {
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList).isEmpty)
+      }
+    }
+
+    describe("When intermediateList has a list of card(s) with 3s in it") {
+
+      describe("When the list of 3s is of size 1") {
+        it("Should return a list of size 1") {
+          val intermediate: List[List[Card]] = intermediateList :+ List(THREE_Diamond)
+          assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 1)
+        }
+      }
+
+      describe("When the list of 3s is of size 2") {
+        it("Should return a list of size 2") {
+          val intermediate: List[List[Card]] = intermediateList :+
+            List(THREE_Diamond, THREE_Club)
+          assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 2)
+        }
+      }
+
+      describe("When the list of 3s is of size 3") {
+        it("Should return a list of size 3") {
+          val intermediate: List[List[Card]] = intermediateList :+
+            List(THREE_Diamond, THREE_Club, THREE_Heart)
+          assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 3)
+        }
+      }
+
+      describe("When the list of 3s is of size 4") {
+        it("Should return a list of size 4") {
+          val intermediate: List[List[Card]] = intermediateList :+
+            List(THREE_Diamond, THREE_Club, THREE_Heart, THREE_Spade)
+          assert(GameUtilities.getWildCardListFromIntermediateList(intermediate).size == 4)
+        }
+      }
+    }
+  }
+
+  describe("Tests for getNewHand()") {
+    val currentHand = Hand(List(
+      THREE_Club, THREE_Heart,
+      SIX_Diamond, SIX_Heart,
+      EIGHT_Club, TEN_Heart,
+      ACE_Diamond, ACE_Heart,
+      TWO_Diamond, Joker))
+    val player = Player("Test", currentHand)
+
+    describe("When the movePlayed is none"){
+      it("Should return the same hand") {
+        assert(GameUtilities.getNewHand(player.hand, None) == currentHand)
+      }
+    }
+
+    describe("When the movePlayed does not involve a card in the hand"){
+      it("Should return the same hand when the move is composed of Normal Cards") {
+        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(SEVEN_Diamond, SEVEN_Spade))))
+          == currentHand)
+      }
+
+      it("Should return the same hand when the move is composed of Special Cards") {
+        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(TWO_Club, TWO_Heart))))
+          == currentHand)
+      }
+
+      it("Should return the same hand when the move is composed of WildCards") {
+        assert(GameUtilities.getNewHand(player.hand, Some(Move(List(THREE_Diamond(8), THREE_Spade(8)))))
+          == currentHand)
+      }
+
+    }
+
+    describe("When the movePlayed involves a card in the hand"){
+
+      describe("When the move played is a normalCard") {
+        it("Should return the hand minus the played cards") {
+          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(ACE_Diamond, ACE_Heart))))
+            == Hand(currentHand.listOfCards.slice(0,6) ++ currentHand.listOfCards.slice(8, 10)))
+        }
+      }
+
+      describe("When the move played is a specialCard") {
+        it("Should return the hand minus the played cards") {
+          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(TWO_Diamond))))
+            == Hand(currentHand.listOfCards.slice(0,8) ++ currentHand.listOfCards.slice(9, 10)))
+          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(Joker))))
+            == Hand(currentHand.listOfCards.slice(0,9)))
+        }
+      }
+
+      describe("When the move played is a WildCard") {
+        it("Should return the hand minus the played cards") {
+          assert(GameUtilities.getNewHand(player.hand,
+            Some(Move(List(THREE_Club(14), THREE_Heart(14), ACE_Diamond, ACE_Heart))))
+          == Hand(currentHand.listOfCards.slice(2, 6) ++ currentHand.listOfCards.slice(8,10)))
+        }
+      }
+
+    }
+  }
+
+  describe("tests for getCardAssumedByWildCard()") {
+    it("Should return right value for a 3 diamond assuming a ten") {
+      assert(GameUtilities.getCardAssumedByWildCard(THREE_Diamond(10)) == TEN_Diamond)
+    }
+
+    it("Should return right value for a 3 club assuming an eight") {
+      assert(GameUtilities.getCardAssumedByWildCard(THREE_Club(8)) == EIGHT_Club)
+    }
+
+    it("Should return right value for a 3 heart assuming a jack") {
+      assert(GameUtilities.getCardAssumedByWildCard(THREE_Heart(11)) == JACK_Heart)
+    }
+
+    it("Should return right value for a 3 spade assuming an ace") {
+      assert(GameUtilities.getCardAssumedByWildCard(THREE_Spade(14)) == ACE_Spade)
+    }
+  }
+
+
+  describe(" tests for getNumberOfWildCardsInMove()"){
+    it("Should return 0") {
+      val move = Move(List(ACE_Diamond, ACE_Club, ACE_Heart, ACE_Spade))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 0)
+    }
+
+    it("Should return 1") {
+      val move = Move(List(THREE_Diamond(14), ACE_Club, ACE_Heart, ACE_Spade))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 1)
+    }
+
+    it("Should return 2") {
+      val move = Move(List(THREE_Diamond(14), THREE_Club(14), ACE_Heart, ACE_Spade))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 2)
+    }
+
+    it("Should return 3") {
+      val move = Move(List(THREE_Diamond(14), THREE_Club(14), THREE_Heart(14), ACE_Spade))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 3)
+    }
+
+    it("Should return 4") {
+      val move = Move(List(THREE_Diamond(14), THREE_Club(14), THREE_Heart(14), THREE_Spade(14)))
+      assert(GameUtilities.getNumberOfWildCardsInMove(move) == 4)
+    }
+  }
+
+  describe("tests for getWildCardListFromIntermediateList") {
+    val intermediateList = List(
+      List(FOUR_Diamond, FOUR_Spade),
+      List(NINE_Spade),
+      List(JACK_Diamond, JACK_Heart, JACK_Spade),
+      List(ACE_Diamond, ACE_Club, ACE_Heart, ACE_Spade)
+    )
+    describe("When no wildcards are present in intermediate list") {
+      it("returns an empty list") {
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList) == List.empty)
+      }
+    }
+
+    describe("When wildcards are present in intermediate list") {
+      it("Should return a list of size 1 when number of wildcards is 1") {
+        val oneWildCardList = List(THREE_Diamond)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList :+ oneWildCardList) == oneWildCardList)
+      }
+
+      it("Should return a list of size 2 when number of wildcards is 2") {
+        val oneWildCardList = List(THREE_Diamond, THREE_Club)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList :+ oneWildCardList) == oneWildCardList)
+      }
+
+      it("Should return a list of size 3 when number of wildcards is 3") {
+        val oneWildCardList = List(THREE_Diamond, THREE_Club, THREE_Heart)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList :+ oneWildCardList) == oneWildCardList)
+      }
+
+      it("Should return a list of size 4 when number of wildcards is 4") {
+        val oneWildCardList = List(THREE_Diamond,  THREE_Club, THREE_Heart, THREE_Spade)
+        assert(GameUtilities.getWildCardListFromIntermediateList(intermediateList :+ oneWildCardList) == oneWildCardList)
+      }
+    }
+
+  }
+
+  describe("tests for addThreesToMoves()") {
+    val allMoves = Moves(List(
+      Move(List(SIX_Club, SIX_Diamond)),
+      Move(List(SEVEN_Heart)),
+      Move(List(KING_Heart, KING_Diamond, KING_Club)),
+      Move(List(TWO_Spade)), Move(List(Joker))))
+
+    describe("When suppliedMoves has a wildcard in it") {
+      it("Throws an exception") {
+        val moves = Moves(List(
+          Move(List(SIX_Club)),
+          Move(List(KING_Club, KING_Diamond)),
+          Move(List(THREE_Spade(9), NINE_Spade, NINE_Heart))
+        ))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.addThreesToMoves(moves, List(THREE_Spade)))
+      }
+    }
+
+    describe("When listOfThrees is empty") {
+      it("Should return allMoves without any changes") {
+        assert(GameUtilities.addThreesToMoves(allMoves, List.empty) == allMoves)
+      }
+    }
+
+    describe("When listOfThrees is nonEmpty") {
+
+      describe("When listOfThrees is of size 1") {
+        it("Should return result as expected") {
+          val listOfThrees = List(THREE_Diamond)
+          val expectedResult = Moves(allMoves.moves.slice(0, 3) ++ List(
+            Move(List(THREE_Diamond(6), SIX_Club, SIX_Diamond)),
+            Move(List(THREE_Diamond(7), SEVEN_Heart)),
+            Move(List(THREE_Diamond(13), KING_Heart, KING_Diamond, KING_Club)),
+            Move(List(THREE_Diamond(14))),
+            Move(List(TWO_Spade)), Move(List(Joker))))
+          println(expectedResult)
+          assert(GameUtilities.addThreesToMoves(allMoves, listOfThrees) == expectedResult)
+        }
+      }
+
+      describe("When listOfThrees is of size 2") {
+        it("Should return result as expected") {
+          val listOfThrees = List(THREE_Heart, THREE_Spade)
+          val expectedResult = Moves(allMoves.moves.slice(0, 3) ++ List(
+          Move(List(THREE_Heart(6), SIX_Club, SIX_Diamond)),
+          Move(List(THREE_Heart(7), SEVEN_Heart)),
+          Move(List(THREE_Heart(13), KING_Heart, KING_Diamond, KING_Club)),
+
+          Move(List(THREE_Spade(6), SIX_Club, SIX_Diamond)),
+          Move(List(THREE_Spade(7), SEVEN_Heart)),
+          Move(List(THREE_Spade(13), KING_Heart, KING_Diamond, KING_Club)),
+
+          Move(List(THREE_Heart(6), THREE_Spade(6), SIX_Club, SIX_Diamond)),
+          Move(List(THREE_Heart(7), THREE_Spade(7), SEVEN_Heart)),
+          Move(List(THREE_Heart(13), THREE_Spade(13),  KING_Heart, KING_Diamond, KING_Club)),
+
+          Move(List(THREE_Heart(14))),
+          Move(List(THREE_Spade(14))),
+          Move(List(THREE_Heart(14), THREE_Spade(14))),
+
+          Move(List(TWO_Spade)), Move(List(Joker))))
+          assert(GameUtilities.addThreesToMoves(allMoves, listOfThrees) == expectedResult)
+        }
+      }
+
+    }
+
+  }
+
+  describe("tests for assignWildCardsOptimally()") {
+
+    val validMoves = Moves(List(
+      Move(List(THREE_Spade(6), SIX_Diamond, SIX_Club)),
+      Move(List(NINE_Club, NINE_Heart, NINE_Spade)),
+      Move(List(THREE_Club(11), THREE_Heart(11), JACK_Diamond)),
+    ))
+
+    describe("When there are no validMoves comprised purely of WildCards") {
+      it("Should return the same list of validMoves") {
+        assert(GameUtilities.assignWildCardsOptimally(validMoves, Move(List.empty)) == validMoves)
+      }
+    }
+
+    describe("When there are validMoves comprising purely of WildCards") {
+      it("Should return the expected result") {
+        val gameState = Move(List(FIVE_Diamond, FIVE_Club, FIVE_Heart))
+        val allValidMoves = Moves(validMoves.moves ++ List(
+          Move(List(THREE_Club(14), THREE_Heart(14), THREE_Spade(14)))
+        ))
+        val expectedResult = Moves(validMoves.moves ++ List(
+          Move(List(THREE_Club(5), THREE_Heart(5), THREE_Spade(5)))
+        ))
+        assert(GameUtilities.assignWildCardsOptimally(allValidMoves, gameState) == expectedResult)
+      }
+    }
+
+  }
+
+  describe("tests for getMoveWithOptimalWildCardValue()") {
+
+    describe("When move is not fully comprised of WildCards") {
+      it("Should throw an exception when move supplied has a normalCard in it") {
+        val validMove = Move(List(THREE_Club(14), THREE_Heart(14), THREE_Spade(14), ACE_Spade))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getMoveWithOptimalWildCardValue(validMove, Move(List.empty)))
+      }
+
+      it("Should throw an exception when move supplied has a specialCard in it") {
+        val validMove = Move(List(TWO_Spade))
+        val validMove2 = Move(List(Joker))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getMoveWithOptimalWildCardValue(validMove, Move(List.empty)))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getMoveWithOptimalWildCardValue(validMove2, Move(List.empty)))
+      }
+    }
+
+    describe("When move is comprised fully of wildcards") {
+      describe("When gameState is EMPTY") {
+        it("Should return the move itself") {
+          val validMove = Move(List(THREE_Heart(14), THREE_Spade(14)))
+          assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, Move(List.empty)) == validMove)
+        }
+      }
+
+      describe("When gameState is NON EMPTY") {
+
+        describe("When gameState is a single") {
+          it("Should return move itself when it cannot burn") {
+            val validMove = Move(List(THREE_Spade(14)))
+            val gameState = Move(List(TEN_Spade))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState) == validMove)
+          }
+
+          it("Should return move with faceValue == gameState.moveFaceValue if it CAN burn") {
+            val validMove = Move(List(THREE_Spade(14)))
+            val gameState = Move(List(TEN_Heart))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState) == Move(List(THREE_Spade(10))))
+          }
+        }
+
+        describe("When gameState is a double") {
+          it("Should return move itself when it cannot burn") {
+            val validMove = Move(List(THREE_Heart(14), THREE_Spade(14)))
+            val gameState = Move(List(TEN_Heart, TEN_Spade))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState) == validMove)
+          }
+
+          it("Should return move with faceValue == gameState.moveFaceValue if it CAN burn") {
+            val validMove = Move(List(THREE_Heart(14), THREE_Spade(14)))
+            val gameState = Move(List(TEN_Diamond, TEN_Club))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState)
+              == Move(List(THREE_Heart(10), THREE_Spade(10))))
+          }
+        }
+
+        describe("When gameState is a triple") {
+          it("Should return move itself when it cannot burn") {
+            val validMove = Move(List(THREE_Diamond(14), THREE_Club(14), THREE_Heart(14)))
+            val gameState = Move(List(TEN_Club, TEN_Heart, TEN_Spade))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState) == validMove)
+          }
+
+          it("Should return move with faceValue == gameState.moveFaceValue if it CAN burn") {
+            val validMove = Move(List(THREE_Club(14), THREE_Heart(14), THREE_Spade(14)))
+            val gameState = Move(List(TEN_Diamond, TEN_Club, TEN_Heart))
+            assert(GameUtilities.getMoveWithOptimalWildCardValue(validMove, gameState)
+              == Move(List(THREE_Club(10), THREE_Heart(10), THREE_Spade(10))))
+          }
+        }
+
+      }
+
+    }
 
   }
 
