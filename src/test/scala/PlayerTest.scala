@@ -1,8 +1,7 @@
-import game.FaceValue._
-import game.Suits._
 import game.{Hand, Joker, Move, NormalCard, SpecialCard}
 import org.scalatest.FunSpec
 import player.{Player, PlayerIndicators}
+import utils.Consants._
 
 import org.scalactic.{Equality, TolerantNumerics}
 
@@ -49,11 +48,11 @@ class PlayerTest extends FunSpec{
     describe("Tests for getListSetSizeForCard()") {
 
       describe("When validMove size is 1") {
-        val validMove = Move(List(NormalCard(SEVEN, Spade)))
+        val validMove = Move(List(SEVEN_Spade))
 
         describe("When it is only a single card") {
           it("Should return 1") {
-            val hand = Hand(List(NormalCard(SEVEN, Diamond)))
+            val hand = Hand(List(SEVEN_Diamond))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 1)
           }
@@ -61,7 +60,7 @@ class PlayerTest extends FunSpec{
 
         describe("When it is part of a double") {
           it("Should return 2") {
-            val hand = Hand(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club)))
+            val hand = Hand(List(SEVEN_Diamond, SEVEN_Club))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 2)
           }
@@ -69,7 +68,7 @@ class PlayerTest extends FunSpec{
 
         describe("When it is part of a triple") {
           it("Should return 3") {
-            val hand = Hand(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart)))
+            val hand = Hand(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 3)
           }
@@ -77,7 +76,7 @@ class PlayerTest extends FunSpec{
 
         describe("When it is part of a quad") {
           it("Should return 4") {
-            val hand = Hand(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+            val hand = Hand(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 4)
           }
@@ -85,11 +84,11 @@ class PlayerTest extends FunSpec{
       }
 
       describe("When validMove size is 2") {
-        val validMove = Move(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+        val validMove = Move(List(SEVEN_Heart, SEVEN_Spade))
 
         describe("When it is part of a double") {
           it("Should return 2") {
-            val hand = Hand(List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+            val hand = Hand(List(SEVEN_Heart, SEVEN_Spade))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 2)
           }
@@ -97,7 +96,7 @@ class PlayerTest extends FunSpec{
 
         describe("When it is part of a triple") {
           it("Should return 3") {
-            val hand = Hand(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+            val hand = Hand(List(SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 3)
           }
@@ -105,7 +104,7 @@ class PlayerTest extends FunSpec{
 
         describe("When it is part of a quad") {
           it("Should return 4") {
-            val hand = Hand(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+            val hand = Hand(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 4)
           }
@@ -113,11 +112,11 @@ class PlayerTest extends FunSpec{
       }
 
       describe("When validMove size is 3") {
-        val validMove = Move(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+        val validMove = Move(List(SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
 
         describe("When it is part of a triple") {
           it("Should return 3") {
-            val hand = Hand(List(NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+            val hand = Hand(List(SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 3)
           }
@@ -125,7 +124,7 @@ class PlayerTest extends FunSpec{
 
         describe("When it is part of a quad") {
           it("Should return 4") {
-            val hand = Hand(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+            val hand = Hand(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 4)
           }
@@ -133,15 +132,79 @@ class PlayerTest extends FunSpec{
       }
 
       describe("When validMove size is 4") {
-        val validMove = Move(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+        val validMove = Move(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
 
         describe("When it is part of a quad") {
           it("Should return 4") {
-            val hand = Hand(List(NormalCard(SEVEN, Diamond), NormalCard(SEVEN, Club), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)))
+            val hand = Hand(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
             val playerIndicators = PlayerIndicators(hand)
             assert(playerIndicators.getListSetSizeForCard(validMove) == 4)
           }
         }
+      }
+
+      describe("When validMove has wildcards in it") {
+
+        describe("When it is comprised purely of wildcards") {
+          it("Should return move parity when size is 2") {
+            val validMove = Move(List(THREE_Diamond(14), THREE_Spade(14)))
+            val hand = Hand(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
+            val playerIndicators = PlayerIndicators(hand)
+            assert(playerIndicators.getListSetSizeForCard(validMove) == validMove.parity)
+          }
+
+          it("Should return move parity when size is 3") {
+            val validMove = Move(List(THREE_Diamond(14), THREE_Club(14), THREE_Spade(14)))
+            val hand = Hand(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
+            val playerIndicators = PlayerIndicators(hand)
+            assert(playerIndicators.getListSetSizeForCard(validMove) == validMove.parity)
+          }
+
+          it("Should return move parity when size is 4") {
+            val validMove = Move(List(THREE_Diamond(14), THREE_Club(14), THREE_Heart(14), THREE_Spade(14)))
+            val hand = Hand(List(SEVEN_Diamond, SEVEN_Club, SEVEN_Heart, SEVEN_Spade))
+            val playerIndicators = PlayerIndicators(hand)
+            assert(playerIndicators.getListSetSizeForCard(validMove) == validMove.parity)
+          }
+        }
+
+        describe("When move is comprised of wildcards plus normalCards") {
+          val validMove = Move(List(THREE_Diamond(12), THREE_Club(12), QUEEN_Heart))
+
+          describe("When it is the only card in Hand") {
+            it("Should return 1") {
+              val hand = Hand(List(JACK_Diamond, QUEEN_Heart, KING_Heart))
+              val playerIndicators = PlayerIndicators(hand)
+              assert(playerIndicators.getListSetSizeForCard(validMove) == 1)
+            }
+          }
+
+          describe("When it is part of a double") {
+            it("Should return 1") {
+              val hand = Hand(List(JACK_Diamond, QUEEN_Heart, QUEEN_Spade, KING_Heart))
+              val playerIndicators = PlayerIndicators(hand)
+              assert(playerIndicators.getListSetSizeForCard(validMove) == 2)
+            }
+          }
+
+          describe("When it is part of a triple") {
+            it("Should return 1") {
+              val hand = Hand(List(JACK_Diamond, QUEEN_Diamond, QUEEN_Club, QUEEN_Heart, KING_Heart))
+              val playerIndicators = PlayerIndicators(hand)
+              assert(playerIndicators.getListSetSizeForCard(validMove) == 3)
+            }
+          }
+
+          describe("When it is part of a quad") {
+            it("Should return 1") {
+              val hand = Hand(List(JACK_Diamond, QUEEN_Diamond, QUEEN_Club, QUEEN_Heart, QUEEN_Spade, KING_Heart))
+              val playerIndicators = PlayerIndicators(hand)
+              assert(playerIndicators.getListSetSizeForCard(validMove) == 4)
+            }
+          }
+
+        }
+
       }
     }
   }
