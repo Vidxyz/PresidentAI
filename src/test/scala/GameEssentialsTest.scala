@@ -149,6 +149,44 @@ class GameEssentialsTest extends FunSpec {
       }
     }
 
+    describe("Tests for moveFacevalue") {
+
+      describe("When move.cards is empty") {
+        it("Should return 0") {
+          assert(Move(List.empty).moveFaceValue == 0)
+        }
+      }
+
+      describe("When highestCard is a WildCard") {
+        it("Should return the assumed value") {
+          val move = Move(List(THREE_Spade(13), KING_Heart))
+          assert(move.moveFaceValue == 13)
+        }
+      }
+
+      describe("When highestCard is a NormalCard") {
+        it("Should return the integer value") {
+          val move = Move(List(SIX_Club, SIX_Heart, SIX_Spade))
+          assert(move.moveFaceValue == SIX_Spade.intValue)
+        }
+      }
+
+      describe("When highestCard is a SpecialCard") {
+        it("Should return the integer value") {
+          val move = Move(List(TWO_Heart, TWO_Spade))
+          assert(move.moveFaceValue == TWO_Spade.intValue)
+        }
+      }
+
+      describe("When highestCard is a Joker") {
+        it("Should return -1") {
+          val move = Move(List(Joker))
+          assert(move.moveFaceValue == Joker.intValue)
+        }
+      }
+
+    }
+
   }
 
 
