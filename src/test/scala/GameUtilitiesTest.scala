@@ -1441,11 +1441,36 @@ class GameUtilitiesTest extends FunSpec {
 
   }
 
-  describe("tests for getOptimalWildCardValue()") {
+  describe("tests for assignWildCardsOptimally()") {
+
+    val validMoves = Moves(List(
+      Move(List(THREE_Spade(6), SIX_Diamond, SIX_Club)),
+      Move(List(NINE_Club, NINE_Heart, NINE_Spade)),
+      Move(List(THREE_Club(11), THREE_Heart(11), JACK_Diamond)),
+    ))
+
+    describe("When there are no validMoves comprised purely of WildCards") {
+      it("Should return the same list of validMoves") {
+        assert(GameUtilities.assignWildCardsOptimally(validMoves, Move(List.empty)) == validMoves)
+      }
+    }
+
+    describe("When there are validMoves comprising purely of WildCards") {
+      it("Should return the expected result") {
+        val gameState = Move(List(FIVE_Diamond, FIVE_Club, FIVE_Heart))
+        val allValidMoves = Moves(validMoves.moves ++ List(
+          Move(List(THREE_Club(14), THREE_Heart(14), THREE_Spade(14)))
+        ))
+        val expectedResult = Moves(validMoves.moves ++ List(
+          Move(List(THREE_Club(5), THREE_Heart(5), THREE_Spade(5)))
+        ))
+        assert(GameUtilities.assignWildCardsOptimally(allValidMoves, gameState) == expectedResult)
+      }
+    }
 
   }
 
-  describe("tests for assignWildCardsOptimally()") {
+  describe("tests for getOptimalWildCardValue()") {
 
   }
 
