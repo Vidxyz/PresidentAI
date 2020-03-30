@@ -460,12 +460,14 @@ class GameEngineTest extends FunSpec {
 
       describe("When wildcardPenaltyModifier is sufficiently high enough") {
         val aHand = Hand(List(THREE_Diamond, THREE_Club, THREE_Heart, THREE_Spade, FIVE_Diamond, FIVE_Club, FIVE_Heart,
-          SIX_Club, SEVEN_Diamond, EIGHT_Spade, NINE_Spade, TEN_Club, JACK_Heart, QUEEN_Spade))
+          SIX_Club, SEVEN_Diamond, EIGHT_Spade, NINE_Spade, TEN_Club, JACK_Heart, QUEEN_Spade, KING_Diamond))
         val pi = PlayerIndicators(aHand)
 
         it("Should not return the singular wildcard move") {
           val gameState = Move(List(FOUR_Spade))
           val allValidMoves = Moves(List(Move(List(THREE_Heart(5)))))
+          println(pi.wildCardPenaltyModifier)
+          println(GameEngine.wildCardUsagePenalty(allValidMoves.moves.head, pi.wildCardPenaltyModifier))
           assert(GameEngine.getNextMove(allValidMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, pi).isEmpty)
         }
 
@@ -484,6 +486,8 @@ class GameEngineTest extends FunSpec {
         it("Should not return the quad involving three wildcards") {
           val gameState = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart, FOUR_Spade))
           val allValidMoves = Moves(List(Move(List(THREE_Club(5), THREE_Heart(5), THREE_Spade(5), FIVE_Spade))))
+          println(pi.wildCardPenaltyModifier)
+          println(pi.getListSetSizeForCard(allValidMoves.moves.head))
           assert(GameEngine.getNextMove(allValidMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, pi).isEmpty)
         }
 
@@ -491,6 +495,8 @@ class GameEngineTest extends FunSpec {
           val gameState = Move(List(FOUR_Diamond, FOUR_Club, FOUR_Heart, FOUR_Spade))
           val allValidMoves = Moves(List(Move(List(THREE_Club(5), THREE_Heart(5),
             THREE_Club(5), THREE_Spade(5)))))
+          println(pi.wildCardPenaltyModifier)
+          println(GameEngine.wildCardUsagePenalty(allValidMoves.moves.head, pi.wildCardPenaltyModifier))
           assert(GameEngine.getNextMove(allValidMoves, gameState)(GameEngine.applyNormalCardMoveHeuristic, pi).isEmpty)
         }
 
@@ -1079,6 +1085,126 @@ class GameEngineTest extends FunSpec {
         val expectedValue = scala.math.pow(specialCardModifier, validMoveParity)
         assert(GameEngine.applyMultipleTwoModifierFunction(specialCardModifier, validMoveParity) == expectedValue)
       }
+    }
+  }
+
+  describe("Tests for wildCardUsagePenalty") {
+    describe("When move does not involve a wildcard in it") {
+      it("Should return 0 penalty") {
+        val validMove = Move(List(SIX_Club, SIX_Heart, SIX_Spade))
+        assert(GameEngine.wildCardUsagePenalty(validMove, 0) == 0)
+      }
+    }
+
+    describe("When move involves a wildcard in it") {
+
+      describe("When wildcardPenaltyModifier is (1)") {
+
+        val wildcardPenaltyModifier = 1d
+
+        describe("When move parity is the variable") {
+          it("should return value when parity is 1") {
+             val validMove = Move(List(THREE_Club(6)))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) === 0.7586)
+          }
+
+          it("should return value < when move parity is 1") {
+            val validMove = Move(List(THREE_Club(6), SIX_Diamond))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) < 0.7587)
+          }
+
+          it("should return value < when move parity is 2") {
+            val validMove = Move(List(THREE_Club(6), SIX_Diamond, SIX_Heart))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) < 0.6786)
+          }
+
+          it("should return value < when move parity is 3") {
+            val validMove = Move(List(THREE_Club(6), SIX_Diamond, SIX_Heart, SIX_Spade))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) < 0.5986)
+          }
+        }
+
+        describe("When number of wildcards is the variable") {
+          it("Should return value when number of wildcards is 1") {
+            val validMove = Move(List(THREE_Spade(6), SIX_Diamond, SIX_Club, SIX_Heart))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) === 0.5186)
+          }
+
+          it("Should return value > when number of wildcards is 1") {
+            val validMove = Move(List(THREE_Club(6), THREE_Spade(6), SIX_Club, SIX_Heart))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) > 0.5186)
+          }
+
+          it("Should return value > when number of wildcards is 2") {
+            val validMove = Move(List(THREE_Diamond(6), THREE_Club(6), THREE_Spade(6), SIX_Heart))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) > 0.5436)
+          }
+
+          it("Should return value > when number of wildcards is 3") {
+            val validMove = Move(List(THREE_Diamond(6), THREE_Club(6), THREE_Heart(6), THREE_Spade(6)))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) > 0.5936)
+          }
+
+        }
+
+        describe("When move face value is the variable") {
+          it("Should return value when faceValue is a 4") {
+            val validMove = Move(List(THREE_Heart(4), THREE_Spade(4), FOUR_Club))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) === 0.7145)
+          }
+
+          it("Should return value < when faceValue is a 4 but > when faceValue is an ACE ") {
+            val validMove = Move(List(THREE_Heart(10), THREE_Spade(10), TEN_Club))
+            val result = GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier)
+            assert(result < 0.7145 && result === 0.4419)
+          }
+
+          it("Should return value when faceValue is an ACE") {
+            val validMove = Move(List(THREE_Heart(14), THREE_Spade(14), ACE_Club))
+            assert(GameEngine.wildCardUsagePenalty(validMove, wildcardPenaltyModifier) === 0.26)
+          }
+        }
+
+      }
+
+      describe("When wildcardPenaltyModifier is (0)") {
+
+        val wildCardPenaltyModifier = 0
+
+        it("Should return 0 when move involves all wildcards in it") {
+          val validMove = Move(List(THREE_Diamond(6), THREE_Club(6), THREE_Heart(6), THREE_Spade(6)))
+          assert(GameEngine.wildCardUsagePenalty(validMove, wildCardPenaltyModifier) == 0)
+        }
+
+        it("Should return 0 when moveFaceValue is 4") {
+          val validMove = Move(List(THREE_Diamond(4), THREE_Club(4), FOUR_Diamond))
+          assert(GameEngine.wildCardUsagePenalty(validMove, wildCardPenaltyModifier) == 0)
+        }
+
+        it("Should return 0 when move.parity is 1") {
+          val validMove = Move(List(THREE_Diamond(9)))
+          assert(GameEngine.wildCardUsagePenalty(validMove, wildCardPenaltyModifier) == 0)
+        }
+
+      }
+
+      describe("When wildcardPenaltyModifer is between 0-1  (0.5)") {
+        it("Should return right value for a move of parity 4") {
+          val validMove = Move(List(THREE_Heart(4), THREE_Spade(4), FOUR_Diamond, FOUR_Spade))
+          assert(GameEngine.wildCardUsagePenalty(validMove, 0.5) === GameEngine.wildCardUsagePenalty(validMove, 1) * 0.5)
+        }
+
+        it("Should return right value for a move involving all wildcards") {
+          val validMove = Move(List(THREE_Diamond(4), THREE_Club(4), THREE_Heart(4), THREE_Spade(4)))
+          assert(GameEngine.wildCardUsagePenalty(validMove, 0.5) === GameEngine.wildCardUsagePenalty(validMove, 1) * 0.5)
+        }
+
+        it("Should return right value for a move with faceValue ACE") {
+          val validMove = Move(List(THREE_Heart(14), THREE_Spade(14), ACE_Diamond, ACE_Spade))
+          assert(GameEngine.wildCardUsagePenalty(validMove, 0.5) === GameEngine.wildCardUsagePenalty(validMove, 1) * 0.5)
+        }
+      }
+
     }
   }
 }

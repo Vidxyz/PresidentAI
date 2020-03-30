@@ -269,6 +269,16 @@ class DevelopmentTest extends FunSpec {
 
       println("0000")
       println(PlayerIndicators.applyWildCardPenaltyModifer(0))
+
+    }
+
+
+    it("faillign tst") {
+      val move1 = Move(List(THREE_Club(5), THREE_Heart(5), THREE_Spade(5), FIVE_Spade))
+      val move2 = Move(List(THREE_Club(5), THREE_Heart(5), THREE_Club(5), THREE_Spade(5)))
+      val m = 0.9706877692486436
+      println(GameEngine.wildCardUsagePenalty(move1, m))
+      println(GameEngine.wildCardUsagePenalty(move2, m))
     }
 
   }

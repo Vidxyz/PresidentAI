@@ -87,26 +87,26 @@ case object GameEngine {
   def wildCardUsagePenalty(validMove: Move, wildCardPenaltyModifier: Double): Double = {
     if(validMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false})) 0
     else {
-      val d1 = 1 - applyCardFaceValueStepFunction(validMove.moveFaceValue)
-      val d2 =  1 - (validMove.parity/(Consants.maxMoveSize + 1))
-      val d3 = Consants.maxMoveSize - GameUtilities.getNumberOfWildCardsInMove(validMove) + 1
+      val d1: Double = 1 - applyCardFaceValueStepFunction(validMove.moveFaceValue)
+      val d2: Double =  1 - ((validMove.parity * 1.0d)/(Consants.maxMoveSize + 1))
+      val d3: Double = Consants.maxMoveSize - GameUtilities.getNumberOfWildCardsInMove(validMove) + 1
       wildCardPenaltyModifier *
-          ((0.5 * d1)
-         + (0.4 * d2)
-         + (0.3 * 1/d3))
+          ((0.5d * d1)
+         + (0.4d * d2)
+         + (0.3d * 1/d3))
     }
   }
 
   /*
-Divides 0.0-1.0 into 11 equal intervals, each interval corresponds to a card (4,5,...K,A)
-Returns the interval the faceValue of the card falls under
-Example :- faceValue = 4, Returns --> [1 * (1/11)]
-Example :- faceValue = 14, Returns -> [11 * (1/11)]
-Assumes faceValue is between 4 and 11
+  Divides 0.0-1.0 into 11 equal intervals, each interval corresponds to a card (4,5,...K,A)
+  Returns the interval the faceValue of the card falls under
+  Example :- faceValue = 4, Returns --> [1 * (1/11)]
+  Example :- faceValue = 14, Returns -> [11 * (1/11)]
+  Assumes faceValue is between 4 and 11
  */
   def applyCardFaceValueStepFunction(faceValue: Int): Double = {
     if(faceValue < 4 || faceValue > 14) throw IllegalFaceValueException("FaceValue must be between FOUR(4) and ACE(14)")
-    else (faceValue - 3) * (1/11)
+    else (faceValue - 3) * (1d/11d)
   }
 
 
