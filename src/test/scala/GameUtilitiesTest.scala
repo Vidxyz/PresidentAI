@@ -1254,4 +1254,22 @@ class GameUtilitiesTest extends FunSpec {
     }
   }
 
+  describe("tests for getCardAssumedByWildCard()") {
+    it("Should return right value for a 3 diamond assuming a ten") {
+      assert(GameUtilities.getCardAssumedByWildCard(THREE_Diamond(10)) == TEN_Diamond)
+    }
+
+    it("Should return right value for a 3 club assuming an eight") {
+      assert(GameUtilities.getCardAssumedByWildCard(THREE_Club(8)) == EIGHT_Club)
+    }
+
+    it("Should return right value for a 3 heart assuming a jack") {
+      assert(GameUtilities.getCardAssumedByWildCard(THREE_Heart(11)) == JACK_Heart)
+    }
+
+    it("Should return right value for a 3 spade assuming an ace") {
+      assert(GameUtilities.getCardAssumedByWildCard(THREE_Spade(14)) == ACE_Spade)
+    }
+  }
+
 }
