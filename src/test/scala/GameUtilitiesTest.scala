@@ -1102,7 +1102,7 @@ class GameUtilitiesTest extends FunSpec {
     }
   }
 
-  describe("tests for filterOnlyNormalCardMoves") {
+  describe("tests for filterNonSpecialCardMoves()") {
 
     val listOfSpecialMoves = List(
       Move(List(SpecialCard(TWO, Diamond))),
@@ -1114,13 +1114,24 @@ class GameUtilitiesTest extends FunSpec {
       Move(List(NormalCard(NINE, Diamond), NormalCard(NINE, Club))),
       Move(List(NormalCard(JACK, Diamond), NormalCard(JACK, Club), NormalCard(JACK, Heart))),
       Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade))))
+    val listOfWilcardMoves = List(
+      Move(List(THREE_Spade(7), SEVEN_Club)),
+      Move(List(THREE_Diamond(9), THREE_Spade(9), NINE_Spade))
+    )
     val validSpecialMoves = Moves(listOfSpecialMoves)
     val validNormalMoves = Moves(listOfNormalMoves)
+    val validWildCardMoves = Moves(listOfWilcardMoves)
+    val validNormalWildcardMoves = Moves(listOfWilcardMoves ++ listOfNormalMoves)
 
     describe("When validMoves comprise only of NormalCard moves") {
-
       it("Should return the validMoves itself") {
         assert(GameUtilities.filterNonSpecialCardMoves(validNormalMoves) == validNormalMoves)
+      }
+    }
+
+    describe("When validMoves comprise only of WildCard moves") {
+      it("Should return the validMoves itself") {
+        assert(GameUtilities.filterNonSpecialCardMoves(validWildCardMoves) == validWildCardMoves)
       }
     }
 
@@ -1133,6 +1144,18 @@ class GameUtilitiesTest extends FunSpec {
     describe("When validMoves comprise of both specialCard moves and NormalCard moves"){
       it("Should return list containing only NormalCard moves") {
         assert(GameUtilities.filterNonSpecialCardMoves(Moves(listOfSpecialMoves ++ listOfNormalMoves)) == validNormalMoves)
+      }
+    }
+
+    describe("When validMoves comprise of both NormalCard and WildCard moves") {
+      it("Should return list containing everything") {
+        assert(GameUtilities.filterNonSpecialCardMoves(Moves(listOfWilcardMoves ++ listOfNormalMoves)) == validNormalWildcardMoves)
+      }
+    }
+
+    describe("When validMoves comprise of both SpecialCard and WildCard moves") {
+      it("Should return list containing only wilcardMoves") {
+        assert(GameUtilities.filterNonSpecialCardMoves(Moves(listOfWilcardMoves ++ listOfSpecialMoves)) == validWildCardMoves)
       }
     }
   }
@@ -1271,5 +1294,7 @@ class GameUtilitiesTest extends FunSpec {
       assert(GameUtilities.getCardAssumedByWildCard(THREE_Spade(14)) == ACE_Spade)
     }
   }
+
+
 
 }
