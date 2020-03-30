@@ -1,7 +1,8 @@
-import game.{Hand, NormalCard, WildCard}
+import game.{Hand, Joker, Move, NormalCard, WildCard}
 import org.scalatest.FunSpec
 import game.FaceValue._
 import game.Suits._
+import utils.Consants._
 
 class GameEssentialsTest extends FunSpec {
 
@@ -48,5 +49,62 @@ class GameEssentialsTest extends FunSpec {
       }
 
     }
+
   }
+
+
+
+  describe("Tests for Move case class") {
+
+    describe("Tests for highestCard()") {
+
+      describe("When move size is 1") {
+        it("Returns the only card in hand") {
+          val move = Move(List(NINE_Spade))
+          val move2 = Move(List(THREE_Diamond(14)))
+          val move3 = Move(List(TWO_Spade))
+          val move4 = Move(List(Joker))
+          assert(move.highestCard == NINE_Spade)
+          assert(move2.highestCard == THREE_Diamond(14))
+          assert(move3.highestCard == TWO_Spade)
+          assert(move4.highestCard == Joker)
+        }
+      }
+
+      describe("When move size is 4") {
+        describe("When highest card is a WildCard assuming a value") {
+          it("Should return the WildCard") {
+            val move = Move(List(THREE_Spade(10), TEN_Diamond, TEN_Club, TEN_Heart))
+            assert(move.highestCard == THREE_Spade(10))
+          }
+        }
+
+        describe("When highest card is a NormalCard") {
+          it("Should return the NormalCard") {
+            val move = Move(List(TEN_Diamond, TEN_Club, TEN_Heart, TEN_Spade))
+            assert(move.highestCard == TEN_Spade)
+          }
+        }
+
+        describe("When highest card is a SpecialCard") {
+          it("Should return the SpecialCard") {
+            val move = Move(List(TWO_Diamond, TWO_Club, TWO_Heart, TWO_Spade))
+            assert(move.highestCard == TWO_Spade)
+          }
+        }
+
+
+        describe("When highest card is a tie between a WildCard and a NormalCard") {
+          it("Should return the NormalCard") {
+            val move = Move(List(THREE_Spade(10), TEN_Diamond, TEN_Club, TEN_Spade))
+            assert(move.highestCard == THREE_Spade(10))
+          }
+        }
+      }
+
+    }
+
+  }
+
+
 }

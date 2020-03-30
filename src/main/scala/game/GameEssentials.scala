@@ -185,7 +185,8 @@ case class Move(cards: List[Card], likelihood: Double = 0) {
 
   /*
   Returns the highest card in the hand
-  Defined as card with strongest suit
+  Defined as card with strongest suit === Highest cardOrderValue
+  In case of ties, picks the one first encountered
    */
   def highestCard: Card = {
     if(cards.size == 1) cards.head
@@ -196,23 +197,15 @@ case class Move(cards: List[Card], likelihood: Double = 0) {
         else highestCard)
     }
   }
+
   def parity: Int = cards.size
+
   def numberOfNormalcards: Int = cards.count(card => card match {
     case w: WildCard => false;
     case _ => true
   })
-  def isEmpty: Boolean = cards.isEmpty
 
-  /*
-  More thought needs to be put into this
-   */
-  def getMoveNormalCardModifier: Double = {
-    cards.head match {
-      case Joker => -1
-      case SpecialCard(_,_) => -1
-      case c: NormalCard => c.intValue
-    }
-  }
+  def isEmpty: Boolean = cards.isEmpty
 
   /*
   Override equals method to match on everything but likelihood
