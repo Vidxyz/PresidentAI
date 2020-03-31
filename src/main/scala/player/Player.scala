@@ -48,7 +48,7 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
             case List(a, b) => (a, b);
             case List(a) => (a, a)
           }
-          GameUtilities.getCardFromMoveStrings(tuple._1, tuple._2)
+          GameUtilities.getCardFromCardStrings(tuple._1, tuple._2)
         }).toList)))
     }
   }

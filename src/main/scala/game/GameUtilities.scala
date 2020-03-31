@@ -11,7 +11,7 @@ import scala.util.Random
 
 case object GameUtilities {
 
-  private val wildcardMatcher = """3\([0-9].+\)""".r
+  private val wildcardMatcher = """3\([0-9]+\)""".r
 
   implicit class Crossable[X](xs: List[List[Card]]) {
     def cross(ys: List[List[Card]]): List[List[Card]] = for { x <- xs; y <- ys } yield x ++ y
@@ -36,7 +36,7 @@ case object GameUtilities {
     }
   }
 
-  def getCardFromMoveStrings(value: String, suit: String): Card = {
+  def getCardFromCardStrings(value: String, suit: String): Card = {
     if(value match { case "Joker" => true; case _ => false}) return Joker
 
     val faceValue = getFaceValueFromString(value)
