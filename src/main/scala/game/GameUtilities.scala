@@ -17,8 +17,10 @@ case object GameUtilities {
     def cross(ys: List[List[Card]]): List[List[Card]] = for { x <- xs; y <- ys } yield x ++ y
   }
 
-  def getFaceValueFromString(value: String): Value = {
-    value  match {
+  def getCardFromCardStrings(value: String, suit: String): Card = {
+    if(value.toLowerCase match { case "joker" => true; case _ => false}) return Joker
+
+    val faceValue = value  match {
       case "2" => TWO
       case wildcardMatcher(_*) => THREE
       case "4" => FOUR
@@ -34,12 +36,6 @@ case object GameUtilities {
       case "A" => ACE
       case s => throw IllegalMoveSuppliedException("Bad FaceValue: " + s)
     }
-  }
-
-  def getCardFromCardStrings(value: String, suit: String): Card = {
-    if(value match { case "Joker" => true; case _ => false}) return Joker
-
-    val faceValue = getFaceValueFromString(value)
 
     val assumedValue: Int = faceValue match {
       case THREE => value.drop(1).drop(1).dropRight(1).toInt
@@ -51,6 +47,7 @@ case object GameUtilities {
       case "club" => Club
       case "heart" => Heart
       case "spade" => Spade
+      case s => throw IllegalMoveSuppliedException("Bad Suit: " + s)
     }
 
     if(faceValue == TWO) SpecialCard(TWO, moveSuit)

@@ -282,9 +282,6 @@ class DevelopmentTest extends FunSpec {
     }
 
     it("000") {
-      println(GameUtilities.getFaceValueFromString("3(9)"))
-      println(GameUtilities.getFaceValueFromString("3(11)"))
-      println(GameUtilities.getFaceValueFromString("3(6)"))
 
       println(GameUtilities.getCardFromCardStrings("3(4)", "diamond"))
     }

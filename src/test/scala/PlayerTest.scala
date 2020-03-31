@@ -15,6 +15,15 @@ class PlayerTest extends FunSpec{
 
     // No tests for playNextMove yet, individual methods are tested however
     // Possibly try and verify object method calls happened for unit testing
+    describe("Tests for playNextMove") {
+      // Automatically plays next move when not real player
+
+      // Waits for player input when it is real player
+    }
+
+    describe("Tests for promptForNextMove") {
+
+    }
 
   }
 
@@ -44,7 +53,6 @@ class PlayerTest extends FunSpec{
       }
     }
 
-    // TODO - update these tests for Wildcards
     describe("Tests for getListSetSizeForCard()") {
 
       describe("When validMove size is 1") {

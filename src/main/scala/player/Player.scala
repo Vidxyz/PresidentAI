@@ -36,6 +36,7 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   <2,Diamond> <2,Club>
   <3,Club(8)> <3,Spade(8)>
   aka - cards are space separated, and 3s have to be explicitly assigned if played by themselves
+  // TODO - how to handle invalid moves?
    */
   def promptForNextMove(currentHand: Hand, gameState: Move): Option[Move] = {
     val userMove = readLine("Enter your move : ")
@@ -43,10 +44,12 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
     else {
       Some(Move(GameUtilities.sortCards(userMove.split(" ")
         .map(cardString => {
-          val pair = cardString.split(",").map(section => section.filter(character => character != '<' && character != '>')).toList
+          val pair = cardString.split(",")
+                                    .map(section => section.filter(character => character != '<' && character != '>'))
+                                    .toList
           val tuple = pair match {
             case List(a, b) => (a, b);
-            case List(a) => (a, a)
+            case List(a) => (a, a) // In the case of <Joker>
           }
           GameUtilities.getCardFromCardStrings(tuple._1, tuple._2)
         }).toList)))

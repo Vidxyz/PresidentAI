@@ -1,4 +1,4 @@
-import game.{Card, GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard, WildCard}
+import game.{Card, GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, Moves, NormalCard, SpecialCard, WildCard}
 import org.scalatest.FunSpec
 import utils.Consants
 
@@ -1542,6 +1542,90 @@ class GameUtilitiesTest extends FunSpec {
 
       }
 
+    }
+
+  }
+
+  describe("tests for getCardFromCardStrings") {
+
+    describe("When card strings are Joker") {
+      it("Should return Joker") {
+        assert(GameUtilities.getCardFromCardStrings("joker", "joker") == Joker)
+      }
+    }
+
+    describe("When card strings are for a TWO") {
+      it("Should return TWO_Diamond") {
+        assert(GameUtilities.getCardFromCardStrings("2", "diAmOnD") == TWO_Diamond)
+      }
+      it("Should return TWO_Club") {
+        assert(GameUtilities.getCardFromCardStrings("2", "CLUb") == TWO_Club)
+      }
+      it("Should return TWO_Heart") {
+        assert(GameUtilities.getCardFromCardStrings("2", "HEarT") == TWO_Heart)
+      }
+      it("Should return TWO_Spade") {
+        assert(GameUtilities.getCardFromCardStrings("2", "spade") == TWO_Spade)
+      }
+    }
+
+    describe("When card strings are for a THREE") {
+      it("Should return THREE_Diamond assuming value 4") {
+        assert(GameUtilities.getCardFromCardStrings("3(4)", "DiAMOND") == THREE_Diamond(4))
+      }
+
+      it("Should return THREE_Club assuming value 9") {
+        assert(GameUtilities.getCardFromCardStrings("3(9)", "ClUB") == THREE_Club(9))
+      }
+
+      it("Should return THREE_HEART assuming value Queen") {
+        assert(GameUtilities.getCardFromCardStrings("3(12)", "HEART") == THREE_Heart(12))
+      }
+
+      it("Should return THREE_Spade assuming value ACE") {
+        assert(GameUtilities.getCardFromCardStrings("3(14)", "Spade") == THREE_Spade(14))
+      }
+    }
+
+    describe("When card strings are for a normalcard") {
+      it("Should return SEVEN_Spade") {
+        assert(GameUtilities.getCardFromCardStrings("7", "Spade") == SEVEN_Spade)
+      }
+
+      it("Should return TEN_Diamond") {
+        assert(GameUtilities.getCardFromCardStrings("10", "diAMOND") == TEN_Diamond)
+      }
+
+      it("Should return KING_Heart") {
+        assert(GameUtilities.getCardFromCardStrings("K", "HeART") == KING_Heart)
+      }
+    }
+
+    describe("When bad faceValue is supplied") {
+      it("Should throw exception"){
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("JOKA", "ko"))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("11", "Diamond"))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("3", "Spade"))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("3()", "Spade"))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("0", "Club"))
+      }
+    }
+
+    describe("When bad suit is supplied") {
+      it("Should throw exception") {
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("3(6)", "Banana"))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("7", "Potato"))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("2", "Shades"))
+      }
+    }
+
+    describe("When bad assumedValue for 3 is supplied") {
+      it("Should throw exception") {
+        assertThrows[IllegalAssumedValueException](GameUtilities.getCardFromCardStrings("3(3)", "diamond"))
+        assertThrows[IllegalAssumedValueException](GameUtilities.getCardFromCardStrings("3(15)", "club"))
+        assertThrows[IllegalAssumedValueException](GameUtilities.getCardFromCardStrings("3(0)", "heart"))
+        assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("3(-1)", "spade"))
+      }
     }
 
   }
