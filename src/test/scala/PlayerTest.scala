@@ -16,13 +16,13 @@ class PlayerTest extends FunSpec{
     // No tests for playNextMove yet, individual methods are tested however
     // Possibly try and verify object method calls happened for unit testing
     describe("Tests for playNextMove") {
-      // Automatically plays next move when not real player
+      // Write test for Automatically plays next move when not real player
 
-      // Waits for player input when it is real player
+      // Write test for Waits for player input when it is real player
     }
 
     describe("Tests for promptForNextMove") {
-
+      // TODO - above and this - needs more thought
     }
 
   }

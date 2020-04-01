@@ -4,6 +4,8 @@ import game.GameUtilities._
 import game.GameEngine.getNextMoveWrapper
 import game._
 import scala.io.StdIn._
+import util.control.Breaks._
+
 
 case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
 
@@ -36,26 +38,48 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   <2,Diamond> <2,Club>
   <3,Club(8)> <3,Spade(8)>
   aka - cards are space separated, and 3s have to be explicitly assigned if played by themselves
-  // TODO - how to handle invalid moves?
+  // TODO - penalize threes in reverse order? Maybe its more desirable to use threes with lower cards to get rid of them
+            instead of using them with already higher cards
+            Revise penalty to maximize usage of THREE with single cards? over doubles, triples...?
    */
   def promptForNextMove(currentHand: Hand, gameState: Move): Option[Move] = {
-    val userMove = readLine("Enter your move : ")
-    if(userMove.toLowerCase == "pass") None
-    else {
-      Some(Move(GameUtilities.sortCards(userMove.split(" ")
-        .map(cardString => {
-          val pair = cardString.split(",")
-                                    .map(section => section.filter(character => character != '<' && character != '>'))
-                                    .toList
-          val tuple = pair match {
-            case List(a, b) => (a, b);
-            case List(a) => (a, a) // In the case of <Joker>
+    val userMove: String = readLine("Enter your move : ")
+    userMove.toLowerCase match {
+      case "pass" => None
+      case _ =>
+        try {
+          val move = parseUserLine(userMove)
+          if(!GameUtilities.isValidMove(move.get, gameState) ||
+            (currentHand.listOfCards.size - GameUtilities.getNewHand(currentHand, move).listOfCards.size != move.get.parity)) {
+            println("Illegal move, please try again.")
+            promptForNextMove(currentHand, gameState)
           }
-          GameUtilities.getCardFromCardStrings(tuple._1, tuple._2)
-        }).toList)))
+          else move
+        }
+        catch {
+          case e: Exception =>
+            println("Invalid input, please try again.")
+            promptForNextMove(currentHand, gameState)
+        }
     }
   }
+
+  def parseUserLine(userMove: String): Option[Move] = {
+    Some(Move(GameUtilities.sortCards(userMove.split(" ")
+      .map(cardString => {
+        val pair = cardString.split(",")
+          .map(section => section.filter(character => character != '<' && character != '>'))
+          .toList
+        val tuple = pair match {
+          case List(a, b) => (a, b);
+          case List(a) => (a, a) // In the case of <Joker>
+        }
+        GameUtilities.getCardFromCardStrings(tuple._1, tuple._2)
+      }).toList)))
+  }
+
 }
+
 
 
 case object PlayerIndicators {
