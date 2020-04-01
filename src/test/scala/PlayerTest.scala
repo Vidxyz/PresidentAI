@@ -1,3 +1,5 @@
+import java.io.ByteArrayInputStream
+
 import game.GameUtilities.IllegalMoveSuppliedException
 import game.{GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, NormalCard, SpecialCard}
 import org.scalatest.FunSpec
@@ -22,7 +24,67 @@ class PlayerTest extends FunSpec{
     }
 
     describe("Tests for promptForNextMove") {
-      // TODO - above and this - needs more thought
+      val hand = Hand(List(
+        THREE_Club, FOUR_Heart, SIX_Heart, SIX_Spade, SEVEN_Heart, SEVEN_Spade, TEN_Diamond, JACK_Diamond,
+        JACK_Club, ACE_Spade, TWO_Club, TWO_Heart, TWO_Spade, Joker
+      ))
+      val player = Player("Test", hand)
+
+      describe("When user inputs 'pass'") {
+        it("Should return none") {
+          val in = new ByteArrayInputStream(("pAsS").getBytes)
+          Console.withIn(in){
+            assert(player.promptForNextMove(hand, Move(List.empty)).isEmpty)
+          }
+        }
+      }
+
+      describe("When a move that is valid") {
+        it("Should return the move") {
+          val in = new ByteArrayInputStream(("<2,HEArt> <2,club> <2,spADE>").getBytes)
+          Console.withIn(in){
+            assert(player.promptForNextMove(hand, Move(List.empty)).get == Move(List(TWO_Club, TWO_Heart, TWO_Spade)))
+          }
+        }
+      }
+
+      describe("When the user inputs a move that is invalid given the gameState") {
+        it("Prompts again until it gets a correct move") {
+          val in = new ByteArrayInputStream(("<6,spade> <6,heart>\n<7,heart> <7,spade>").getBytes)
+          val gameState = Move(List(SEVEN_Diamond, SEVEN_Club))
+          Console.withIn(in) {
+            assert(player.promptForNextMove(hand, gameState).get == Move(List(SEVEN_Heart, SEVEN_Spade)))
+          }
+        }
+      }
+
+      describe("When the user inputs a move that is comprised of cards not in hand") {
+        it("Prompts again until it gets a correct move") {
+          val in = new ByteArrayInputStream(("<10,diamond> <10,spade>\n<3(10),Heart> <10,diamond>\n<2,diamond> <2,club>\n<7,heart> <7,spade>").getBytes)
+          val gameState = Move(List(SEVEN_Diamond, SEVEN_Club))
+          Console.withIn(in) {
+            assert(player.promptForNextMove(hand, gameState).get == Move(List(SEVEN_Heart, SEVEN_Spade)))
+          }
+        }
+      }
+
+      describe("When the user inputs bad input") {
+        it("Prompts again until it gets a correct move") {
+          val in = new ByteArrayInputStream(("<>#$sd\n12390df_Wd\n<14,adfo> <123,HFO>\n\n<7,heart> <7,spade>").getBytes)
+          val gameState = Move(List(SEVEN_Diamond, SEVEN_Club))
+          Console.withIn(in) {
+            assert(player.promptForNextMove(hand, gameState).get == Move(List(SEVEN_Heart, SEVEN_Spade)))
+          }
+        }
+
+        it("Prompts again until user passes") {
+          val in = new ByteArrayInputStream(("<>#$sd\n12390df_Wd\n<14,adfo> <123,HFO>\n\npass").getBytes)
+          val gameState = Move(List(SEVEN_Diamond, SEVEN_Club))
+          Console.withIn(in) {
+            assert(player.promptForNextMove(hand, gameState).isEmpty)
+          }
+        }
+      }
     }
 
     describe("Tests for parseUserLine") {
