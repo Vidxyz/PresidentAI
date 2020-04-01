@@ -37,6 +37,7 @@ object FaceValue {
 }
 
 case class IllegalFaceValueException(s: String) extends IllegalArgumentException(s)
+case class IllegalAssumedValueException(s: String) extends IllegalArgumentException(s)
 
 case object Joker extends Card {
   override def toString: String = "<JOKER>"
@@ -69,6 +70,31 @@ case class WildCard(faceValue: Value, suit: Suit, assumedValue: Int = 0) extends
   override val intValue: Int = faceValue match {
     case THREE => 3
     case _ => throw IllegalFaceValueException("WildCard provided with illegal face value")
+  }
+
+  /*
+  Override equals method to match on everything but assumedValue
+   */
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case obj: WildCard => obj.canEqual(this) &&
+          this.suit == obj.suit &&
+          this.faceValue == obj.faceValue
+      case _ => false
+    }
+  }
+
+  def canEqual(a: Any): Boolean = a.isInstanceOf[WildCard]
+}
+
+case object WildCard {
+  def apply(faceValue: Value, suit: Suit, assumedValue: Int): WildCard = {
+    if(assumedValue < 4 || assumedValue > 14) throw IllegalAssumedValueException("WildCard can only assume values [FOUR-ACE]")
+    else new WildCard(faceValue, suit, assumedValue)
+  }
+
+  def apply(faceValue: Value, suit: Suit): WildCard = {
+    new WildCard(faceValue, suit)
   }
 }
 

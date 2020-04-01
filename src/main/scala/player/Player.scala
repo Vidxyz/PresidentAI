@@ -3,8 +3,10 @@ package player
 import game.GameUtilities._
 import game.GameEngine.getNextMoveWrapper
 import game._
+import scala.io.StdIn._
 
-case class Player(name: String, hand: Hand) {
+
+case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
 
   lazy val status: PlayerStatus = if (hand.listOfCards.isEmpty) Complete else Active
   implicit lazy val playerIndicators: PlayerIndicators = PlayerIndicators(hand)
@@ -13,19 +15,70 @@ case class Player(name: String, hand: Hand) {
   Returns the move chosen to play, given current hand and current state
    */
   def playNextMove(currentHand: Hand, currentState: Move): Option[Move] = {
-    val sortedHand = Hand(sortCards(currentHand.listOfCards))
-    val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
-    val intermediateListsWithoutThrees: List[List[Card]] = intermediateLists.filter(list => list.head.intValue != 3)
-    val listOfThreesInHand: List[Card] = getWildCardListFromIntermediateList(intermediateLists)
-    val allMovesWithoutThrees: Moves = getAllMoves(intermediateListsWithoutThrees)
-    val allMoves: Moves = addThreesToMoves(allMovesWithoutThrees, listOfThreesInHand)
-    val validMoves: Moves = getValidMoves(allMoves, currentState)
-    val validMovesWithWildCardsOptimallyAssigned: Moves = assignWildCardsOptimally(validMoves, currentState)
-    val nextMove: Option[Move] = getNextMoveWrapper(validMovesWithWildCardsOptimallyAssigned, currentState)
-    nextMove
+    if(isRealPlayer) promptForNextMove(currentHand, currentState)
+    else {
+      val sortedHand = Hand(sortCards(currentHand.listOfCards))
+      val intermediateLists: List[List[Card]] = getListsOfSimilarCards(sortedHand)
+      val intermediateListsWithoutThrees: List[List[Card]] = intermediateLists.filter(list => list.head.intValue != 3)
+      val listOfThreesInHand: List[Card] = getWildCardListFromIntermediateList(intermediateLists)
+      val allMovesWithoutThrees: Moves = getAllMoves(intermediateListsWithoutThrees)
+      val allMoves: Moves = addThreesToMoves(allMovesWithoutThrees, listOfThreesInHand)
+      val validMoves: Moves = getValidMoves(allMoves, currentState)
+      val validMovesWithWildCardsOptimallyAssigned: Moves = assignWildCardsOptimally(validMoves, currentState)
+      val nextMove: Option[Move] = getNextMoveWrapper(validMovesWithWildCardsOptimallyAssigned, currentState)
+      nextMove
+    }
+  }
+
+  /*
+  Prompts user for next move in the following format
+  <3,Spade> <10,Club> <10,Heart>
+  <Joker>
+  <2,Diamond> <2,Club>
+  <3,Club(8)> <3,Spade(8)>
+  aka - cards are space separated, and 3s have to be explicitly assigned if played by themselves
+  // TODO - penalize threes in reverse order? Maybe its more desirable to use threes with lower cards to get rid of them
+            instead of using them with already higher cards
+            Revise penalty to maximize usage of THREE with single cards? over doubles, triples...?
+   */
+  def promptForNextMove(currentHand: Hand, gameState: Move): Option[Move] = {
+    val userMove: String = readLine("Enter your move : ")
+    userMove.toLowerCase match {
+      case "pass" => None
+      case _ =>
+        try {
+          val move = parseUserLine(userMove)
+          if(!GameUtilities.isValidMove(move.get, gameState) ||
+            (currentHand.listOfCards.size - GameUtilities.getNewHand(currentHand, move).listOfCards.size != move.get.parity)) {
+            println("Illegal move, please try again.")
+            promptForNextMove(currentHand, gameState)
+          }
+          else move
+        }
+        catch {
+          case e: Exception =>
+            println("Invalid input, please try again.")
+            promptForNextMove(currentHand, gameState)
+        }
+    }
+  }
+
+  def parseUserLine(userMove: String): Option[Move] = {
+    Some(Move(GameUtilities.sortCards(userMove.split(" ")
+      .map(cardString => {
+        val pair = cardString.split(",")
+          .map(section => section.filter(character => character != '<' && character != '>'))
+          .toList
+        val tuple = pair match {
+          case List(a, b) => (a, b);
+          case List(a) => (a, a) // In the case of <Joker>
+        }
+        GameUtilities.getCardFromCardStrings(tuple._1, tuple._2)
+      }).toList)))
   }
 
 }
+
 
 
 case object PlayerIndicators {

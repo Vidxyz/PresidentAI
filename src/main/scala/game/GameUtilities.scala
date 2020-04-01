@@ -1,7 +1,7 @@
 package game
 
-import game.FaceValue.{ACE, FOUR}
-import game.Suits.Spade
+import game.FaceValue._
+import game.Suits._
 import player.{Player, PlayerIndicators}
 import utils.Consants
 import utils.Consants._
@@ -11,8 +11,48 @@ import scala.util.Random
 
 case object GameUtilities {
 
+  private val wildcardMatcher = """3\([0-9]+\)""".r
+
   implicit class Crossable[X](xs: List[List[Card]]) {
     def cross(ys: List[List[Card]]): List[List[Card]] = for { x <- xs; y <- ys } yield x ++ y
+  }
+
+  def getCardFromCardStrings(value: String, suit: String): Card = {
+    if(value.toLowerCase match { case "joker" => true; case _ => false}) return Joker
+
+    val faceValue = value.toLowerCase  match {
+      case "2" => TWO
+      case wildcardMatcher(_*) => THREE
+      case "4" => FOUR
+      case "5" => FIVE
+      case "6" => SIX
+      case "7" => SEVEN
+      case "8" => EIGHT
+      case "9" => NINE
+      case "10" => TEN
+      case "j" => JACK
+      case "q" => QUEEN
+      case "k" => KING
+      case "a" => ACE
+      case s => throw IllegalMoveSuppliedException("Bad FaceValue: " + s)
+    }
+
+    val assumedValue: Int = faceValue match {
+      case THREE => value.drop(1).drop(1).dropRight(1).toInt
+      case _ => -1
+    }
+
+    val moveSuit = suit.toLowerCase match {
+      case "diamond" => Diamond
+      case "club" => Club
+      case "heart" => Heart
+      case "spade" => Spade
+      case s => throw IllegalMoveSuppliedException("Bad Suit: " + s)
+    }
+
+    if(faceValue == TWO) SpecialCard(TWO, moveSuit)
+    else if(faceValue == THREE) WildCard(THREE, moveSuit, assumedValue)
+    else NormalCard(faceValue, moveSuit)
   }
 
   def generatePlayersAndDealHands(listOfNames: List[String], seed: Int = 0): List[Player] = {
@@ -338,18 +378,7 @@ case object GameUtilities {
    */
   def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
     movePlayed.getOrElse(None) match {
-      case move: Move => Hand(
-        currentHand
-          .listOfCards
-          .filter(c => c match {
-            case w: WildCard =>
-              if(move.cards.exists(mc => mc match {
-                case mwc: WildCard => mwc.suit == w.suit
-                case _ => false
-              })) false
-              else true
-            case _ => !move.cards.contains(c)
-          }))
+      case move: Move => Hand(currentHand.listOfCards.filter(c => !move.cards.contains(c)))
       case None => currentHand
     }
   }

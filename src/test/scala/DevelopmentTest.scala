@@ -281,6 +281,11 @@ class DevelopmentTest extends FunSpec {
       println(GameEngine.wildCardUsagePenalty(move2, m))
     }
 
+    it("000") {
+
+      println(GameUtilities.getCardFromCardStrings("3(4)", "diamond"))
+    }
+
   }
 
 }

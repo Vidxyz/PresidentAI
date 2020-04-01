@@ -152,7 +152,7 @@ case object GameEngine {
     try {
       Some(validMoves.moves
           .map(m => heuristic(m, gameState, playerIndicators))
-          .map(m => { println(m); m})
+//          .map(m => { println(m); m})
           .filter(validMoves => validMoves.likelihood > 0)
           .maxBy(_.likelihood))
     } catch {
