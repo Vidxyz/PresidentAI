@@ -1,8 +1,8 @@
-import game.{Hand, Joker, Move, NormalCard, SpecialCard}
+import game.GameUtilities.IllegalMoveSuppliedException
+import game.{GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, NormalCard, SpecialCard}
 import org.scalatest.FunSpec
 import player.{Player, PlayerIndicators}
 import utils.Consants._
-
 import org.scalactic.{Equality, TolerantNumerics}
 
 class PlayerTest extends FunSpec{
@@ -23,6 +23,100 @@ class PlayerTest extends FunSpec{
 
     describe("Tests for promptForNextMove") {
       // TODO - above and this - needs more thought
+    }
+
+    describe("Tests for parseUserLine") {
+      val hand = Hand(List(
+        THREE_Club, FOUR_Heart, SEVEN_Club, TEN_Diamond, JACK_Diamond,
+        JACK_Club, ACE_Spade, TWO_Club, TWO_Heart, TWO_Spade, Joker
+      ))
+      val player = Player("Test", hand)
+
+      describe("When user inputs bad expression") {
+        it("Should throw IllegalMoveSuppliedException"){
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine("Pass"))
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine("<3,gla>"))
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine("<(_)>"))
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine("<3(5,club>"))
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine("(5,Heart)"))
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine(""))
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine("_-*/2314"))
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine("[4,club]]"))
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine("[x,23987]"))
+          assertThrows[IllegalMoveSuppliedException](player.parseUserLine("<3(-1),HEARt>"))
+        }
+
+        it("Should throw IllegalAssumedValueException") {
+          assertThrows[IllegalAssumedValueException](player.parseUserLine("<3(3),Club>"))
+          assertThrows[IllegalAssumedValueException](player.parseUserLine("<3(0),diamond>"))
+          assertThrows[IllegalAssumedValueException](player.parseUserLine("<3(15),SpAdE>"))
+          assertThrows[IllegalAssumedValueException](player.parseUserLine("<3(100),HearT>"))
+        }
+      }
+
+      describe("When user inputs a single card") {
+        it("Should return the right move") {
+          val expectedMove = Move(List(SEVEN_Heart))
+          val move = player.parseUserLine("<7,heart>")
+          assert(expectedMove == move.get)
+        }
+      }
+
+      describe("When user inputs a double ") {
+        it("Should return the right move") {
+          val expectedMove = Move(List(SEVEN_Heart, SEVEN_Spade))
+          val move = player.parseUserLine("<7,heart> <7,spade>")
+          assert(expectedMove == move.get)
+        }
+      }
+
+      describe("When user inputs a triple ") {
+        it("Should return the right move") {
+          val expectedMove = Move(List(JACK_Club, JACK_Heart, JACK_Spade))
+          val move = player.parseUserLine("<J,club> <J,heart> <j,SPADE>")
+          assert(expectedMove == move.get)
+        }
+      }
+
+      describe("When user inputs a quad ") {
+        it("Should return the right move") {
+          val expectedMove = Move(List(JACK_Diamond, JACK_Club, JACK_Heart, JACK_Spade))
+          val move = player.parseUserLine("<J,diamond> <J,club> <J,heart> <j,SPADE>")
+          assert(expectedMove == move.get)
+        }
+      }
+
+      describe("When it involves a WildCard in it") {
+        it("Should return the right move") {
+          val expectedMove = Move(List(THREE_Heart(11), THREE_Spade(11), JACK_Heart, JACK_Spade))
+          val move = player.parseUserLine("<3(11),spade> <3(11),HEARt> <j,SPADE> <J,heart>")
+          assert(expectedMove == move.get)
+        }
+      }
+
+      describe("When it is fully comprised of WildCards") {
+        it("Should return the right move") {
+          val expectedMove = Move(List(THREE_Diamond(11), THREE_Heart(11)))
+          val move = player.parseUserLine("<3(11),heart> <3(11),diAMONd>")
+          assert(expectedMove == move.get)
+        }
+      }
+
+      describe("When it is 2 (SpecialCard)") {
+        it("Should return the right move") {
+          val expectedMove = Move(List(TWO_Club, TWO_Heart))
+          val move = player.parseUserLine("<2,heart> <2,CLUB>")
+          assert(expectedMove == move.get)
+        }
+      }
+
+      describe("When it is a Joker") {
+        it("Should return the right move") {
+          val expectedMove = Move(List(Joker))
+          val move = player.parseUserLine("<JokER>")
+          assert(expectedMove == move.get)
+        }
+      }
     }
 
   }

@@ -4,7 +4,6 @@ import game.GameUtilities._
 import game.GameEngine.getNextMoveWrapper
 import game._
 import scala.io.StdIn._
-import util.control.Breaks._
 
 
 case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
