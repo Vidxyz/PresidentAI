@@ -20,7 +20,7 @@ case object GameUtilities {
   def getCardFromCardStrings(value: String, suit: String): Card = {
     if(value.toLowerCase match { case "joker" => true; case _ => false}) return Joker
 
-    val faceValue = value  match {
+    val faceValue = value.toLowerCase  match {
       case "2" => TWO
       case wildcardMatcher(_*) => THREE
       case "4" => FOUR
@@ -30,10 +30,10 @@ case object GameUtilities {
       case "8" => EIGHT
       case "9" => NINE
       case "10" => TEN
-      case "J" => JACK
-      case "Q" => QUEEN
-      case "K" => KING
-      case "A" => ACE
+      case "j" => JACK
+      case "q" => QUEEN
+      case "k" => KING
+      case "a" => ACE
       case s => throw IllegalMoveSuppliedException("Bad FaceValue: " + s)
     }
 
