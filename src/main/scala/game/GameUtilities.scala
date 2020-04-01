@@ -378,18 +378,7 @@ case object GameUtilities {
    */
   def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
     movePlayed.getOrElse(None) match {
-      case move: Move => Hand(
-        currentHand
-          .listOfCards
-          .filter(c => c match {
-            case w: WildCard =>
-              if(move.cards.exists(mc => mc match {
-                case mwc: WildCard => mwc.suit == w.suit
-                case _ => false
-              })) false
-              else true
-            case _ => !move.cards.contains(c)
-          }))
+      case move: Move => Hand(currentHand.listOfCards.filter(c => !move.cards.contains(c)))
       case None => currentHand
     }
   }
