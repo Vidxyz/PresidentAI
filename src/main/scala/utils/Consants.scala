@@ -3,6 +3,8 @@ package utils
 import game.FaceValue._
 import game.Suits._
 import game.{Card, Hand, Joker, NormalCard, SpecialCard, Value, WildCard}
+import javax.swing.ImageIcon
+import scala.swing.SimpleSwingApplication
 
 object Consants {
 
@@ -150,6 +152,64 @@ object Consants {
     13 -> KING,
     14 -> ACE
   )
+
+  def getImageResource(card: Card, app: SimpleSwingApplication): ImageIcon = {
+    card match {
+      case THREE_Diamond => new ImageIcon(app.resourceFromClassloader("images/3_of_diamonds"))
+      case THREE_Club => new ImageIcon(app.resourceFromClassloader("images/3_of_clubs"))
+      case THREE_Heart => new ImageIcon(app.resourceFromClassloader("images/3_of_hearts"))
+      case THREE_Spade => new ImageIcon(app.resourceFromClassloader("images/3_of_spades"))
+      case FOUR_Diamond => new ImageIcon(app.resourceFromClassloader("images/4_of_diamonds"))
+      case FOUR_Club => new ImageIcon(app.resourceFromClassloader("images/4_of_clubs"))
+      case FOUR_Heart => new ImageIcon(app.resourceFromClassloader("images/4_of_hearts"))
+      case FOUR_Spade => new ImageIcon(app.resourceFromClassloader("images/4_of_spades"))
+      case FIVE_Diamond => new ImageIcon(app.resourceFromClassloader("images/5_of_diamonds"))
+      case FIVE_Club => new ImageIcon(app.resourceFromClassloader("images/5_of_clubs"))
+      case FIVE_Heart => new ImageIcon(app.resourceFromClassloader("images/5_of_hearts"))
+      case FIVE_Spade => new ImageIcon(app.resourceFromClassloader("images/5_of_spades"))
+      case SIX_Diamond => new ImageIcon(app.resourceFromClassloader("images/6_of_diamonds"))
+      case SIX_Club => new ImageIcon(app.resourceFromClassloader("images/6_of_clubs"))
+      case SIX_Heart => new ImageIcon(app.resourceFromClassloader("images/6_of_hearts"))
+      case SIX_Spade => new ImageIcon(app.resourceFromClassloader("images/6_of_spades"))
+      case SEVEN_Diamond => new ImageIcon(app.resourceFromClassloader("images/7_of_diamonds"))
+      case SEVEN_Club => new ImageIcon(app.resourceFromClassloader("images/7_of_clubs"))
+      case SEVEN_Heart => new ImageIcon(app.resourceFromClassloader("images/7_of_hearts"))
+      case SEVEN_Spade => new ImageIcon(app.resourceFromClassloader("images/7_of_spades"))
+      case EIGHT_Diamond => new ImageIcon(app.resourceFromClassloader("images/8_of_diamonds"))
+      case EIGHT_Club => new ImageIcon(app.resourceFromClassloader("images/8_of_clubs"))
+      case EIGHT_Heart => new ImageIcon(app.resourceFromClassloader("images/8_of_hearts"))
+      case EIGHT_Spade => new ImageIcon(app.resourceFromClassloader("images/8_of_spades"))
+      case NINE_Diamond => new ImageIcon(app.resourceFromClassloader("images/9_of_diamonds"))
+      case NINE_Club => new ImageIcon(app.resourceFromClassloader("images/9_of_clubs"))
+      case NINE_Heart => new ImageIcon(app.resourceFromClassloader("images/9_of_hearts"))
+      case NINE_Spade => new ImageIcon(app.resourceFromClassloader("images/9_of_spades"))
+      case TEN_Diamond => new ImageIcon(app.resourceFromClassloader("images/10_of_diamonds"))
+      case TEN_Club => new ImageIcon(app.resourceFromClassloader("images/10_of_clubs"))
+      case TEN_Heart => new ImageIcon(app.resourceFromClassloader("images/10_of_hearts"))
+      case TEN_Spade => new ImageIcon(app.resourceFromClassloader("images/10_of_spades"))
+      case JACK_Diamond => new ImageIcon(app.resourceFromClassloader("images/jack_of_diamonds"))
+      case JACK_Club => new ImageIcon(app.resourceFromClassloader("images/jack_of_clubs"))
+      case JACK_Heart => new ImageIcon(app.resourceFromClassloader("images/jack_of_hearts"))
+      case JACK_Spade => new ImageIcon(app.resourceFromClassloader("images/jack_of_spades"))
+      case QUEEN_Diamond => new ImageIcon(app.resourceFromClassloader("images/queen_of_diamonds"))
+      case QUEEN_Club => new ImageIcon(app.resourceFromClassloader("images/queen_of_clubs"))
+      case QUEEN_Heart => new ImageIcon(app.resourceFromClassloader("images/queen_of_hearts"))
+      case QUEEN_Spade => new ImageIcon(app.resourceFromClassloader("images/queen_of_spades"))
+      case KING_Diamond => new ImageIcon(app.resourceFromClassloader("images/king_of_diamonds"))
+      case KING_Club => new ImageIcon(app.resourceFromClassloader("images/king_of_clubs"))
+      case KING_Heart => new ImageIcon(app.resourceFromClassloader("images/king_of_hearts"))
+      case KING_Spade => new ImageIcon(app.resourceFromClassloader("images/king_of_spades"))
+      case ACE_Diamond => new ImageIcon(app.resourceFromClassloader("images/ace_of_diamonds"))
+      case ACE_Club => new ImageIcon(app.resourceFromClassloader("images/ace_of_clubs"))
+      case ACE_Heart => new ImageIcon(app.resourceFromClassloader("images/ace_of_hearts"))
+      case ACE_Spade => new ImageIcon(app.resourceFromClassloader("images/ace_of_spades"))
+      case TWO_Diamond => new ImageIcon(app.resourceFromClassloader("images/two_of_diamonds"))
+      case TWO_Club => new ImageIcon(app.resourceFromClassloader("images/two_of_clubs"))
+      case TWO_Heart => new ImageIcon(app.resourceFromClassloader("images/two_of_hearts"))
+      case TWO_Spade => new ImageIcon(app.resourceFromClassloader("images/two_of_spades"))
+      case Joker => new ImageIcon(app.resourceFromClassloader("images/black_joker"))
+    }
+  }
 
   /*
   These are all shorthand method for defining cards
