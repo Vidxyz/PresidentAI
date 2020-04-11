@@ -1,5 +1,3 @@
-import game.FaceValue._
-import game.Suits._
 import game.{Game, GameUtilities, Hand, Joker, Move, NormalCard, Round, SpecialCard, WildCard}
 
 import ui.MainLayout
@@ -8,7 +6,6 @@ import scala.swing.{Frame, MainFrame, Panel, SimpleSwingApplication}
 
 object Main extends SimpleSwingApplication {
 
-  var currentState = Move(List(NormalCard(SIX, Diamond), NormalCard(SIX, Club)))
 //  val listOfNames = List("Player1", "Player2" )
   val listOfNames = List("Player1", "Player2", "Player3", "Player4")
 //  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "p5", "p6")
@@ -23,11 +20,12 @@ object Main extends SimpleSwingApplication {
   val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames)
     .map(player => if(player.name == "Player1") player.copy(isRealPlayer = true) else player).toBuffer
   val listOfPlayers2 = GameUtilities.generatePlayersAndDealHands(listOfNames2, seed=77).toBuffer
-  val game = Game(Move(List.empty))
 
+  val game = Game(Move(List.empty))
   println("The starting state is : " + game.startState)
   println("\n")
   game.play(listOfPlayers)
+
 
   lazy val mainLayout = new MainLayout(this, listOfPlayers.toList)
 
@@ -36,7 +34,6 @@ object Main extends SimpleSwingApplication {
     contents = mainLayout
     resizable = false
   }
-
 
 
 }
