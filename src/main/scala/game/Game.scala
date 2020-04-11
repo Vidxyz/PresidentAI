@@ -20,8 +20,6 @@ case class Game(startState: Move) {
 
     var currentState = this.startState
 
-    Round.initialListOfPlayerNames = listOfPlayers.map(p => p.name).toList
-
     var round = Round(currentState, "", 0,
       listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
 

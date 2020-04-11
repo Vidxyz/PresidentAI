@@ -105,9 +105,6 @@ object Round {
     players.filter(_.status == Active).map(_.name).map(t => t -> false).toMap
   }
 
-  /* Maintains the initial list of playernames for future tracking */
-  var initialListOfPlayerNames: List[String] = List.empty
-
   /*
   Throws exception if player names are not unique
   Returns new round object otherwise
