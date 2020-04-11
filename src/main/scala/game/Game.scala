@@ -20,8 +20,7 @@ case class Game(startState: Move) {
 
     var currentState = this.startState
 
-    var round = Round(currentState, "", 0,
-      listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
+    var round = Round(currentState, "", 0, listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
 
     // Keep the game going, until exactly one player is game.Active (Bum)
     while(listOfPlayers
@@ -31,7 +30,7 @@ case class Game(startState: Move) {
 
       // Reset state if everyone has passed
       if(round.hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed) {
-        println("END OF ROUND")
+        println("END OF ROUND - CLEARING ROUND CARDS")
         //      println(round.roundPassStatus)
         currentState = Move(List.empty)
 
@@ -45,9 +44,9 @@ case class Game(startState: Move) {
           case e: Exception => round.getIndexOfNextPlayer
         }
 
-        // Update round with index of next player and reset pass list
-        round = Round(currentState, round.lastMovePlayedBy,
-          nextPlayerIndex, listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
+        // Update round with index of next player and reset pass list and clean round.movesPlayed
+        round = Round(currentState, round.lastMovePlayedBy, nextPlayerIndex,
+          listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
       }
 
       val currentPlayerObject = listOfPlayers(round.currentPlayerTurn)
@@ -64,26 +63,29 @@ case class Game(startState: Move) {
         }
       println("The next move is : " + nextMove)
 
-      // If nextMove is not none, update lastMovePlayedBy
+      currentState = getNextGameState(currentState, nextMove)
+      // If nextMove is not none, update lastMovePlayedBy since the player is gonna play the move
       if(nextMove.isDefined){
-        round = Round(currentState, currentPlayerObject.name, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus)
+        round = Round(currentState, currentPlayerObject.name, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus, round.movesPlayed  :+ nextMove)
       }
       // This means that the user is passing, nextMove is not defined. Update the roundPassStatus list
       else {
         println("PASS")
         val newRoundPassStatus = round.roundPassStatus + (currentPlayerObject.name -> true)
-        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, newRoundPassStatus)
+        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, newRoundPassStatus, round.movesPlayed)
       }
 
-      currentState = getNextGameState(currentState, nextMove)
-      // Reset roundPassStatus list if currentState has become Empty
+      // Add a timing break here so that visual changes are reflected
+
+      // Reset roundPassStatus list if currentState has become Empty, and reset roundMovesPlayed as well
       // This can only happen when it is a suit-burn/2-burn/game.Joker/All-pass right now
-      if(currentState.cards.isEmpty)
+      if(currentState.isEmpty)
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
       else
-        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus)
+        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus, round.movesPlayed)
 
       println("The current round state is : " + round.gameState)
+      println("The roundMovesPlayed is " + round.movesPlayed)
       //    println("The pass status is : " + round.roundPassStatus)
 
       val newHandAfterPlaying = GameUtilities.getNewHand(currentPlayerObject.hand, nextMove)
@@ -93,7 +95,7 @@ case class Game(startState: Move) {
       if(listOfPlayers(round.currentPlayerTurn).status == Complete) {
         println(listOfPlayers(round.currentPlayerTurn).name + " has finished!\n")
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn,
-          listOfPlayers.toList, round.updatedRoundPassStatus(currentPlayerObject.name))
+          listOfPlayers.toList, round.updatedRoundPassStatus(currentPlayerObject.name), round.movesPlayed)
         playerCompletionOrder += currentPlayerObject.name
       }
 
@@ -104,15 +106,14 @@ case class Game(startState: Move) {
        The only exception here is when the player had finished their hand on a card that led to a BURN
       */
       if(currentState.cards.nonEmpty || round.playerEndedTheGameOnABurn)  {
-        round = Round(currentState, round.lastMovePlayedBy, round.getNextActivePlayerInSequence(round.currentPlayerTurn), listOfPlayers.toList, round.roundPassStatus)
+        round = Round(currentState, round.lastMovePlayedBy, round.getNextActivePlayerInSequence(round.currentPlayerTurn),
+          listOfPlayers.toList, round.roundPassStatus, round.movesPlayed)
       }
 
       println("------------------------\n")
 //            Thread.sleep(100)
     }
-
     printStats()
-
   }
 
   def printStats(): Unit = {

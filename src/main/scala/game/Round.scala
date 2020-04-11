@@ -6,7 +6,8 @@ case class Round(gameState: Move,
                  lastMovePlayedBy: String,
                  currentPlayerTurn: Int,
                  listOfPlayers: List[Player],
-                 roundPassStatus: Map[String, Boolean]) {
+                 roundPassStatus: Map[String, Boolean],
+                 movesPlayed: List[Move] = List.empty) {
 
   def getNextActivePlayerInSequence(currentPlayerIndex: Int): Int = {
     var nextIndex = if(currentPlayerIndex + 1 == listOfPlayers.size) 0 else currentPlayerIndex + 1
@@ -109,10 +110,11 @@ object Round {
   Throws exception if player names are not unique
   Returns new round object otherwise
    */
-  def apply(gameState: Move, lastMovePlayedBy: String, currentPlayerTurn: Int,
-            listOfPlayers: List[Player], roundPassStatus: Map[String, Boolean]): Round = {
+  def apply(gameState: Move, lastMovePlayedBy: String,
+            currentPlayerTurn: Int, listOfPlayers: List[Player],
+            roundPassStatus: Map[String, Boolean], movesPlayed: List[Move] = List.empty): Round = {
     if(listOfPlayers.size - listOfPlayers.map(p => p.name).distinct.size != 0) throw DuplicatePlayerNamesException("Player names must be unique")
-    else new Round(gameState, lastMovePlayedBy, currentPlayerTurn, listOfPlayers, roundPassStatus)
+    else new Round(gameState, lastMovePlayedBy, currentPlayerTurn, listOfPlayers, roundPassStatus, movesPlayed)
   }
 
 }
