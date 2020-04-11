@@ -17,15 +17,30 @@ class Rectangle3d(xVal: Int, yVal: Int, val zVal: Int, width: Int,
     checkIfContains(p) && this.zVal == panel.highestCardInGivenPoint(p)
   }
 
-  def checkIfContains(unstransformedPoint: Point2D): Boolean = {
+  def checkIfContains(untransformedPoint: Point2D): Boolean = {
     var t = new AffineTransform()
     t.rotate(scala.math.toRadians(handCard.angle), handCard.cardBeginningXCoordinate, height + handCard.cardBeginningYCoordinate)
     val inverseTransform = t.createInverse()
-    var p2 = unstransformedPoint.clone().asInstanceOf[Point2D]
+    var p2 = untransformedPoint.clone().asInstanceOf[Point2D]
     inverseTransform.transform(p2, p2)
     this.contains(p2)
   }
+}
 
+
+case object HandCard {
+  val width = 120
+  val height = 200
+  private val cardBaseXCoordinate = (600 - width/2) / 2
+  private val cardBaseYCoordinate = 10
+
+  def getTransformedCoordinatesForCardInHandView(baseX: Int, baseY: Int, cardIndexNumber: Int, numberOfCardsInHand: Int): (Double, Double) = {
+    val radius = 50 * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
+    val maxAngle = PlayerHandPanel.maxHandSpreadAngle * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
+    val minimumAngle = maxAngle/numberOfCardsInHand
+    val currentAngle = (cardIndexNumber * minimumAngle) - maxAngle
+    (radius * math.sin(scala.math.toRadians(currentAngle)) + baseX, radius * -scala.math.cos(scala.math.toRadians(currentAngle)) + baseY*2 - radius + 50)
+  }
 }
 
 case class HandCard(card: Card, app: SimpleSwingApplication, panel: PlayerHandPanel,
@@ -59,19 +74,4 @@ case class HandCard(card: Card, app: SimpleSwingApplication, panel: PlayerHandPa
     rectangle.contains3d(p)
   }
 
-}
-
-case object HandCard {
-  val width = 120
-  val height = 200
-  private val cardBaseXCoordinate = (600 - width/2) / 2
-  private val cardBaseYCoordinate = 10
-
-  def getTransformedCoordinatesForCardInHandView(baseX: Int, baseY: Int, cardIndexNumber: Int, numberOfCardsInHand: Int): (Double, Double) = {
-    val radius = 50 * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
-    val maxAngle = PlayerHandPanel.maxHandSpreadAngle * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
-    val minimumAngle = maxAngle/numberOfCardsInHand
-    val currentAngle = (cardIndexNumber * minimumAngle) - maxAngle
-    (radius * math.sin(scala.math.toRadians(currentAngle)) + baseX, radius * -scala.math.cos(scala.math.toRadians(currentAngle)) + baseY*2 - radius + 50)
-  }
 }
