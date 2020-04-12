@@ -5,9 +5,10 @@ import scala.swing.{Frame, MainFrame, SimpleSwingApplication, Swing}
 
 object Main extends SimpleSwingApplication {
 
+//  val listOfNames = List("Player1" )
 //  val listOfNames = List("Player1", "Player2" )
-//  val listOfNames = List("Player1", "Player2", "Player3", "Player4")
-  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "p5", "p6")
+  val listOfNames = List("Player1", "Player2", "Player3", "Player4")
+//  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "p5", "p6")
 //  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "Player5", "Player6", "Player7", "Player8")
 //  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "p5", "p6", "p7", "p8", "PPlayer1", "PPlayer2", "PPlayer3", "PPlayer4", "pP5", "pP6", "p7P", "p8P")
   val listOfNames2 = List("Player1", "Player2")
@@ -22,12 +23,13 @@ object Main extends SimpleSwingApplication {
 
   lazy val mainLayout = new MainLayout(this, listOfPlayers.toList)
 
+  val game = Game(Move(List.empty), listOfPlayers, mainLayout)
+  println("The starting state is : " + game.startState)
+  println("\n")
+
   val thread = new Thread {
     override def run {
-      val game = Game(Move(List.empty), mainLayout)
-      println("The starting state is : " + game.startState)
-      println("\n")
-      game.play(listOfPlayers)
+      game.play()
     }
   }
   thread.start()

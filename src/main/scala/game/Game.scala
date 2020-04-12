@@ -2,14 +2,22 @@ package game
 
 import player.Player
 import game.GameUtilities.{getNextGameState, sortCards}
-import javax.swing.SwingUtilities
 import ui.MainLayout
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.swing.Swing
 
-case class Game(startState: Move, mainLayout: MainLayout) {
+case class IllegalNumberOfPlayersException(s: String) extends IllegalArgumentException(s)
+
+case object Game {
+  // todo - add unit test to cover this case
+  def apply(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLayout: MainLayout): Game = {
+    if(listOfPlayers.size < 2 || listOfPlayers.size > 6) throw IllegalNumberOfPlayersException("Need 2-6 players to play the game")
+    else new Game(startState, listOfPlayers, mainLayout)
+  }
+}
+
+case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLayout: MainLayout) {
 
   /*
   Keeps a completion order of the form (playerName, roundEnded)
@@ -19,7 +27,7 @@ case class Game(startState: Move, mainLayout: MainLayout) {
   /*
  Simulates a run of the game, given a list of player.Player and a starting state
   */
-  def play(listOfPlayers: mutable.Buffer[Player]): Unit = {
+  def play(): Unit = {
 
     var currentState = this.startState
 
