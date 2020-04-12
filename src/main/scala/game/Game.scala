@@ -1,12 +1,15 @@
 package game
 
 import player.Player
-import game.GameUtilities.{sortCards, getNextGameState}
+import game.GameUtilities.{getNextGameState, sortCards}
+import javax.swing.SwingUtilities
+import ui.MainLayout
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.swing.Swing
 
-case class Game(startState: Move) {
+case class Game(startState: Move, mainLayout: MainLayout) {
 
   /*
   Keeps a completion order of the form (playerName, roundEnded)
@@ -28,6 +31,8 @@ case class Game(startState: Move) {
       .map(playerstatus => playerstatus == Active)
       .count(_ == true) > 1) {
 
+      mainLayout.updateRoundObject(round)
+
       // Reset state if everyone has passed
       if(round.hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed) {
         println("END OF ROUND - CLEARING ROUND CARDS")
@@ -47,6 +52,7 @@ case class Game(startState: Move) {
         // Update round with index of next player and reset pass list and clean round.movesPlayed
         round = Round(currentState, round.lastMovePlayedBy, nextPlayerIndex,
           listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
+        mainLayout.updateRoundObject(round)
       }
 
       val currentPlayerObject = listOfPlayers(round.currentPlayerTurn)
@@ -56,7 +62,8 @@ case class Game(startState: Move) {
       val nextMove: Option[Move] =
       // If player has not skipped turn this round already, then they get to play
         if(!round.hasAlreadySkippedTurn(currentPlayerObject.name))
-          currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
+          if(currentPlayerObject.isRealPlayer) mainLayout.getUserInputMove()
+          else currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
         else {
           println("PASSED ALREADY")
           None
@@ -66,7 +73,7 @@ case class Game(startState: Move) {
       currentState = getNextGameState(currentState, nextMove)
       // If nextMove is not none, update lastMovePlayedBy since the player is gonna play the move
       if(nextMove.isDefined){
-        round = Round(currentState, currentPlayerObject.name, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus, round.movesPlayed  :+ nextMove)
+        round = Round(currentState, currentPlayerObject.name, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus, round.movesPlayed  :+ nextMove.get)
       }
       // This means that the user is passing, nextMove is not defined. Update the roundPassStatus list
       else {
@@ -74,8 +81,10 @@ case class Game(startState: Move) {
         val newRoundPassStatus = round.roundPassStatus + (currentPlayerObject.name -> true)
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, newRoundPassStatus, round.movesPlayed)
       }
+      mainLayout.updateRoundObject(round)
 
       // Add a timing break here so that visual changes are reflected
+      Thread.sleep(1000)
 
       // Reset roundPassStatus list if currentState has become Empty, and reset roundMovesPlayed as well
       // This can only happen when it is a suit-burn/2-burn/game.Joker/All-pass right now
@@ -83,6 +92,8 @@ case class Game(startState: Move) {
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
       else
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus, round.movesPlayed)
+
+      mainLayout.updateRoundObject(round)
 
       println("The current round state is : " + round.gameState)
       println("The roundMovesPlayed is " + round.movesPlayed)
@@ -99,6 +110,14 @@ case class Game(startState: Move) {
         playerCompletionOrder += currentPlayerObject.name
       }
 
+
+      // Updating player object so that the hand is refreshed
+      if(currentPlayerObject.isRealPlayer) {
+          mainLayout.updateRealPlayerObject(listOfPlayers.head)
+      }
+      // Updating round object so that the gameState is accurately reflected
+      mainLayout.updateRoundObject(round)
+
       /*
        Only change player turn if currentState is NON-EMPTY
        If it is EMPTY, it means the currentPLayer gets to go again
@@ -111,7 +130,9 @@ case class Game(startState: Move) {
       }
 
       println("------------------------\n")
-//            Thread.sleep(100)
+      Thread.sleep(1000)
+
+
     }
     printStats()
   }

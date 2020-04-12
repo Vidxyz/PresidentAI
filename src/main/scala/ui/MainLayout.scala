@@ -1,5 +1,6 @@
 package ui
 
+import game.{Move, Round}
 import player.Player
 import ui.layouts.{BottomLayout, MiddleLayout, TopLayout}
 
@@ -31,4 +32,21 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
   c.gridy = 2
   layout(bottomPanel) = c
 
+
+  def getUserInputMove(): Option[Move] = {
+    bottomPanel.getUserInputMove()
+  }
+
+  def updateRealPlayerObject(realPlayer: Player) = {
+    bottomPanel.updateRealPlayerObject(realPlayer)
+    revalidate()
+    repaint()
+  }
+
+  def updateRoundObject(round: Round) = {
+    middlePanel.updateRoundObject(round)
+    bottomPanel.updateRoundObject(round)
+    revalidate()
+    repaint()
+  }
 }

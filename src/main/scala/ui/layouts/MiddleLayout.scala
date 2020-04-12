@@ -32,4 +32,10 @@ class MiddleLayout(app: SimpleSwingApplication, player1: Player, player2: Player
   c.gridy = 0
   layout(player2AvatarPanel) = c
 
+  def updateRoundObject(round: Round) = {
+    currentRoundPanel.updateRoundObject(round)
+    revalidate()
+    repaint()
+  }
+
 }

@@ -19,7 +19,7 @@ object PlayerHandPanel {
   val backgroundColor = new Color(255, 219, 172)
 }
 
-class PlayerHandPanel(app: SimpleSwingApplication, player: Player, parent: BottomLayout) extends Panel {
+class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: BottomLayout) extends Panel {
 
   import PlayerHandPanel._
 
@@ -28,44 +28,63 @@ class PlayerHandPanel(app: SimpleSwingApplication, player: Player, parent: Botto
   minimumSize = new Dimension(width, height)
 //  border = Swing.LineBorder(Color.BLACK)
 
-  val handToDisplay = GameUtilities.sortCards(player.hand.listOfCards)
-  val numberOfCardsInHand = handToDisplay.size
-
-  val maxAngle = maxHandSpreadAngle * numberOfCardsInHand/maxPossibleCardsInHand
-  val angleList = -numberOfCardsInHand/2 to numberOfCardsInHand/2
-  var handCardUiList = (handToDisplay zip angleList).zipWithIndex.map( {
+  var handToDisplay = GameUtilities.sortCards(player.hand.listOfCards)
+  var numberOfCardsInHand = handToDisplay.size
+  var maxAngle = maxHandSpreadAngle * numberOfCardsInHand/maxPossibleCardsInHand
+  var angleList = -numberOfCardsInHand/2 to numberOfCardsInHand/2
+  var handCardList = (handToDisplay zip angleList).zipWithIndex.map( {
     case ((card, angleIndex), cardIndex) =>
       HandCard(card, app, this, cardIndex, numberOfCardsInHand, angleIndex * (maxAngle / numberOfCardsInHand))
   })
 
   focusable = true
-  listenTo(mouse.clicks, mouse.moves, keys)
+  listenTo(mouse.clicks)
 
   reactions += {
     case e: MousePressed => {
-      handCardUiList.filter(card => card.pointInside(e.point)).foreach(c => println(c.card))
-      handCardUiList = handCardUiList.map(card => if(card.pointInside(e.point)) card.copy(isSelected = !card.isSelected) else card)
-      parent.updateCardSelectStatusViaHandCard(handCardUiList)
+      handCardList = handCardList.map(card => if(card.pointInside(e.point)) card.copy(isSelected = !card.isSelected) else card)
+      val selectedCards = handCardList.filter(card => card.pointInside(e.point))
+      if(selectedCards.nonEmpty) {
+        selectedCards.foreach(p => println(p.card))
+        parent.updateCardSelectStatusViaHandCard(handCardList)
+      }
+      revalidate()
       repaint()
     }
   }
 
   override def paintComponent(g: Graphics2D): Unit = {
     super.paintComponent(g)
-    handCardUiList.foreach(h => h.drawSprite(g))
+    handCardList.foreach(h => h.drawSprite(g))
   }
 
   def highestCardInGivenPoint(p: Point2D): Int = {
-    handCardUiList.filter(c => c.rectangle.checkIfContains(p)).map(c => c.rectangle.zVal).max
+    handCardList.filter(c => c.rectangle.checkIfContains(p)).map(c => c.rectangle.zVal).max
   }
 
   def updateCardSelectStatus(cardTileListUi: List[CardTile]) = {
-    handCardUiList = (handCardUiList zip cardTileListUi).map({case (handCard, cardTile) => handCard.copy(isSelected = cardTile.isSelected)})
+    handCardList = (handCardList zip cardTileListUi).map({case (handCard, cardTile) => handCard.copy(isSelected = cardTile.isSelected)})
+    revalidate()
     repaint()
   }
 
   def setCardsAsSelected(move: Option[Move]) = {
-    handCardUiList = handCardUiList.map(e => if(move.get.cards.contains(e.card)) e.copy(isSelected = true) else e.copy(isSelected = false))
+    handCardList = handCardList.map(e => if(move.get.cards.contains(e.card)) e.copy(isSelected = true) else e.copy(isSelected = false))
+    revalidate()
+    repaint()
+  }
+
+  def updateRealPlayerObject(realPlayer: Player) = {
+    this.player = realPlayer
+    handToDisplay = GameUtilities.sortCards(player.hand.listOfCards)
+    numberOfCardsInHand = handToDisplay.size
+    maxAngle = maxHandSpreadAngle * numberOfCardsInHand/maxPossibleCardsInHand
+    angleList = -numberOfCardsInHand/2 to numberOfCardsInHand/2
+    handCardList = (handToDisplay zip angleList).zipWithIndex.map( {
+      case ((card, angleIndex), cardIndex) =>
+        HandCard(card, app, this, cardIndex, numberOfCardsInHand, angleIndex * (maxAngle / numberOfCardsInHand))
+    })
+    revalidate()
     repaint()
   }
 

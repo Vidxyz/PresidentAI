@@ -1,11 +1,9 @@
 package ui.panels
 
 import java.awt.Color
-import java.awt.geom.AffineTransform
 
-import game.Round
+import game.{GameUtilities, Round}
 import ui.models.RoundCard
-import utils.Consants._
 
 import scala.swing.{Dimension, Graphics2D, Panel, SimpleSwingApplication, Swing}
 
@@ -15,7 +13,7 @@ object CurrentRoundPanel {
   val backgroundColor = new Color(0,102, 0)
 }
 
-class CurrentRoundPanel(app: SimpleSwingApplication, round: Round) extends Panel {
+class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends Panel {
   import CurrentRoundPanel._
 
   background = backgroundColor
@@ -23,10 +21,7 @@ class CurrentRoundPanel(app: SimpleSwingApplication, round: Round) extends Panel
   minimumSize = new Dimension(width, height)
   border = Swing.LineBorder(Color.BLACK)
 
-  //  val handToDisplay = GameUtilities.sortCards(player.hand.listOfCards)
-  val handToDisplay = List(SEVEN_Club, SEVEN_Heart, NINE_Heart, NINE_Spade, TEN_Diamond, TEN_Club, QUEEN_Spade, QUEEN_Heart, KING_Spade,KING_Heart)
-
-  var affineTransform = new AffineTransform()
+  var handToDisplay = if(round == null) List.empty else round.movesPlayed.flatMap(move => move.cards)
   var roundCardUiList = handToDisplay.zipWithIndex.map({
     case (card, index) => RoundCard(card, app, index)
   })
@@ -36,4 +31,13 @@ class CurrentRoundPanel(app: SimpleSwingApplication, round: Round) extends Panel
     roundCardUiList.foreach(roundCard => roundCard.drawSprite(g))
   }
 
+  def updateRoundObject(newRound: Round) = {
+    this.round = newRound
+    handToDisplay = round.movesPlayed.flatMap(move => move.cards)
+    roundCardUiList = handToDisplay.zipWithIndex.map({
+      case (card, index) => RoundCard(card, app, index)
+    })
+    revalidate()
+    repaint()
+  }
 }

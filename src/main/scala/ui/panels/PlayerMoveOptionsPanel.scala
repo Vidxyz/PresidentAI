@@ -25,10 +25,16 @@ class PlayerMoveOptionsPanel(parent: BottomLayout) extends BorderPanel {
 
   layout(new Button("Pass") {
     preferredSize = new Dimension(width, height/3)
+    reactions += {
+      case ButtonClicked(_) => parent.updateInternalMoveAsUserPass()
+    }
   }) = BorderPanel.Position.Center
 
   layout(new Button("Play") {
     preferredSize = new Dimension(width, height/3)
+    reactions += {
+      case ButtonClicked(_) => parent.updateInternalMoveUsingSelectedCards()
+    }
   }) = BorderPanel.Position.South
 }
 

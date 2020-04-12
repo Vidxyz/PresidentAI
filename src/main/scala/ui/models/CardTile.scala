@@ -1,5 +1,6 @@
 package ui.models
 
+import java.awt.Color
 import java.awt.geom.{AffineTransform, Point2D}
 
 import game.Card
