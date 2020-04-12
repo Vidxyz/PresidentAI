@@ -7,7 +7,7 @@ import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
 class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends GridBagPanel {
 
-  val topPanel = new TopLayout(app, players.size >= 3, players.size >= 4, players.size >= 5)
+  val topPanel = new TopLayout(app, players.size >= 3, players.size >= 4, players.size >= 5, null)
   val middlePanel = new MiddleLayout(app, true, players.size == 6, null)
   val bottomPanel = new BottomLayout(app, players.head, null)
 
@@ -42,7 +42,16 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     repaint()
   }
 
+  def updateActivePlayerAvatar() = {
+    bottomPanel.updateActivePlayerAvatar()
+    middlePanel.updateActivePlayerAvatar()
+    topPanel.updateActivePlayerAvatar()
+    revalidate()
+    repaint()
+  }
+
   def updateRoundObject(round: Round) = {
+    topPanel.updateRoundObject(round)
     middlePanel.updateRoundObject(round)
     bottomPanel.updateRoundObject(round)
     revalidate()

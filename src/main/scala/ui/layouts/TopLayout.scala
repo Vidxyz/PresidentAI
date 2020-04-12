@@ -1,10 +1,12 @@
 package ui.layouts
 
+import game.Round
 import ui.panels.{ComputerPlayerAvatarPanel, EmptyFillerPanel}
+
 import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
 class TopLayout(app: SimpleSwingApplication, isPlayer3InGame: Boolean,
-                isPlayer4InGame: Boolean, isPlayer5InGame: Boolean) extends GridBagPanel {
+                isPlayer4InGame: Boolean, isPlayer5InGame: Boolean, var round: Round) extends GridBagPanel {
 
 
   val player3AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer3InGame)
@@ -45,5 +47,32 @@ class TopLayout(app: SimpleSwingApplication, isPlayer3InGame: Boolean,
   c.gridy = 0
   layout(player5AvatarPanel) = c
 
+
+  def updateActivePlayerAvatar() = {
+    round.currentPlayerTurn match {
+      case 2 =>
+        player3AvatarPanel.setPlayerAvatarStatus(true)
+        player4AvatarPanel.setPlayerAvatarStatus(false)
+        player5AvatarPanel.setPlayerAvatarStatus(false)
+      case 3 =>
+        player3AvatarPanel.setPlayerAvatarStatus(false)
+        player4AvatarPanel.setPlayerAvatarStatus(true)
+        player5AvatarPanel.setPlayerAvatarStatus(false)
+      case 4 =>
+        player3AvatarPanel.setPlayerAvatarStatus(false)
+        player4AvatarPanel.setPlayerAvatarStatus(false)
+        player5AvatarPanel.setPlayerAvatarStatus(true)
+      case _ =>
+        player3AvatarPanel.setPlayerAvatarStatus(false)
+        player4AvatarPanel.setPlayerAvatarStatus(false)
+        player5AvatarPanel.setPlayerAvatarStatus(false)
+    }
+    revalidate()
+    repaint()
+  }
+
+  def updateRoundObject(newRound: Round): Unit = {
+    this.round = newRound
+  }
 
 }

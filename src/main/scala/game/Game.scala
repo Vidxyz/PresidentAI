@@ -67,6 +67,9 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
       println(currentPlayerObject.name)
       println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
 
+      mainLayout.updateActivePlayerAvatar()
+      Thread.sleep(1000)
+
       val nextMove: Option[Move] =
       // If player has not skipped turn this round already, then they get to play
         if(!round.hasAlreadySkippedTurn(currentPlayerObject.name))

@@ -4,7 +4,7 @@ import game.Round
 import ui.panels.{ComputerPlayerAvatarPanel, CurrentRoundPanel}
 import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
-class MiddleLayout(app: SimpleSwingApplication, isPlayer2InGame: Boolean, isPlayer6InGame: Boolean, round: Round) extends GridBagPanel {
+class MiddleLayout(app: SimpleSwingApplication, isPlayer2InGame: Boolean, isPlayer6InGame: Boolean, var round: Round) extends GridBagPanel {
 
   val player2AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer2InGame)
   val currentRoundPanel = new CurrentRoundPanel(app, round)
@@ -30,8 +30,25 @@ class MiddleLayout(app: SimpleSwingApplication, isPlayer2InGame: Boolean, isPlay
   c.gridy = 0
   layout(player6AvatarPanel) = c
 
-  def updateRoundObject(round: Round) = {
-    currentRoundPanel.updateRoundObject(round)
+  def updateRoundObject(newRound: Round) = {
+    this.round = newRound
+    currentRoundPanel.updateRoundObject(newRound)
+    revalidate()
+    repaint()
+  }
+
+  def updateActivePlayerAvatar() = {
+    round.currentPlayerTurn match {
+      case 1 =>
+        player2AvatarPanel.setPlayerAvatarStatus(true)
+        player6AvatarPanel.setPlayerAvatarStatus(false)
+      case 5 =>
+        player2AvatarPanel.setPlayerAvatarStatus(false)
+        player6AvatarPanel.setPlayerAvatarStatus(true)
+      case _ =>
+        player2AvatarPanel.setPlayerAvatarStatus(false)
+        player6AvatarPanel.setPlayerAvatarStatus(false)
+    }
     revalidate()
     repaint()
   }

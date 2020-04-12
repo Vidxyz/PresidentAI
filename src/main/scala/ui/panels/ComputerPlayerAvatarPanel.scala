@@ -22,4 +22,10 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, isPlayerInGame: Boo
     if(isPlayerInGame) computerPlayerUi.drawSprite(g)
   }
 
+  def setPlayerAvatarStatus(currentTurn: Boolean): Unit = {
+    computerPlayerUi.updateActivePlayerAvatar(currentTurn)
+    revalidate()
+    repaint()
+  }
+
 }

@@ -9,7 +9,7 @@ import scala.swing.{Graphics2D, SimpleSwingApplication}
 case class ComputerPlayer(app: SimpleSwingApplication) {
   import ComputerPlayer._
 
-  val cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar2.png")).getImage
+  var cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
   var affineTransform = new AffineTransform()
 
   val xScale = width * 1.0d/cardImage.getWidth(null)
@@ -20,6 +20,11 @@ case class ComputerPlayer(app: SimpleSwingApplication) {
 
   def drawSprite(g: Graphics2D) = {
     g.drawImage(cardImage, affineTransform, null)
+  }
+
+  def updateActivePlayerAvatar(currentTurn: Boolean) = {
+    cardImage = if(currentTurn) new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_current_turn.png")).getImage
+                else new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
   }
 
 }
