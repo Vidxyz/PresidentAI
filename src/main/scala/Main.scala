@@ -1,8 +1,7 @@
-import game.{Game, GameUtilities, Hand, Joker, Move, NormalCard, Round, SpecialCard, WildCard}
-
+import game.{Game, GameUtilities, Move}
 import ui.MainLayout
 
-import scala.swing.{Frame, MainFrame, Panel, SimpleSwingApplication}
+import scala.swing.{Frame, MainFrame, SimpleSwingApplication, Swing}
 
 object Main extends SimpleSwingApplication {
 
@@ -18,22 +17,28 @@ object Main extends SimpleSwingApplication {
   //  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames, seed=13).toBuffer
   //  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames).toBuffer
   val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames)
-    .map(player => if(player.name == "Player1") player.copy(isRealPlayer = true) else player).toBuffer
+                          .map(player => if(player.name == "Player1") player.copy(isRealPlayer = true) else player).toBuffer
   val listOfPlayers2 = GameUtilities.generatePlayersAndDealHands(listOfNames2, seed=77).toBuffer
 
-  val game = Game(Move(List.empty))
-  println("The starting state is : " + game.startState)
-  println("\n")
-  game.play(listOfPlayers)
-
-
   lazy val mainLayout = new MainLayout(this, listOfPlayers.toList)
+
+  val thread = new Thread {
+    override def run {
+      val game = Game(Move(List.empty), mainLayout)
+      println("The starting state is : " + game.startState)
+      println("\n")
+      game.play(listOfPlayers)
+    }
+  }
+  thread.start()
+
 
   def top: Frame = new MainFrame {
     title = "President Card Game"
     contents = mainLayout
-    resizable = false
+    resizable = true
   }
+
 
 
 }

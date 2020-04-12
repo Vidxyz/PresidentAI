@@ -373,21 +373,29 @@ case object GameUtilities {
   def getNumberOfWildCardsInMove(validMove: Move): Int =
     validMove.cards.foldLeft(0)((total, card) => card match {case c: WildCard => total + 1; case _ => total})
 
+
   /*
   Returns the new hand comprising of cards from currentHand that do not appear in movePlayed
    */
   def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
     movePlayed.getOrElse(None) match {
+      case Move(List(Joker), _) => Hand(removeFirst(currentHand.listOfCards){_ == Joker})
       case move: Move => Hand(currentHand.listOfCards.filter(c => !move.cards.contains(c)))
       case None => currentHand
     }
   }
 
+  /* Removes first occurrence of element in list that satisfies predicate function */
+  private def removeFirst[T](list: List[T])(pred: (T) => Boolean): List[T] = {
+    val (before, atAndAfter) = list span (x => !pred(x))
+    before ::: atAndAfter.drop(1)
+  }
+
   /*
   Takes in a list of valid moves and assigns dangling wildcards optimal assumedValues
-  A Dangling Wilcards is defined as a 3 or a set of 3s being played by themself, instead of with a NormalCard
+  A Dangling Wildcards is defined as a 3 or a set of 3s being played by themselves, instead of with a NormalCard
   For example, upon entry into this function, a Move such as <3> or <3-3> would be assumed to be ACEs by default
-  However, this isnt optimal, and it only suffices for checking validity of move
+  However, this isn't optimal, and it only suffices for checking validity of move
   Ideally, the <3> or <3-3> would assume value based on gameState
   This comes in one of three scenarios :-
   1. It maintains its assumedValue (highest possible faceValue of card)
