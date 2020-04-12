@@ -1,9 +1,7 @@
 package ui.panels
 
 import java.awt.{Color, Dimension}
-
 import ui.models.ComputerPlayer
-
 import scala.swing.{Graphics2D, Panel, SimpleSwingApplication, Swing}
 
 object ComputerPlayerAvatarPanel {
@@ -11,7 +9,7 @@ object ComputerPlayerAvatarPanel {
   val height = 300
 }
 
-class ComputerPlayerAvatarPanel(app: SimpleSwingApplication) extends Panel {
+class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, isPlayerInGame: Boolean) extends Panel {
   import ComputerPlayerAvatarPanel._
 
   background = Color.white
@@ -21,7 +19,7 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication) extends Panel {
 
   override def paintComponent(g: Graphics2D): Unit = {
     super.paintComponent(g)
-    computerPlayerUi.drawSprite(g)
+    if(isPlayerInGame) computerPlayerUi.drawSprite(g)
   }
 
 }

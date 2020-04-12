@@ -3,13 +3,12 @@ package ui
 import game.{Move, Round}
 import player.Player
 import ui.layouts.{BottomLayout, MiddleLayout, TopLayout}
-
 import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
 class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends GridBagPanel {
 
-  val topPanel = new TopLayout(app, players)
-  val middlePanel = new MiddleLayout(app, players(1), players(1), null)
+  val topPanel = new TopLayout(app, players.size >= 3, players.size >= 4, players.size >= 5)
+  val middlePanel = new MiddleLayout(app, true, players.size == 6, null)
   val bottomPanel = new BottomLayout(app, players.head, null)
 
   val c: Constraints = new Constraints()

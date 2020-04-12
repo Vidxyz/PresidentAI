@@ -1,18 +1,17 @@
 package ui.layouts
 
-import player.Player
 import ui.panels.{ComputerPlayerAvatarPanel, EmptyFillerPanel}
-
 import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
-class TopLayout(app: SimpleSwingApplication, players: List[Player]) extends GridBagPanel {
+class TopLayout(app: SimpleSwingApplication, isPlayer3InGame: Boolean,
+                isPlayer4InGame: Boolean, isPlayer5InGame: Boolean) extends GridBagPanel {
 
 
-  val computer1 = new ComputerPlayerAvatarPanel(app)
+  val player3AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer3InGame)
   val filler1 = new EmptyFillerPanel
-  val computer2 = new ComputerPlayerAvatarPanel(app)
+  val player4AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer4InGame)
   val filler2 = new EmptyFillerPanel
-  val computer3 = new ComputerPlayerAvatarPanel(app)
+  val player5AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer5InGame)
 
   val c: Constraints = new Constraints()
 
@@ -20,7 +19,7 @@ class TopLayout(app: SimpleSwingApplication, players: List[Player]) extends Grid
   c.weightx = 1
   c.gridx = 0
   c.gridy = 0
-  layout(computer1) = c
+  layout(player3AvatarPanel) = c
 
   c.fill = GridBagPanel.Fill.Horizontal
   c.weightx = 1
@@ -32,7 +31,7 @@ class TopLayout(app: SimpleSwingApplication, players: List[Player]) extends Grid
   c.weightx = 1
   c.gridx = 2
   c.gridy = 0
-  layout(computer2) = c
+  layout(player4AvatarPanel) = c
 
   c.fill = GridBagPanel.Fill.Horizontal
   c.weightx = 1
@@ -44,7 +43,7 @@ class TopLayout(app: SimpleSwingApplication, players: List[Player]) extends Grid
   c.weightx = 1
   c.gridx = 4
   c.gridy = 0
-  layout(computer3) = c
+  layout(player5AvatarPanel) = c
 
 
 }

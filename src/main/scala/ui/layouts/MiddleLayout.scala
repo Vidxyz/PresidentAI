@@ -1,16 +1,14 @@
 package ui.layouts
 
 import game.Round
-import player.Player
 import ui.panels.{ComputerPlayerAvatarPanel, CurrentRoundPanel}
-
 import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
-class MiddleLayout(app: SimpleSwingApplication, player1: Player, player2: Player, round: Round) extends GridBagPanel {
+class MiddleLayout(app: SimpleSwingApplication, isPlayer2InGame: Boolean, isPlayer6InGame: Boolean, round: Round) extends GridBagPanel {
 
-  val player1AvatarPanel = new ComputerPlayerAvatarPanel(app)
+  val player2AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer2InGame)
   val currentRoundPanel = new CurrentRoundPanel(app, round)
-  val player2AvatarPanel = new ComputerPlayerAvatarPanel(app)
+  val player6AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer6InGame)
 
   val c: Constraints = new Constraints()
 
@@ -18,7 +16,7 @@ class MiddleLayout(app: SimpleSwingApplication, player1: Player, player2: Player
   c.weightx = 1
   c.gridx = 0
   c.gridy = 0
-  layout(player1AvatarPanel) = c
+  layout(player2AvatarPanel) = c
 
   c.fill = GridBagPanel.Fill.Horizontal
   c.weightx = 1
@@ -30,7 +28,7 @@ class MiddleLayout(app: SimpleSwingApplication, player1: Player, player2: Player
   c.weightx = 1
   c.gridx = 2
   c.gridy = 0
-  layout(player2AvatarPanel) = c
+  layout(player6AvatarPanel) = c
 
   def updateRoundObject(round: Round) = {
     currentRoundPanel.updateRoundObject(round)

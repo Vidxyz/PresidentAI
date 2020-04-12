@@ -2,7 +2,7 @@ package game
 
 import game.FaceValue._
 import game.Suits._
-import player.{Player, PlayerIndicators}
+import player.{Player}
 import utils.Consants
 import utils.Consants._
 
@@ -376,7 +376,7 @@ case object GameUtilities {
 
   /*
   Returns the new hand comprising of cards from currentHand that do not appear in movePlayed
-   */
+   */ // todo - add a unit test for the new match case
   def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
     movePlayed.getOrElse(None) match {
       case Move(List(Joker), _) => Hand(removeFirst(currentHand.listOfCards){_ == Joker})
