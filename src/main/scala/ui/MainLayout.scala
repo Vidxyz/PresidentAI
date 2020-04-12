@@ -57,4 +57,12 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     revalidate()
     repaint()
   }
+
+  def updatePlayerCompletion(indexOfCompletedPlayer: Int) = {
+    topPanel.updatePlayerCompletion(indexOfCompletedPlayer)
+    middlePanel.updatePlayerCompletion(indexOfCompletedPlayer)
+    bottomPanel.updatePlayerCompletion(indexOfCompletedPlayer)
+    revalidate()
+    repaint()
+  }
 }

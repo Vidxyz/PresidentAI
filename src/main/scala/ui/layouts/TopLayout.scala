@@ -71,6 +71,17 @@ class TopLayout(app: SimpleSwingApplication, isPlayer3InGame: Boolean,
     repaint()
   }
 
+  def updatePlayerCompletion(indexOfCompletedPlayer: Int) = {
+    indexOfCompletedPlayer match {
+      case 2 => player3AvatarPanel.setPlayerAvatarToComplete()
+      case 3 => player4AvatarPanel.setPlayerAvatarToComplete()
+      case 4 => player5AvatarPanel.setPlayerAvatarToComplete()
+      case _ =>
+    }
+    revalidate()
+    repaint()
+  }
+
   def updateRoundObject(newRound: Round): Unit = {
     this.round = newRound
   }

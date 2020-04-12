@@ -27,6 +27,10 @@ case class ComputerPlayer(app: SimpleSwingApplication) {
                 else new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
   }
 
+  def setPlayerAvatarToComplete() = {
+    cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_complete.png")).getImage
+  }
+
 }
 
 case object ComputerPlayer {

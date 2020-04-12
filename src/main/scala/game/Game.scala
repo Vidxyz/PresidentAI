@@ -119,6 +119,7 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn,
           listOfPlayers.toList, round.updatedRoundPassStatus(currentPlayerObject.name), round.movesPlayed)
         playerCompletionOrder += currentPlayerObject.name
+        mainLayout.updatePlayerCompletion(round.currentPlayerTurn)
       }
 
 

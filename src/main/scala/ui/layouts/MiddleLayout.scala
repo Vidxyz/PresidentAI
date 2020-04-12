@@ -53,4 +53,14 @@ class MiddleLayout(app: SimpleSwingApplication, isPlayer2InGame: Boolean, isPlay
     repaint()
   }
 
+  def updatePlayerCompletion(indexOfCompletedPlayer: Int) = {
+    indexOfCompletedPlayer match {
+      case 1 => player2AvatarPanel.setPlayerAvatarToComplete()
+      case 5 => player6AvatarPanel.setPlayerAvatarToComplete()
+      case _ =>
+    }
+    revalidate()
+    repaint()
+  }
+
 }

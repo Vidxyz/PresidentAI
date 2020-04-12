@@ -66,6 +66,10 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     // Do nothing for now
   }
 
+  def updatePlayerCompletion(indexOfCompletedPlayer: Int) = {
+    // Do nothing for now
+  }
+
   def highlightPossibleCards() = {
     val p = realPlayer.copy(isRealPlayer = false)
     val nextMove = p.playNextMove(p.hand, round.gameState)

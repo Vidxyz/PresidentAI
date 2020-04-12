@@ -9,7 +9,7 @@ object ComputerPlayerAvatarPanel {
   val height = 300
 }
 
-class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, isPlayerInGame: Boolean) extends Panel {
+class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, isPlayerInGame: Boolean, var hasPlayerCompleted: Boolean = false) extends Panel {
   import ComputerPlayerAvatarPanel._
 
   background = Color.white
@@ -23,7 +23,16 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, isPlayerInGame: Boo
   }
 
   def setPlayerAvatarStatus(currentTurn: Boolean): Unit = {
-    computerPlayerUi.updateActivePlayerAvatar(currentTurn)
+    if(!hasPlayerCompleted) {
+      computerPlayerUi.updateActivePlayerAvatar(currentTurn)
+      revalidate()
+      repaint()
+    }
+  }
+
+  def setPlayerAvatarToComplete(): Unit = {
+    this.hasPlayerCompleted = true
+    computerPlayerUi.setPlayerAvatarToComplete()
     revalidate()
     repaint()
   }
