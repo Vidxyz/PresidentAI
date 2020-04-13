@@ -4,8 +4,6 @@ import game.FaceValue._
 import game.Suits._
 import game.{Card, Hand, Joker, NormalCard, SpecialCard, Value, WildCard}
 import javax.swing.ImageIcon
-import ui.models.CardTile
-import ui.panels.PlayerHandPanel
 
 import scala.swing.SimpleSwingApplication
 
