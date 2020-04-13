@@ -7,8 +7,10 @@ import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
 class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends GridBagPanel {
 
-  val topPanel = new TopLayout(app, players.size >= 3, players.size >= 4, players.size >= 5, null)
-  val middlePanel = new MiddleLayout(app, true, players.size == 6, null)
+  val topPanel = new TopLayout(app, if(players.size >= 3) players(2).hand.listOfCards else List.empty,
+    if(players.size >= 4) players(3).hand.listOfCards else List.empty,
+    if(players.size >= 5) players(4).hand.listOfCards else List.empty, null)
+  val middlePanel = new MiddleLayout(app, players(1).hand.listOfCards, if(players.size == 6) players.last.hand.listOfCards else List.empty, null)
   val bottomPanel = new BottomLayout(app, players.head, null)
 
   val c: Constraints = new Constraints()
@@ -36,8 +38,10 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     bottomPanel.getUserInputMove()
   }
 
-  def updateRealPlayerObject(realPlayer: Player) = {
-    bottomPanel.updateRealPlayerObject(realPlayer)
+  def updatePlayerObjects(players: List[Player]) = {
+    topPanel.updatePlayers(players)
+    middlePanel.updatePlayers(players)
+    bottomPanel.updateRealPlayerObject(players.head)
     revalidate()
     repaint()
   }

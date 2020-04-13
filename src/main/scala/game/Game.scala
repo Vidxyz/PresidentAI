@@ -127,9 +127,7 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
 
 
       // Updating player object so that the hand is refreshed
-      if(currentPlayerObject.isRealPlayer) {
-          mainLayout.updateRealPlayerObject(listOfPlayers.head)
-      }
+      mainLayout.updatePlayerObjects(listOfPlayers.toList)
       // Updating round object so that the gameState is accurately reflected
       mainLayout.updateRoundObject(round)
 

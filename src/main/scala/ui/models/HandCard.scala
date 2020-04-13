@@ -31,7 +31,7 @@ class Rectangle3d(xVal: Int, yVal: Int, val zVal: Int, width: Int,
 case object HandCard {
   val width = 120
   val height = 200
-  private val cardBaseXCoordinate = (600 - width/2) / 2
+  private val cardBaseXCoordinate = (PlayerHandPanel.width - width/2) / 2
   private val cardBaseYCoordinate = 10
 
   def getTransformedCoordinatesForCardInHandView(baseX: Int, baseY: Int, cardIndexNumber: Int, numberOfCardsInHand: Int): (Double, Double) = {

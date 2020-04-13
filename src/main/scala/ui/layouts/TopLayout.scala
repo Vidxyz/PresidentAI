@@ -1,19 +1,20 @@
 package ui.layouts
 
-import game.Round
+import game.{Card, Round}
+import player.Player
 import ui.panels.{ComputerPlayerAvatarPanel, EmptyFillerPanel}
 
 import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
-class TopLayout(app: SimpleSwingApplication, isPlayer3InGame: Boolean,
-                isPlayer4InGame: Boolean, isPlayer5InGame: Boolean, var round: Round) extends GridBagPanel {
+class TopLayout(app: SimpleSwingApplication, player3Hand: List[Card],
+                player4Hand: List[Card], player5Hand: List[Card], var round: Round) extends GridBagPanel {
 
 
-  val player3AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer3InGame)
+  val player3AvatarPanel = new ComputerPlayerAvatarPanel(app, player3Hand)
   val filler1 = new EmptyFillerPanel
-  val player4AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer4InGame)
+  val player4AvatarPanel = new ComputerPlayerAvatarPanel(app, player4Hand)
   val filler2 = new EmptyFillerPanel
-  val player5AvatarPanel = new ComputerPlayerAvatarPanel(app, isPlayer5InGame)
+  val player5AvatarPanel = new ComputerPlayerAvatarPanel(app, player5Hand)
 
   val c: Constraints = new Constraints()
 
@@ -93,6 +94,12 @@ class TopLayout(app: SimpleSwingApplication, isPlayer3InGame: Boolean,
       case 5 => player5AvatarPanel.displayUserHasPassedOnRound()
       case _ =>
     }
+  }
+
+  def updatePlayers(players: List[Player]) = {
+    if(players.size >= 3) player3AvatarPanel.updatePlayerObject(players(2))
+    if(players.size >= 4) player4AvatarPanel.updatePlayerObject(players(3))
+    if(players.size >= 5) player5AvatarPanel.updatePlayerObject(players(4))
   }
 
 }

@@ -3,6 +3,7 @@ package ui.models
 import java.awt.geom.AffineTransform
 
 import javax.swing.ImageIcon
+import ui.panels.ComputerPlayerAvatarPanel
 
 import scala.swing.{Graphics2D, SimpleSwingApplication}
 
@@ -38,8 +39,8 @@ case class ComputerPlayer(app: SimpleSwingApplication) {
 }
 
 case object ComputerPlayer {
-  val width = 150
-  val height = 150
-  private val cardBaseXCoordinate = 75
-  private val cardBaseYCoordinate = 75
+  val width = ComputerPlayerAvatarPanel.width / 2
+  val height = ComputerPlayerAvatarPanel.height / 2
+  private val cardBaseXCoordinate =  width / 2
+  private val cardBaseYCoordinate = 25
 }
