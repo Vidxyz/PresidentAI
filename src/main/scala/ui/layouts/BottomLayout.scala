@@ -1,6 +1,6 @@
 package ui.layouts
 
-import game.{Move, Round}
+import game.{GameUtilities, Move, Round}
 import player.Player
 import ui.models.{CardTile, HandCard}
 import ui.panels.{PlayerCardTilePanel, PlayerHandPanel, PlayerMoveOptionsPanel}
@@ -12,7 +12,7 @@ This holds the PlayerHandPanel, PlayerCardListPanel, PlayerMoveOptionsPanel
  */
 class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var round: Round) extends GridBagPanel {
 
-  var playerCardListPanel = new PlayerCardTilePanel(app, realPlayer, this)
+  var playerCardTilePanel = new PlayerCardTilePanel(app, realPlayer, this)
   var playerHandPanel = new PlayerHandPanel(app, realPlayer, this)
   val playerMoveOptionsPanel = new PlayerMoveOptionsPanel(this)
 
@@ -31,7 +31,7 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     c.weightx = 1
     c.gridx = 0
     c.gridy = 0
-    layout(playerCardListPanel) = c
+    layout(playerCardTilePanel) = c
   }
 
   def setUpPlayerHandPanel = {
@@ -51,7 +51,7 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
   }
 
   def updateCardSelectStatusViaHandCard(handCardUiList: List[HandCard]) = {
-    playerCardListPanel.updateCardSelectStatus(handCardUiList)
+    playerCardTilePanel.updateCardSelectStatus(handCardUiList)
   }
 
   def updateCardSelectStatusViaCardTile(cardTileUiList: List[CardTile]) = {
@@ -75,7 +75,7 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     val nextMove = p.playNextMove(p.hand, round.gameState)
     if(nextMove.isDefined) {
       playerHandPanel.setCardsAsSelected(nextMove)
-      playerCardListPanel.setCardsAsSelected(nextMove)
+      playerCardTilePanel.setCardsAsSelected(nextMove)
     }
   }
 
@@ -84,9 +84,27 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     selectedMove = None
   }
 
-  def updateInternalMoveUsingSelectedCards() = {
-    isMoveSelected = true
-    selectedMove = Some(Move(playerCardListPanel.cardTileList.filter(tile => tile.isSelected).map(tile => tile.card)))
+  //  cannot accept this when no cards are selected, or when invalid move is selected
+  def updateInternalMoveUsingSelectedCards: Unit = {
+    import scala.swing.Dialog._
+    if(!playerCardTilePanel.cardTileList.exists(tile => tile.isSelected)) {
+      showMessage(this, "Please select a card(s) to play", "No Cards Selected")
+      return
+    }
+
+    val unsanitizedMove = Move(playerCardTilePanel.cardTileList.filter(tile => tile.isSelected).map(tile => tile.card))
+    selectedMove = Some(GameUtilities.fixWildCardAssumedValueInMove(unsanitizedMove, round.gameState))
+
+    if(GameUtilities.isLegalMove(selectedMove.get) && GameUtilities.isValidMove(selectedMove.get, round.gameState)) isMoveSelected = true
+    else {
+      showMessage(this, "Please select cards to make a valid move, or pass", "Invalid Move")
+      resetSelectionOnCards
+    }
+  }
+
+  def resetSelectionOnCards: Unit = {
+    playerCardTilePanel.resetSelectionOnCards
+    playerHandPanel.resetSelectionOnCards
   }
 
   def getUserInputMove(): Option[Move] = {
@@ -99,12 +117,12 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
 
   def updateRealPlayerObject(newPlayer: Player) = {
     this.realPlayer = newPlayer
-    playerCardListPanel.updateRealPlayerObject(newPlayer)
+    playerCardTilePanel.updateRealPlayerObject(newPlayer)
     playerHandPanel.updateRealPlayerObject(newPlayer)
     playerHandPanel.revalidate()
     playerHandPanel.repaint()
-    playerCardListPanel.revalidate()
-    playerCardListPanel.repaint()
+    playerCardTilePanel.revalidate()
+    playerCardTilePanel.repaint()
     revalidate()
     repaint()
   }

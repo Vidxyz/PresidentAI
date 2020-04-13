@@ -88,4 +88,10 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
     repaint()
   }
 
+  def resetSelectionOnCards: Unit = {
+    handCardList = handCardList.map(handCard => handCard.copy(isSelected = false))
+    revalidate()
+    repaint()
+  }
+
 }

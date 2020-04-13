@@ -286,6 +286,11 @@ class DevelopmentTest extends FunSpec {
       println(GameUtilities.getCardFromCardStrings("3(4)", "diamond"))
     }
 
+    it("Is a new function scenario") {
+      val move = Move(List(TWO_Heart, Joker))
+      println(GameUtilities.isLegalMove(move))
+    }
+
   }
 
 }

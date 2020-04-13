@@ -208,6 +208,7 @@ case object GameUtilities {
                   .filter(move => isValidMove(move, gameState)))
   }
 
+  /* Assumption : All cards in move are the same, except in the case of 3s being used as a WildCard */
   def isValidMove(move: Move, gameState: Move): Boolean = {
     if(move.cards.isEmpty) return false
     if(gameState.cards.isEmpty) return true
@@ -236,6 +237,26 @@ case object GameUtilities {
     // 2. Move is comprised of NormalCard(s) + WildCard(s)
     // 3. Move is comprised of all WildCard(s)
     else checkIfBetter(move, gameState)
+  }
+
+  /*
+  A legal move is defined as one of the following
+  1. Comprised entirely of Jokers
+  2. Comprised entirely of SpecialCards
+  3. Comprised entirely of NormalCards
+  4. Comprised entirely of WildCards
+  5. Comprised of both WildCards and NormalCards
+  6. For cases 3-5, all faceValues/assumedValues are the same
+  todo - add unit tests
+   */
+  def isLegalMove(move: Move): Boolean = {
+    if(move.cards.forall(card => card == Joker)) true
+    else if(move.cards.forall(card => card match { case s:SpecialCard => true; case _ => false})) true
+    else move.cards.forall(card => card match {
+        case n:NormalCard => n.intValue == move.moveFaceValue
+        case w:WildCard => w.assumedValue == move.moveFaceValue
+        case _ => false
+    })
   }
 
   // Returns true if move1 is "better" than move2 :- Higher value in numberToCardMap
@@ -344,7 +365,7 @@ case object GameUtilities {
                 case w: WildCard => true
                 case e => false })) {
                 listOfCard.map {
-                  case w: WildCard => w.copy(assumedValue = NormalCard(ACE, Spade).intValue)
+                  case w: WildCard => w.copy(assumedValue = ACE_Spade.intValue)
                   case e => e
                 }
               }
@@ -429,6 +450,20 @@ case object GameUtilities {
           else validMove
         case _ => validMove
       }
+    }
+  }
+
+  //todo - add unit tests
+  def fixWildCardAssumedValueInMove(move: Move, gameState: Move): Move = {
+    // Return move, if no wildcards are present in it
+    if(!move.cards.exists(card => card match {case w:WildCard => true; case _ => false})) move
+    else {
+      if(move.cards.forall(card => card match {case w:WildCard => true; case _ => false})) {
+        val modifiedMove = Move(move.cards.map({case w:WildCard => w.copy(assumedValue = ACE_Spade.intValue); case e => e}))
+        getMoveWithOptimalWildCardValue(modifiedMove, gameState)
+      }
+      else
+        Move(move.cards.map({case w:WildCard => w.copy(assumedValue = move.cards.last.intValue); case e => e}))
     }
   }
 

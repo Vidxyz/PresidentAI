@@ -73,4 +73,10 @@ class PlayerCardTilePanel(app: SimpleSwingApplication, var player: Player, paren
     repaint()
   }
 
+  def resetSelectionOnCards: Unit = {
+    cardTileList = cardTileList.map(cardTile => cardTile.copy(isSelected = false))
+    revalidate()
+    repaint()
+  }
+
 }
