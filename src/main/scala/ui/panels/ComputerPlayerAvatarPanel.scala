@@ -67,9 +67,11 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: Lis
   }
 
   def resetUserPassStatus: Unit = {
-    computerPlayer.resetUserPassStatus
-    revalidate()
-    repaint()
+    if(!hasPlayerCompleted) {
+      computerPlayer.resetUserPassStatus
+      revalidate()
+      repaint()
+    }
   }
 
   def updatePlayerObject(player: Player): Unit = {
