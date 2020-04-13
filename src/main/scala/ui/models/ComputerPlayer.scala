@@ -50,5 +50,5 @@ case object ComputerPlayer {
   val width = ComputerPlayerAvatarPanel.width / 2
   val height = ComputerPlayerAvatarPanel.height / 2
   private val cardBaseXCoordinate =  width / 2
-  private val cardBaseYCoordinate = 25
+  private val cardBaseYCoordinate = 5
 }

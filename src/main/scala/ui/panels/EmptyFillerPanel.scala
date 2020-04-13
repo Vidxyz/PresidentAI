@@ -5,8 +5,8 @@ import java.awt.Color
 import scala.swing.{Dimension, Panel, Swing}
 
 object EmptyFillerPanel {
-  val width  = 250
-  val height = 300
+  val width  = 200
+  val height = 200
   val backgroundColor = new Color(255, 219, 172)
 }
 

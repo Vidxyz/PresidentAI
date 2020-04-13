@@ -10,8 +10,8 @@ import utils.Consants._
 import scala.swing.{Graphics2D, Panel, SimpleSwingApplication, Swing}
 
 object ComputerPlayerAvatarPanel {
-  val width = 300
-  val height = 300
+  val width = 200
+  val height = 200
   val maxHandSpreadAngle = 180d
   val maxPossibleCardsInHand = 27
   val backgroundColor = new Color(255, 219, 172)

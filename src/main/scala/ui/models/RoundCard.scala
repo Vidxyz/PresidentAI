@@ -3,6 +3,7 @@ package ui.models
 import java.awt.geom.AffineTransform
 
 import game.Card
+import ui.panels.CurrentRoundPanel
 import utils.Consants._
 
 import scala.swing.{Graphics2D, SimpleSwingApplication}
@@ -29,10 +30,10 @@ case class RoundCard(card: Card, app: SimpleSwingApplication, cardIndexNumber: I
 }
 
 case object RoundCard {
-  val width = 144
-  val height = 240
+  val width = 180
+  val height = 300
   private val cardBaseXCoordinate = width
-  private val cardBaseYCoordinate = 30
+  private val cardBaseYCoordinate = (CurrentRoundPanel.height - height)/2
 
   def getTransformedCoordinatesForCardInRoundView(baseX: Int, baseY: Int, cardIndexNumber: Int): (Int, Int) = {
     (baseX + (25 * cardIndexNumber), baseY)

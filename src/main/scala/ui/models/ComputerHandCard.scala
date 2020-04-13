@@ -1,18 +1,18 @@
 package ui.models
 
-import java.awt.geom.{AffineTransform, Point2D}
+import java.awt.geom.{AffineTransform}
 
 import game.Card
 import javax.swing.ImageIcon
-import ui.panels.{ComputerPlayerAvatarPanel, PlayerHandPanel}
+import ui.panels.ComputerPlayerAvatarPanel
 import utils.Consants
 
-import scala.swing.{Graphics2D, Rectangle, SimpleSwingApplication}
+import scala.swing.{Graphics2D, SimpleSwingApplication}
 
 case object ComputerHandCard {
-  val width = 48
-  val height = 80
-  private val cardBaseXCoordinate = (ComputerPlayerAvatarPanel.width - width/2) / 2
+  val width = 36
+  val height = 60
+  private val cardBaseXCoordinate = ((ComputerPlayerAvatarPanel.width - width) / 2)
   private val cardBaseYCoordinate = (ComputerPlayerAvatarPanel.height / 2) + 50
 
   def getTransformedCoordinatesForCardInHandView(baseX: Int, baseY: Int, cardIndexNumber: Int, numberOfCardsInHand: Int): (Double, Double) = {
@@ -20,7 +20,7 @@ case object ComputerHandCard {
     val maxAngle = ComputerPlayerAvatarPanel.maxHandSpreadAngle * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
     val minimumAngle = maxAngle/numberOfCardsInHand
     val currentAngle = (cardIndexNumber * minimumAngle) - maxAngle
-    (radius * math.sin(scala.math.toRadians(currentAngle)) + baseX, radius * -scala.math.cos(scala.math.toRadians(currentAngle)) + baseY*.92  - radius + 20)
+    (radius * math.sin(scala.math.toRadians(currentAngle)) + baseX, radius * -scala.math.cos(scala.math.toRadians(currentAngle)) + baseY*.88  - radius)
   }
 }
 

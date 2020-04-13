@@ -5,12 +5,13 @@ import java.awt.Color
 import game.{GameUtilities, Round}
 import ui.models.RoundCard
 
-import scala.swing.{Dimension, Graphics2D, Panel, SimpleSwingApplication, Swing}
+import scala.swing.{Dimension, Font, Graphics2D, Panel, SimpleSwingApplication, Swing}
 
 object CurrentRoundPanel {
-  val width = 800
-  val height = 300
+  val width = 1000
+  val height = 400
   val backgroundColor = new Color(0,102, 0)
+  val fontSize = 17
 }
 
 class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends Panel {
@@ -30,6 +31,7 @@ class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends P
     super.paintComponent(g)
     roundCardUiList.foreach(roundCard => roundCard.drawSprite(g))
     g.setColor(Color.white)
+    g.setFont(Font("TimesRoman", Font.Plain, fontSize))
     g.drawString(s"# Moves Played : ${round.movesPlayed.size}", 5, 50)
   }
 

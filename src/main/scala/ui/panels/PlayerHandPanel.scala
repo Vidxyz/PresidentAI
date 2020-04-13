@@ -69,7 +69,7 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
     if(hasPassedOnRound) {
       g.setColor(Color.red)
       g.setFont(Font("TimesRoman", Font.Plain, fontSize*2/3))
-      g.drawString("Pass", 25, 25)
+      g.drawString("Pass", 25, fontSize)
     }
   }
 

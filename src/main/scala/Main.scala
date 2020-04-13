@@ -7,6 +7,7 @@ object Main extends SimpleSwingApplication {
 
 //  val listOfNames = List("Player1" )
 //  val listOfNames = List("Player1", "Player2" )
+//  val listOfNames = List("Player1", "Player2", "Player3")
 //  val listOfNames = List("Player1", "Player2", "Player3", "Player4")
   val listOfNames = List("Player1", "Player2", "Player3", "Player4", "p5", "p6")
 //  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "Player5", "Player6", "Player7", "Player8")

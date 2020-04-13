@@ -12,8 +12,10 @@ class TopLayout(app: SimpleSwingApplication, player3Hand: List[Card],
 
   val player3AvatarPanel = new ComputerPlayerAvatarPanel(app, player3Hand)
   val filler1 = new EmptyFillerPanel
+  val filler12 = new EmptyFillerPanel
   val player4AvatarPanel = new ComputerPlayerAvatarPanel(app, player4Hand)
   val filler2 = new EmptyFillerPanel
+  val filler22 = new EmptyFillerPanel
   val player5AvatarPanel = new ComputerPlayerAvatarPanel(app, player5Hand)
 
   val c: Constraints = new Constraints()
@@ -34,17 +36,29 @@ class TopLayout(app: SimpleSwingApplication, player3Hand: List[Card],
   c.weightx = 1
   c.gridx = 2
   c.gridy = 0
-  layout(player4AvatarPanel) = c
+  layout(filler12) = c
 
   c.fill = GridBagPanel.Fill.Horizontal
   c.weightx = 1
   c.gridx = 3
   c.gridy = 0
-  layout(filler2) = c
+  layout(player4AvatarPanel) = c
 
   c.fill = GridBagPanel.Fill.Horizontal
   c.weightx = 1
   c.gridx = 4
+  c.gridy = 0
+  layout(filler2) = c
+
+  c.fill = GridBagPanel.Fill.Horizontal
+  c.weightx = 1
+  c.gridx = 5
+  c.gridy = 0
+  layout(filler22) = c
+
+  c.fill = GridBagPanel.Fill.Horizontal
+  c.weightx = 1
+  c.gridx = 6
   c.gridy = 0
   layout(player5AvatarPanel) = c
 
