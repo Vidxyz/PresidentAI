@@ -19,21 +19,21 @@ class PlayerMoveOptionsPanel(parent: BottomLayout) extends BorderPanel {
   layout(new Button("Hint") {
     preferredSize = new Dimension(width, height/3)
     reactions += {
-      case ButtonClicked(_) => parent.highlightPossibleCards()
+      case ButtonClicked(_) => if(parent.getIfRealPlayerTurn) parent.highlightPossibleCards
     }
   }) = BorderPanel.Position.North
 
   layout(new Button("Pass") {
     preferredSize = new Dimension(width, height/3)
     reactions += {
-      case ButtonClicked(_) => parent.updateInternalMoveAsUserPass()
+      case ButtonClicked(_) => if(parent.getIfRealPlayerTurn) parent.updateInternalMoveAsUserPass
     }
   }) = BorderPanel.Position.Center
 
   layout(new Button("Play") {
     preferredSize = new Dimension(width, height/3)
     reactions += {
-      case ButtonClicked(_) => parent.updateInternalMoveUsingSelectedCards()
+      case ButtonClicked(_) => if(parent.getIfRealPlayerTurn) parent.updateInternalMoveUsingSelectedCards
     }
   }) = BorderPanel.Position.South
 }

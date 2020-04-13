@@ -72,7 +72,7 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     // Do nothing for now
   }
 
-  def highlightPossibleCards() = {
+  def highlightPossibleCards = {
     val p = realPlayer.copy(isRealPlayer = false)
     val nextMove = p.playNextMove(p.hand, round.gameState)
     if(nextMove.isDefined) {
@@ -81,7 +81,7 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     }
   }
 
-  def updateInternalMoveAsUserPass() = {
+  def updateInternalMoveAsUserPass = {
     isMoveSelected = true
     selectedMove = None
   }
@@ -142,5 +142,9 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     playerHandPanel.resetUserPassStatus
     revalidate()
     repaint()
+  }
+
+  def getIfRealPlayerTurn: Boolean = {
+    round.currentPlayerTurn == 0
   }
 }
