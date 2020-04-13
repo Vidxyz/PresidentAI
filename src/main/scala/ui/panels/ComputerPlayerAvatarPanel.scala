@@ -60,8 +60,14 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: Lis
     repaint()
   }
 
-  def displayUserHasPassedOnRound(): Unit = {
-    computerPlayer.displayUserHasPassedOnRound()
+  def updateUserHasPassedOnRound(): Unit = {
+    computerPlayer.updateUserHasPassedOnRound()
+    revalidate()
+    repaint()
+  }
+
+  def resetUserPassStatus: Unit = {
+    computerPlayer.resetUserPassStatus
     revalidate()
     repaint()
   }

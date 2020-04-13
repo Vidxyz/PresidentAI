@@ -61,6 +61,7 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
         round = Round(currentState, round.lastMovePlayedBy, nextPlayerIndex,
           listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
         mainLayout.updateRoundObject(round)
+        mainLayout.resetUserPassStatus
       }
 
       val currentPlayerObject = listOfPlayers(round.currentPlayerTurn)
@@ -77,7 +78,7 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
           else currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
         else {
           println("PASSED ALREADY")
-          mainLayout.displayUserHasPassedOnRound(round.currentPlayerTurn)
+          mainLayout.updateUserHasPassedOnRound(round.currentPlayerTurn)
           None
         }
       println("The next move is : " + nextMove)
@@ -93,7 +94,7 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
         val newRoundPassStatus = round.roundPassStatus + (currentPlayerObject.name -> true)
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, newRoundPassStatus, round.movesPlayed)
         // Make call to update UI to draw PASS here
-        mainLayout.displayUserHasPassedOnRound(round.currentPlayerTurn)
+        mainLayout.updateUserHasPassedOnRound(round.currentPlayerTurn)
       }
       mainLayout.updateRoundObject(round)
 
@@ -102,8 +103,10 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
 
       // Reset roundPassStatus list if currentState has become Empty, and reset roundMovesPlayed as well
       // This can only happen when it is a suit-burn/2-burn/game.Joker/All-pass right now
-      if(currentState.isEmpty)
+      if(currentState.isEmpty) {
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
+        mainLayout.resetUserPassStatus
+      }
       else
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus, round.movesPlayed)
 

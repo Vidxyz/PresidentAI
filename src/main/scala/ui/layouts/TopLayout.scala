@@ -87,13 +87,23 @@ class TopLayout(app: SimpleSwingApplication, player3Hand: List[Card],
     this.round = newRound
   }
 
-  def displayUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
+  def updateUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
     indexOfPassedPlayer match {
-      case 2 => player3AvatarPanel.displayUserHasPassedOnRound()
-      case 3 => player4AvatarPanel.displayUserHasPassedOnRound()
-      case 5 => player5AvatarPanel.displayUserHasPassedOnRound()
+      case 2 => player3AvatarPanel.updateUserHasPassedOnRound()
+      case 3 => player4AvatarPanel.updateUserHasPassedOnRound()
+      case 4 => player5AvatarPanel.updateUserHasPassedOnRound()
       case _ =>
     }
+    revalidate()
+    repaint()
+  }
+
+  def resetUserPassStatus = {
+    player3AvatarPanel.resetUserPassStatus
+    player4AvatarPanel.resetUserPassStatus
+    player5AvatarPanel.resetUserPassStatus
+    revalidate()
+    repaint()
   }
 
   def updatePlayers(players: List[Player]) = {

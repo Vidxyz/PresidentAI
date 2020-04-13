@@ -70,10 +70,18 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     repaint()
   }
 
-  def displayUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
-    topPanel.displayUserHasPassedOnRound(indexOfPassedPlayer)
-    middlePanel.displayUserHasPassedOnRound(indexOfPassedPlayer)
-    bottomPanel.displayUserHasPassedOnRound(indexOfPassedPlayer)
+  def updateUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
+    topPanel.updateUserHasPassedOnRound(indexOfPassedPlayer)
+    middlePanel.updateUserHasPassedOnRound(indexOfPassedPlayer)
+    bottomPanel.updateUserHasPassedOnRound(indexOfPassedPlayer)
+  }
+
+  def resetUserPassStatus = {
+    topPanel.resetUserPassStatus
+    middlePanel.resetUserPassStatus
+    bottomPanel.resetUserPassStatus
+    revalidate()
+    repaint()
   }
 
 }

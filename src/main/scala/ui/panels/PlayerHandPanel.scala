@@ -20,7 +20,7 @@ object PlayerHandPanel {
   val fontSize = 40
 }
 
-class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: BottomLayout) extends Panel {
+class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: BottomLayout, var hasPassedOnRound: Boolean = false) extends Panel {
 
   import PlayerHandPanel._
 
@@ -63,7 +63,14 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
       g.drawString("Over", width/2, height/2)
     }
     else handCardList.foreach(h => h.drawSprite(g))
+
     playerStatusIndicator.drawSprite(g)
+
+    if(hasPassedOnRound) {
+      g.setColor(Color.red)
+      g.setFont(Font("TimesRoman", Font.Plain, fontSize*2/3))
+      g.drawString("Pass", 25, 25)
+    }
   }
 
   def highestCardInGivenPoint(p: Point2D): Int = {
@@ -104,6 +111,18 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
 
   def setPlayerAvatarStatus(currentTurn: Boolean): Unit = {
     playerStatusIndicator = PlayerStatusIndicator(app, currentTurn)
+    revalidate()
+    repaint()
+  }
+
+  def updateUserHasPassedOnRound: Unit = {
+    this.hasPassedOnRound = true
+    revalidate()
+    repaint()
+  }
+
+  def resetUserPassStatus: Unit = {
+    this.hasPassedOnRound = false
     revalidate()
     repaint()
   }

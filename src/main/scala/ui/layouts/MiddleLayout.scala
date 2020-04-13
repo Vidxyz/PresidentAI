@@ -65,12 +65,21 @@ class MiddleLayout(app: SimpleSwingApplication, player2Hand: List[Card], player6
     repaint()
   }
 
-  def displayUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
+  def updateUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
     indexOfPassedPlayer match {
-      case 1 => player2AvatarPanel.displayUserHasPassedOnRound()
-      case 5 => player6AvatarPanel.displayUserHasPassedOnRound()
+      case 1 => player2AvatarPanel.updateUserHasPassedOnRound()
+      case 5 => player6AvatarPanel.updateUserHasPassedOnRound()
       case _ =>
     }
+    revalidate()
+    repaint()
+  }
+
+  def resetUserPassStatus = {
+    player2AvatarPanel.resetUserPassStatus
+    player6AvatarPanel.resetUserPassStatus
+    revalidate()
+    repaint()
   }
 
   def updatePlayers(players: List[Player]) = {

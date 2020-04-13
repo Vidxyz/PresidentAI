@@ -129,8 +129,18 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     repaint()
   }
 
-  def displayUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
-    // Do nothing
+  def updateUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
+    indexOfPassedPlayer match {
+      case 0 => playerHandPanel.updateUserHasPassedOnRound
+      case _ =>
+    }
+    revalidate()
+    repaint()
   }
 
+  def resetUserPassStatus = {
+    playerHandPanel.resetUserPassStatus
+    revalidate()
+    repaint()
+  }
 }

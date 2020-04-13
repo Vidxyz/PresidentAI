@@ -7,7 +7,7 @@ import ui.panels.ComputerPlayerAvatarPanel
 
 import scala.swing.{Graphics2D, SimpleSwingApplication}
 
-case class ComputerPlayer(app: SimpleSwingApplication) {
+case class ComputerPlayer(app: SimpleSwingApplication, var hasPassedOnRound: Boolean = false) {
   import ComputerPlayer._
 
   var cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
@@ -24,16 +24,24 @@ case class ComputerPlayer(app: SimpleSwingApplication) {
   }
 
   def updateActivePlayerAvatar(currentTurn: Boolean) = {
-    cardImage = if(currentTurn) new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_current_turn.png")).getImage
-                else new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
+    if(!hasPassedOnRound) {
+      cardImage = if (currentTurn) new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_current_turn.png")).getImage
+      else new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
+    }
   }
 
   def setPlayerAvatarToComplete() = {
     cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_complete.png")).getImage
   }
 
-  def displayUserHasPassedOnRound() = {
-    cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_pass.png")).getImage
+  def updateUserHasPassedOnRound() = {
+    hasPassedOnRound = true
+    cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_passed.png")).getImage
+  }
+
+  def resetUserPassStatus = {
+    hasPassedOnRound = false
+    cardImage =  new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
   }
 
 }
