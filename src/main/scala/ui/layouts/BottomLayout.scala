@@ -144,7 +144,8 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     repaint()
   }
 
+  /* Returns true iff real player is set to play next, and they haven't passed the round already */
   def getIfRealPlayerTurn: Boolean = {
-    round.currentPlayerTurn == 0
+    round.currentPlayerTurn == 0 && !round.roundPassStatus.getOrElse(realPlayer.name, false)
   }
 }
