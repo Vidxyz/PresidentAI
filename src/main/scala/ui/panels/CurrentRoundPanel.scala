@@ -29,6 +29,8 @@ class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends P
   override def paintComponent(g: Graphics2D): Unit = {
     super.paintComponent(g)
     roundCardUiList.foreach(roundCard => roundCard.drawSprite(g))
+    g.setColor(Color.white)
+    g.drawString(s"# Moves Played : ${round.movesPlayed.size}", 5, 50)
   }
 
   def updateRoundObject(newRound: Round) = {
