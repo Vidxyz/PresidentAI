@@ -407,7 +407,8 @@ case object GameUtilities {
   }
 
   /* Removes first occurrence of element in list that satisfies predicate function */
-  private def removeFirst[T](list: List[T])(pred: (T) => Boolean): List[T] = {
+  // todo - add unit tests
+  def removeFirst[T](list: List[T])(pred: (T) => Boolean): List[T] = {
     val (before, atAndAfter) = list span (x => !pred(x))
     before ::: atAndAfter.drop(1)
   }

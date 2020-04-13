@@ -3,7 +3,7 @@ package ui.panels
 import java.awt.geom.Point2D
 import java.awt.{Color, Dimension, Graphics2D}
 
-import game.{GameUtilities, Move}
+import game.{GameUtilities, Joker, Move}
 import player.Player
 import ui.layouts.BottomLayout
 import ui.models.{CardTile, HandCard, PlayerStatusIndicator}
@@ -83,8 +83,19 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
     repaint()
   }
 
-  def setCardsAsSelected(move: Option[Move]) = {
-    handCardList = handCardList.map(e => if(move.get.cards.contains(e.card)) e.copy(isSelected = true) else e.copy(isSelected = false))
+  def setCardsAsSelected(move: Move) = {
+    handCardList = move match {
+      case Move(List(Joker), _) => {
+        var hasJokerBeenFound = false
+        handCardList.map(e =>
+          if(move.cards.contains(e.card) && !hasJokerBeenFound) {
+            hasJokerBeenFound = true
+            e.copy(isSelected = true)
+          }
+          else e.copy(isSelected = false))
+      }
+      case move => handCardList.map(e => if(move.cards.contains(e.card)) e.copy(isSelected = true) else e.copy(isSelected = false))
+    }
     revalidate()
     repaint()
   }

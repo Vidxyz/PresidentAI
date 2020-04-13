@@ -76,8 +76,8 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     val p = realPlayer.copy(isRealPlayer = false)
     val nextMove = p.playNextMove(p.hand, round.gameState)
     if(nextMove.isDefined) {
-      playerHandPanel.setCardsAsSelected(nextMove)
-      playerCardTilePanel.setCardsAsSelected(nextMove)
+      playerHandPanel.setCardsAsSelected(nextMove.get)
+      playerCardTilePanel.setCardsAsSelected(nextMove.get)
     }
   }
 

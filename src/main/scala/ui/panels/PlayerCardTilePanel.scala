@@ -2,7 +2,7 @@ package ui.panels
 
 import java.awt.Color
 
-import game.{GameUtilities, Move}
+import game.{GameUtilities, Joker, Move}
 import player.Player
 import ui.layouts.BottomLayout
 import ui.models.{CardTile, HandCard}
@@ -64,8 +64,19 @@ class PlayerCardTilePanel(app: SimpleSwingApplication, var player: Player, paren
     repaint()
   }
 
-  def setCardsAsSelected(move: Option[Move]) = {
-    cardTileList = cardTileList.map(e => if(move.get.cards.contains(e.card)) e.copy(isSelected = true) else e.copy(isSelected = false))
+  def setCardsAsSelected(move: Move) = {
+    cardTileList = move match {
+      case Move(List(Joker), _) => {
+        var hasJokerBeenFound = false
+        cardTileList.map(e =>
+          if(move.cards.contains(e.card) && !hasJokerBeenFound) {
+            hasJokerBeenFound = true
+            e.copy(isSelected = true)
+          }
+          else e.copy(isSelected = false))
+      }
+      case move => cardTileList.map(e => if(move.cards.contains(e.card)) e.copy(isSelected = true) else e.copy(isSelected = false))
+    }
     revalidate()
     repaint()
   }
