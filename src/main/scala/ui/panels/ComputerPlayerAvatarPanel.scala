@@ -36,8 +36,11 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: Lis
   override def paintComponent(g: Graphics2D): Unit = {
     super.paintComponent(g)
     if(playerHand.nonEmpty) {
-      computerPlayer.drawSprite(g)
       computerHandList.foreach(_.drawSprite(g))
+      computerPlayer.drawSprite(g)
+    }
+    else {
+      if(hasPlayerCompleted) computerPlayer.drawSprite(g)
     }
   }
 
