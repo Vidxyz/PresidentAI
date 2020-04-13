@@ -14,12 +14,13 @@ object ComputerPlayerAvatarPanel {
   val height = 300
   val maxHandSpreadAngle = 180d
   val maxPossibleCardsInHand = 27
+  val backgroundColor = new Color(255, 219, 172)
 }
 
 class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: List[Card], var hasPlayerCompleted: Boolean = false) extends Panel {
   import ComputerPlayerAvatarPanel._
 
-  background = Color.white
+  background = backgroundColor
   preferredSize = new Dimension(width, height)
   border = Swing.LineBorder(Color.BLACK)
 

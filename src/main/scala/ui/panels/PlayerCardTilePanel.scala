@@ -8,13 +8,14 @@ import ui.layouts.BottomLayout
 import ui.models.{CardTile, HandCard}
 
 import scala.swing.event.MousePressed
-import scala.swing.{Dimension, Graphics2D, GridBagPanel, SimpleSwingApplication}
+import scala.swing.{Dimension, Font, Graphics2D, GridBagPanel, SimpleSwingApplication}
 
 object PlayerCardTilePanel {
   val width = 500
   val height = 300
   val backgroundColor = new Color(255, 219, 172)
   val maxRows = 4
+  val fontSize = 40
 }
 
 class PlayerCardTilePanel(app: SimpleSwingApplication, var player: Player, parent: BottomLayout) extends GridBagPanel  {
@@ -49,7 +50,12 @@ class PlayerCardTilePanel(app: SimpleSwingApplication, var player: Player, paren
 
   override def paintComponent(g: Graphics2D): Unit = {
     super.paintComponent(g)
-    cardTileList.foreach(c => c.drawSprite(g))
+    if(cardTileList.isEmpty) {
+      g.setColor(Color.red)
+      g.setFont(Font("TimesRoman", Font.Bold, fontSize))
+      g.drawString("Game", width/2, height/2)
+    }
+    else cardTileList.foreach(c => c.drawSprite(g))
   }
 
   def updateCardSelectStatus(handCardUiList: List[HandCard]) = {

@@ -9,7 +9,7 @@ import ui.layouts.BottomLayout
 import ui.models.{CardTile, HandCard, PlayerStatusIndicator}
 
 import scala.swing.event.MousePressed
-import scala.swing.{Panel, SimpleSwingApplication}
+import scala.swing.{Font, Panel, SimpleSwingApplication}
 
 object PlayerHandPanel {
   val width = 600
@@ -17,6 +17,7 @@ object PlayerHandPanel {
   val maxHandSpreadAngle = 180d
   val maxPossibleCardsInHand = 27
   val backgroundColor = new Color(255, 219, 172)
+  val fontSize = 40
 }
 
 class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: BottomLayout) extends Panel {
@@ -56,7 +57,12 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
 
   override def paintComponent(g: Graphics2D): Unit = {
     super.paintComponent(g)
-    handCardList.foreach(h => h.drawSprite(g))
+    if(handCardList.isEmpty) {
+      g.setColor(Color.red)
+      g.setFont(Font("TimesRoman", Font.Bold, fontSize))
+      g.drawString("Over", width/2, height/2)
+    }
+    else handCardList.foreach(h => h.drawSprite(g))
     playerStatusIndicator.drawSprite(g)
   }
 
