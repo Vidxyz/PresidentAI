@@ -31,6 +31,10 @@ case class ComputerPlayer(app: SimpleSwingApplication) {
     cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_complete.png")).getImage
   }
 
+  def displayUserHasPassedOnRound() = {
+    cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_pass.png")).getImage
+  }
+
 }
 
 case object ComputerPlayer {

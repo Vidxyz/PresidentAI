@@ -65,4 +65,11 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     revalidate()
     repaint()
   }
+
+  def displayUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
+    topPanel.displayUserHasPassedOnRound(indexOfPassedPlayer)
+    middlePanel.displayUserHasPassedOnRound(indexOfPassedPlayer)
+    bottomPanel.displayUserHasPassedOnRound(indexOfPassedPlayer)
+  }
+
 }

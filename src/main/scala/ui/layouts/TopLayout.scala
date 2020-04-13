@@ -86,4 +86,13 @@ class TopLayout(app: SimpleSwingApplication, isPlayer3InGame: Boolean,
     this.round = newRound
   }
 
+  def displayUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
+    indexOfPassedPlayer match {
+      case 2 => player3AvatarPanel.displayUserHasPassedOnRound()
+      case 3 => player4AvatarPanel.displayUserHasPassedOnRound()
+      case 5 => player5AvatarPanel.displayUserHasPassedOnRound()
+      case _ =>
+    }
+  }
+
 }

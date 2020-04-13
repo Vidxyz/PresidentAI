@@ -127,4 +127,8 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
     repaint()
   }
 
+  def displayUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
+    // Do nothing
+  }
+
 }

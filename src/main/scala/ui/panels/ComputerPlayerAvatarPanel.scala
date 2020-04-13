@@ -37,4 +37,10 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, isPlayerInGame: Boo
     repaint()
   }
 
+  def displayUserHasPassedOnRound(): Unit = {
+    computerPlayerUi.displayUserHasPassedOnRound()
+    revalidate()
+    repaint()
+  }
+
 }

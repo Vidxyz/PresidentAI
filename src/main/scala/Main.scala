@@ -6,8 +6,8 @@ import scala.swing.{Frame, MainFrame, SimpleSwingApplication, Swing}
 object Main extends SimpleSwingApplication {
 
 //  val listOfNames = List("Player1" )
-  val listOfNames = List("Player1", "Player2" )
-//  val listOfNames = List("Player1", "Player2", "Player3", "Player4")
+//  val listOfNames = List("Player1", "Player2" )
+  val listOfNames = List("Player1", "Player2", "Player3", "Player4")
 //  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "p5", "p6")
 //  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "Player5", "Player6", "Player7", "Player8")
 //  val listOfNames = List("Player1", "Player2", "Player3", "Player4", "p5", "p6", "p7", "p8", "PPlayer1", "PPlayer2", "PPlayer3", "PPlayer4", "pP5", "pP6", "p7P", "p8P")

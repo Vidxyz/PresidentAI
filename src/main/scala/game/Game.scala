@@ -77,6 +77,7 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
           else currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
         else {
           println("PASSED ALREADY")
+          mainLayout.displayUserHasPassedOnRound(round.currentPlayerTurn)
           None
         }
       println("The next move is : " + nextMove)
@@ -91,6 +92,8 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
         println("PASS")
         val newRoundPassStatus = round.roundPassStatus + (currentPlayerObject.name -> true)
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, newRoundPassStatus, round.movesPlayed)
+        // Make call to update UI to draw PASS here
+        mainLayout.displayUserHasPassedOnRound(round.currentPlayerTurn)
       }
       mainLayout.updateRoundObject(round)
 

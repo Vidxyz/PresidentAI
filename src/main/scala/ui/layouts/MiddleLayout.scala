@@ -63,4 +63,12 @@ class MiddleLayout(app: SimpleSwingApplication, isPlayer2InGame: Boolean, isPlay
     repaint()
   }
 
+  def displayUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
+    indexOfPassedPlayer match {
+      case 1 => player2AvatarPanel.displayUserHasPassedOnRound()
+      case 5 => player6AvatarPanel.displayUserHasPassedOnRound()
+      case _ =>
+    }
+  }
+
 }
