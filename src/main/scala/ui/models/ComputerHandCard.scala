@@ -16,11 +16,11 @@ case object ComputerHandCard {
   private val cardBaseYCoordinate = (ComputerPlayerAvatarPanel.height / 2) + 50
 
   def getTransformedCoordinatesForCardInHandView(baseX: Int, baseY: Int, cardIndexNumber: Int, numberOfCardsInHand: Int): (Double, Double) = {
-    val radius = 50 * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
+    val radius = 20 * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
     val maxAngle = ComputerPlayerAvatarPanel.maxHandSpreadAngle * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
     val minimumAngle = maxAngle/numberOfCardsInHand
     val currentAngle = (cardIndexNumber * minimumAngle) - maxAngle
-    (radius * math.sin(scala.math.toRadians(currentAngle)) + baseX, radius * -scala.math.cos(scala.math.toRadians(currentAngle)) + baseY*.85  - radius + 50)
+    (radius * math.sin(scala.math.toRadians(currentAngle)) + baseX, radius * -scala.math.cos(scala.math.toRadians(currentAngle)) + baseY*.92  - radius + 20)
   }
 }
 
