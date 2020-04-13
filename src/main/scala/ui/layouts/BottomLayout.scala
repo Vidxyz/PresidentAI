@@ -63,7 +63,9 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
   }
 
   def updateActivePlayerAvatar() = {
-    // Do nothing for now
+    playerHandPanel.setPlayerAvatarStatus(round.currentPlayerTurn == 0)
+    revalidate()
+    repaint()
   }
 
   def updatePlayerCompletion(indexOfCompletedPlayer: Int) = {

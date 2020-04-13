@@ -6,7 +6,7 @@ import java.awt.{Color, Dimension, Graphics2D}
 import game.{GameUtilities, Move}
 import player.Player
 import ui.layouts.BottomLayout
-import ui.models.{CardTile, HandCard}
+import ui.models.{CardTile, HandCard, PlayerStatusIndicator}
 
 import scala.swing.event.MousePressed
 import scala.swing.{Panel, SimpleSwingApplication}
@@ -36,6 +36,7 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
     case ((card, angleIndex), cardIndex) =>
       HandCard(card, app, this, cardIndex, numberOfCardsInHand, angleIndex * (maxAngle / numberOfCardsInHand))
   })
+  var playerStatusIndicator = PlayerStatusIndicator(app, true)
 
   focusable = true
   listenTo(mouse.clicks)
@@ -56,6 +57,7 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
   override def paintComponent(g: Graphics2D): Unit = {
     super.paintComponent(g)
     handCardList.foreach(h => h.drawSprite(g))
+    playerStatusIndicator.drawSprite(g)
   }
 
   def highestCardInGivenPoint(p: Point2D): Int = {
@@ -90,6 +92,12 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
 
   def resetSelectionOnCards: Unit = {
     handCardList = handCardList.map(handCard => handCard.copy(isSelected = false))
+    revalidate()
+    repaint()
+  }
+
+  def setPlayerAvatarStatus(currentTurn: Boolean): Unit = {
+    playerStatusIndicator = PlayerStatusIndicator(app, currentTurn)
     revalidate()
     repaint()
   }
