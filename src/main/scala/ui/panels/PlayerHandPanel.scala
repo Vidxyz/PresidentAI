@@ -60,7 +60,7 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
     if(handCardList.isEmpty) {
       g.setColor(Color.red)
       g.setFont(Font("TimesRoman", Font.Bold, fontSize))
-      g.drawString("Over", width/2, height/2)
+      g.drawString("OVER", width/2, height/2)
     }
     else handCardList.foreach(h => h.drawSprite(g))
 

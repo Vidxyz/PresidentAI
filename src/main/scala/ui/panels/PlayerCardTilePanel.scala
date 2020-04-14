@@ -53,7 +53,7 @@ class PlayerCardTilePanel(app: SimpleSwingApplication, var player: Player, paren
     if(cardTileList.isEmpty) {
       g.setColor(Color.red)
       g.setFont(Font("TimesRoman", Font.Bold, fontSize))
-      g.drawString("Game", width/2, height/2)
+      g.drawString("GAME", width/2, height/2)
     }
     else cardTileList.foreach(c => c.drawSprite(g))
   }
