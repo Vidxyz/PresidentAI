@@ -7,7 +7,7 @@ import scala.swing.{Dimension, Panel, Swing}
 object EmptyFillerPanel {
   val width  = 200
   val height = 200
-  val backgroundColor = new Color(255, 219, 172)
+  val backgroundColor = new Color(0,102, 0)
 }
 
 class EmptyFillerPanel extends Panel {

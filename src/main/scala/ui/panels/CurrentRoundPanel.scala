@@ -1,8 +1,10 @@
 package ui.panels
 
 import java.awt.Color
+import java.awt.geom.AffineTransform
 
-import game.{GameUtilities, Round}
+import game.Round
+import javax.swing.ImageIcon
 import ui.models.RoundCard
 
 import scala.swing.{Dimension, Font, Graphics2D, Panel, SimpleSwingApplication, Swing}
@@ -27,8 +29,15 @@ class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends P
     case (card, index) => RoundCard(card, app, index)
   })
 
+  val backgroundImage = new ImageIcon(app.resourceFromClassloader("assets/round/background_table.png")).getImage
+  val affineTransform = new AffineTransform()
+  val xScale = width*1.0d/backgroundImage.getWidth(null)
+  val yScale = height*1.0d/backgroundImage.getHeight(null)
+  affineTransform.scale(xScale, yScale)
+
   override def paintComponent(g: Graphics2D): Unit = {
     super.paintComponent(g)
+    g.drawImage(backgroundImage, affineTransform, null)
     roundCardUiList.foreach(roundCard => roundCard.drawSprite(g))
     g.setColor(Color.white)
     g.setFont(Font("TimesRoman", Font.Plain, fontSize))
