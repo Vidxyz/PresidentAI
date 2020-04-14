@@ -13,7 +13,7 @@ import scala.swing.{Dimension, Font, Graphics2D, GridBagPanel, SimpleSwingApplic
 object PlayerCardTilePanel {
   val width = 500
   val height = 300
-  val backgroundColor = new Color(255, 219, 172)
+  val backgroundColor = new Color(4,6,84)
   val maxRows = 4
   val fontSize = 40
 }

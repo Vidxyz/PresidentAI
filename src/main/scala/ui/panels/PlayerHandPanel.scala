@@ -16,7 +16,7 @@ object PlayerHandPanel {
   val height = 300
   val maxHandSpreadAngle = 180d
   val maxPossibleCardsInHand = 27
-  val backgroundColor = new Color(255, 219, 172)
+  val backgroundColor = new Color(4,6,84)
   val fontSize = 40
 }
 
@@ -68,8 +68,8 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
 
     if(hasPassedOnRound) {
       g.setColor(Color.red)
-      g.setFont(Font("TimesRoman", Font.Plain, fontSize*2/3))
-      g.drawString("Pass", 25, fontSize)
+      g.setFont(Font("TimesRoman", Font.Bold, fontSize*2/3))
+      g.drawString("PASS", 25, fontSize)
     }
   }
 
