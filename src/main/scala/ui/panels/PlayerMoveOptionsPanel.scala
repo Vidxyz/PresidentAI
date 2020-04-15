@@ -12,6 +12,7 @@ class PlayerMoveOptionsPanel(parent: BottomLayout) extends BorderPanel {
 
   val fontSize = 24
   val fontName = "TimesRoman"
+  val backgroundColor = new Color(4,6,84)
 
   preferredSize = new Dimension(width, height)
   minimumSize = new Dimension(width, height)
@@ -20,6 +21,8 @@ class PlayerMoveOptionsPanel(parent: BottomLayout) extends BorderPanel {
 
   layout(new Button("HINT") {
     font = Font(fontName, Font.Plain, fontSize)
+    background = backgroundColor
+    opaque = true
     preferredSize = new Dimension(width, height/3)
     reactions += {
       case ButtonClicked(_) => if(parent.getIfRealPlayerTurn) parent.highlightPossibleCards
@@ -28,6 +31,8 @@ class PlayerMoveOptionsPanel(parent: BottomLayout) extends BorderPanel {
 
   layout(new Button("PASS") {
     font = Font(fontName, Font.Plain, fontSize)
+    background = backgroundColor
+    opaque = true
     preferredSize = new Dimension(width, height/3)
     reactions += {
       case ButtonClicked(_) => if(parent.getIfRealPlayerTurn) parent.updateInternalMoveAsUserPass
@@ -36,6 +41,8 @@ class PlayerMoveOptionsPanel(parent: BottomLayout) extends BorderPanel {
 
   layout(new Button("PLAY") {
     font = Font(fontName, Font.Plain, fontSize)
+    background = backgroundColor
+    opaque = true
     preferredSize = new Dimension(width, height/3)
     reactions += {
       case ButtonClicked(_) => if(parent.getIfRealPlayerTurn) parent.updateInternalMoveUsingSelectedCards
