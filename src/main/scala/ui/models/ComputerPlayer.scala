@@ -1,11 +1,12 @@
 package ui.models
 
+import java.awt.Color
 import java.awt.geom.AffineTransform
 
 import javax.swing.ImageIcon
 import ui.panels.ComputerPlayerAvatarPanel
 
-import scala.swing.{Graphics2D, SimpleSwingApplication}
+import scala.swing.{Font, Graphics2D, SimpleSwingApplication}
 
 case class ComputerPlayer(app: SimpleSwingApplication, var hasPassedOnRound: Boolean = false) {
   import ComputerPlayer._
@@ -21,27 +22,24 @@ case class ComputerPlayer(app: SimpleSwingApplication, var hasPassedOnRound: Boo
 
   def drawSprite(g: Graphics2D) = {
     g.drawImage(cardImage, affineTransform, null)
-  }
-
-  def updateActivePlayerAvatar(currentTurn: Boolean) = {
-    if(!hasPassedOnRound) {
-      cardImage = if (currentTurn) new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_current_turn.png")).getImage
-      else new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
+    if(hasPassedOnRound) {
+      g.setColor(Color.red)
+      g.setFont(Font(fontName, Font.Bold, fontSize))
+      g.drawString("PASS", 5, 20)
     }
   }
 
-  def setPlayerAvatarToComplete() = {
-    cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_complete.png")).getImage
+  def updateActivePlayerAvatar(currentTurn: Boolean) = {
+    cardImage = if (currentTurn) new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_current_turn.png")).getImage
+                else new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
   }
 
-  def updateUserHasPassedOnRound() = {
+  def updateUserHasPassedOnRound = {
     hasPassedOnRound = true
-    cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_passed.png")).getImage
   }
 
   def resetUserPassStatus = {
     hasPassedOnRound = false
-    cardImage =  new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
   }
 
 }
@@ -51,4 +49,6 @@ case object ComputerPlayer {
   val height = ComputerPlayerAvatarPanel.height / 2
   private val cardBaseXCoordinate =  width / 2
   private val cardBaseYCoordinate = 5
+  private val fontName = "TimesRoman"
+  private val fontSize = 18
 }

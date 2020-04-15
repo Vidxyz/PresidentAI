@@ -7,7 +7,7 @@ import player.Player
 import ui.models.{ComputerHandCard, ComputerPlayer}
 import utils.Consants._
 
-import scala.swing.{Graphics2D, Panel, SimpleSwingApplication, Swing}
+import scala.swing.{Font, Graphics2D, Panel, SimpleSwingApplication, Swing}
 
 object ComputerPlayerAvatarPanel {
   val width = 200
@@ -15,6 +15,8 @@ object ComputerPlayerAvatarPanel {
   val maxHandSpreadAngle = 180d
   val maxPossibleCardsInHand = 27
   val backgroundColor = new Color(4,6,84)
+  val fontSize = 18
+  val fontName = "TimesRoman"
 }
 
 class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: List[Card], var hasPlayerCompleted: Boolean = false) extends Panel {
@@ -40,8 +42,14 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: Lis
       computerHandList.foreach(_.drawSprite(g))
       computerPlayer.drawSprite(g)
     }
+    // This could mean that player doesnt exist, or has completed
     else {
-      if(hasPlayerCompleted) computerPlayer.drawSprite(g)
+      if(hasPlayerCompleted) {
+        computerPlayer.drawSprite(g)
+        g.setColor(Color.red)
+        g.setFont(Font(fontName, Font.Bold, fontSize))
+        g.drawString("DONE", width/2 - 25 , height-50)
+      }
     }
   }
 
@@ -53,15 +61,14 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: Lis
     }
   }
 
-  def setPlayerAvatarToComplete(): Unit = {
+  def setPlayerAvatarToComplete: Unit = {
     this.hasPlayerCompleted = true
-    computerPlayer.setPlayerAvatarToComplete()
     revalidate()
     repaint()
   }
 
-  def updateUserHasPassedOnRound(): Unit = {
-    computerPlayer.updateUserHasPassedOnRound()
+  def updateUserHasPassedOnRound: Unit = {
+    computerPlayer.updateUserHasPassedOnRound
     revalidate()
     repaint()
   }

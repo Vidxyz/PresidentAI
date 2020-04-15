@@ -1,7 +1,8 @@
-import game.{Game, GameUtilities, Move}
+import game.{Game, GameUtilities, Hand, Move, NormalCard}
 import ui.MainLayout
 
 import scala.swing.{Frame, MainFrame, SimpleSwingApplication, Swing}
+import utils.Consants._
 
 object Main extends SimpleSwingApplication {
 
@@ -19,7 +20,7 @@ object Main extends SimpleSwingApplication {
   //  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames, seed=13).toBuffer
   //  val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames).toBuffer
   val listOfPlayers = GameUtilities.generatePlayersAndDealHands(listOfNames)
-                          .map(player => if(player.name == "Player1") player.copy(isRealPlayer = true) else player).toBuffer
+                          .map(player => if(player.name == "Player1") player.copy(isRealPlayer = true) else if(player.name == "Player2") player.copy(hand = Hand(List(ACE_Heart))) else player).toBuffer
   val listOfPlayers2 = GameUtilities.generatePlayersAndDealHands(listOfNames2, seed=77).toBuffer
 
   lazy val mainLayout = new MainLayout(this, listOfPlayers.toList)

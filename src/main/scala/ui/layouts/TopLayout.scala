@@ -88,9 +88,9 @@ class TopLayout(app: SimpleSwingApplication, player3Hand: List[Card],
 
   def updatePlayerCompletion(indexOfCompletedPlayer: Int) = {
     indexOfCompletedPlayer match {
-      case 2 => player3AvatarPanel.setPlayerAvatarToComplete()
-      case 3 => player4AvatarPanel.setPlayerAvatarToComplete()
-      case 4 => player5AvatarPanel.setPlayerAvatarToComplete()
+      case 2 => player3AvatarPanel.setPlayerAvatarToComplete
+      case 3 => player4AvatarPanel.setPlayerAvatarToComplete
+      case 4 => player5AvatarPanel.setPlayerAvatarToComplete
       case _ =>
     }
     revalidate()
@@ -103,9 +103,9 @@ class TopLayout(app: SimpleSwingApplication, player3Hand: List[Card],
 
   def updateUserHasPassedOnRound(indexOfPassedPlayer: Int) = {
     indexOfPassedPlayer match {
-      case 2 => player3AvatarPanel.updateUserHasPassedOnRound()
-      case 3 => player4AvatarPanel.updateUserHasPassedOnRound()
-      case 4 => player5AvatarPanel.updateUserHasPassedOnRound()
+      case 2 => player3AvatarPanel.updateUserHasPassedOnRound
+      case 3 => player4AvatarPanel.updateUserHasPassedOnRound
+      case 4 => player5AvatarPanel.updateUserHasPassedOnRound
       case _ =>
     }
     revalidate()
