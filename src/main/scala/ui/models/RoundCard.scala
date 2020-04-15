@@ -30,9 +30,9 @@ case class RoundCard(card: Card, app: SimpleSwingApplication, cardIndexNumber: I
 }
 
 case object RoundCard {
-  val width = 180
-  val height = 300
-  private val cardBaseXCoordinate = width
+  val width = 165
+  val height = 275
+  private val cardBaseXCoordinate = width + 20
   private val cardBaseYCoordinate = (CurrentRoundPanel.height - height)/2
 
   def getTransformedCoordinatesForCardInRoundView(baseX: Int, baseY: Int, cardIndexNumber: Int): (Int, Int) = {
