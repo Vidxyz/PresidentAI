@@ -1276,6 +1276,17 @@ class GameUtilitiesTest extends FunSpec {
           assert(GameUtilities.getNewHand(player.hand, Some(Move(List(Joker))))
             == Hand(currentHand.listOfCards.slice(0,9)))
         }
+
+        it("Should only filter out one joker when the hand has two in it and the move is a joker") {
+          val hand = Hand(List(TWO_Club, Joker, Joker))
+          assert(GameUtilities.getNewHand(hand, Some(Move(List(Joker)))) == Hand(hand.listOfCards.take(2)))
+        }
+
+        it("Should filter out both jokers from the hand if the move played is 2 jokers") {
+          val hand = Hand(List(TWO_Club, Joker, Joker))
+          assert(GameUtilities.getNewHand(hand, Some(Move(List(Joker, Joker)))) == Hand(hand.listOfCards.take(1)))
+        }
+
       }
 
       describe("When the move played is a WildCard") {
@@ -1625,6 +1636,113 @@ class GameUtilitiesTest extends FunSpec {
         assertThrows[IllegalAssumedValueException](GameUtilities.getCardFromCardStrings("3(15)", "club"))
         assertThrows[IllegalAssumedValueException](GameUtilities.getCardFromCardStrings("3(0)", "heart"))
         assertThrows[IllegalMoveSuppliedException](GameUtilities.getCardFromCardStrings("3(-1)", "spade"))
+      }
+    }
+
+  }
+
+  describe("Tests for isLegalMove") {
+
+    // Single, double, triple, quad + w/wout 3s + single/double/triple 2 + joker
+    describe("It should return true when") {
+
+      it("The move is a single") {
+        assert(GameUtilities.isLegalMove(Move(List(FOUR_Spade))))
+      }
+
+      it("The move is a double") {
+        assert(GameUtilities.isLegalMove(Move(List(FOUR_Diamond, FOUR_Spade))))
+      }
+
+      it("The move is a quad involving a WildCard") {
+        assert(GameUtilities.isLegalMove(Move(List(THREE_Spade(4), FOUR_Diamond, FOUR_Heart, FOUR_Spade))))
+      }
+
+      it("The move is comprised of a single SpecialCard") {
+        assert(GameUtilities.isLegalMove(Move(List(TWO_Diamond))))
+      }
+
+      it("The move is comprised of a multiple SpecialCards") {
+        assert(GameUtilities.isLegalMove(Move(List(TWO_Diamond, TWO_Club, TWO_Heart))))
+      }
+
+      it("The move is comprised of a single Joker") {
+        assert(GameUtilities.isLegalMove(Move(List(Joker))))
+      }
+
+      it("Is a move with multiple jokers") {
+        assert(GameUtilities.isLegalMove(Move(List(Joker, Joker))))
+      }
+
+    }
+
+    describe("It should return false when") {
+
+      it("Is a move involving NormalCards and Joker"){
+        assert(!GameUtilities.isLegalMove(Move(List(Joker, FOUR_Spade))))
+      }
+
+      it("Is a move involving SpecialCards and Joker"){
+        assert(!GameUtilities.isLegalMove(Move(List(Joker, TWO_Club))))
+      }
+
+      it("Is a move involving WildCards and Joker"){
+        assert(!GameUtilities.isLegalMove(Move(List(Joker, THREE_Diamond(12)))))
+      }
+
+      it("Is a move involving SpecialCards and WildCards"){
+        assert(!GameUtilities.isLegalMove(Move(List(TWO_Heart, THREE_Spade(5)))))
+      }
+
+      it("Is a move involving SpecialCards and NormalCards"){
+        assert(!GameUtilities.isLegalMove(Move(List(TWO_Heart, SIX_Diamond))))
+      }
+
+      it("Is a move involving SpecialCards and NormalCards and WildCards"){
+        assert(!GameUtilities.isLegalMove(Move(List(TWO_Heart, THREE_Spade(5), FIVE_Heart))))
+      }
+
+      it("Is a move involving multiple NormalCards of different values") {
+        assert(!GameUtilities.isLegalMove(Move(List(SIX_Diamond, SEVEN_Spade, EIGHT_Club))))
+      }
+
+      it("Is a move involving multiple NormalCards of different values and a WildCard") {
+        assert(!GameUtilities.isLegalMove(Move(List(THREE_Spade(6), SIX_Diamond, SIX_Club, EIGHT_Club))))
+      }
+    }
+  }
+
+  describe("Tests for fixWildCardAssumedValueInMove") {
+
+    describe("If the move has no wildCards in it"){
+      it("Should return the move itself") {
+        val move = Move(List(SEVEN_Heart, SEVEN_Spade))
+        assert(GameUtilities.fixWildCardAssumedValueInMove(move, Move(List.empty)) == move)
+      }
+    }
+
+    describe("If the move has a NormalCard in it") {
+      it("Should assign assumedValue for all WildCards to the NormalCard") {
+        val rawMove = Move(List(THREE_Diamond, THREE_Club, THREE_Heart, THREE_Spade, KING_Spade))
+        val expectedMove = Move(List(THREE_Diamond(12), THREE_Club(12), THREE_Heart(12), THREE_Spade(12), KING_Spade))
+        assert(GameUtilities.fixWildCardAssumedValueInMove(rawMove, Move(List.empty)) == expectedMove)
+      }
+    }
+
+    describe("If the move is comprised entirely of WildCards") {
+
+      it("Should assign them the value for double ACES if it cannot burn the gameState") {
+        val rawMove = Move(List(THREE_Heart, THREE_Spade))
+        val expectedMove = Move(List(THREE_Heart(14), THREE_Spade(14)))
+        val gameState = Move(List(SIX_Diamond, SIX_Spade))
+        assert(GameUtilities.fixWildCardAssumedValueInMove(rawMove, gameState) == expectedMove)
+      }
+
+      it("Should reassign the value to TRIPLE 7s if it can burn the gameState") {
+        val rawMove = Move(List(THREE_Diamond, THREE_Heart, THREE_Spade))
+        val expectedMove = Move(List(THREE_Diamond(7), THREE_Heart(7), THREE_Spade(7)))
+        val gameState = Move(List(THREE_Club(7), SEVEN_Diamond, SEVEN_Club))
+        assert(GameUtilities.fixWildCardAssumedValueInMove(rawMove, gameState) == expectedMove)
       }
     }
 

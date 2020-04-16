@@ -28,7 +28,6 @@ case object GameEngine {
   /*
   Readily plays a 2 if it is ONE away from the 2 in question in the gameState. Otherwise, uses probability function
   Prioritizes playing jokers on triples/quads over using probability function
-  TODO - Clean up code by using match with guards instead of nested if-else
    */
   def applySpecialCardMoveHeuristic(validMove: Move, gameState: Move,
                                     playerIndicators: PlayerIndicators = PlayerIndicators(Hand(List.empty))): Move = {

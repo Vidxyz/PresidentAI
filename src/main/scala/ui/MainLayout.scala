@@ -46,7 +46,7 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     repaint()
   }
 
-  def updateActivePlayerAvatar() = {
+  def updateActivePlayerAvatar = {
     bottomPanel.updateActivePlayerAvatar()
     middlePanel.updateActivePlayerAvatar()
     topPanel.updateActivePlayerAvatar()

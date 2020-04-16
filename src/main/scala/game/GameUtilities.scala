@@ -247,7 +247,6 @@ case object GameUtilities {
   4. Comprised entirely of WildCards
   5. Comprised of both WildCards and NormalCards
   6. For cases 3-5, all faceValues/assumedValues are the same
-  todo - add unit tests
    */
   def isLegalMove(move: Move): Boolean = {
     if(move.cards.forall(card => card == Joker)) true
@@ -397,20 +396,13 @@ case object GameUtilities {
 
   /*
   Returns the new hand comprising of cards from currentHand that do not appear in movePlayed
-   */ // todo - add a unit test for the new match case
+   */
   def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
     movePlayed.getOrElse(None) match {
       case Move(List(Joker), _) => Hand(removeFirst(currentHand.listOfCards){_ == Joker})
       case move: Move => Hand(currentHand.listOfCards.filter(c => !move.cards.contains(c)))
       case None => currentHand
     }
-  }
-
-  /* Removes first occurrence of element in list that satisfies predicate function */
-  // todo - add unit tests
-  def removeFirst[T](list: List[T])(pred: (T) => Boolean): List[T] = {
-    val (before, atAndAfter) = list span (x => !pred(x))
-    before ::: atAndAfter.drop(1)
   }
 
   /*
@@ -454,7 +446,12 @@ case object GameUtilities {
     }
   }
 
-  //todo - add unit tests
+  /* When a user chooses a move involving WildCards, they do not have an assumed value.
+  * This method assigns values to moves comprising purely of WildCards by using getMoveWithOptimalWildCardValue
+  * To do so, it first defaults such moves to a faceValue of ACE, and then re-assigns it if a burn is more appropriate
+  * If the move involves WildCards AND NormalCards, the WildCards assume the faceValue of the LAST card in the move
+  * This is because WildCards would inherently get sorted before any NormalCards, so there would be no question of assuming values
+  * */
   def fixWildCardAssumedValueInMove(move: Move, gameState: Move): Move = {
     // Return move, if no wildcards are present in it
     if(!move.cards.exists(card => card match {case w:WildCard => true; case _ => false})) move
@@ -466,6 +463,12 @@ case object GameUtilities {
       else
         Move(move.cards.map({case w:WildCard => w.copy(assumedValue = move.cards.last.intValue); case e => e}))
     }
+  }
+
+  /* Removes first occurrence of element in list that satisfies predicate function */
+  private def removeFirst[T](list: List[T])(pred: (T) => Boolean): List[T] = {
+    val (before, atAndAfter) = list span (x => !pred(x))
+    before ::: atAndAfter.drop(1)
   }
 
   case class IllegalMoveSuppliedException(s: String) extends IllegalArgumentException(s)

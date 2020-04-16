@@ -10,7 +10,6 @@ import scala.collection.mutable.ListBuffer
 case class IllegalNumberOfPlayersException(s: String) extends IllegalArgumentException(s)
 
 case object Game {
-  // todo - add unit test to cover this case
   def apply(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLayout: MainLayout): Game = {
     if(listOfPlayers.size < 2 || listOfPlayers.size > 6) throw IllegalNumberOfPlayersException("Need 2-6 players to play the game")
     else new Game(startState, listOfPlayers, mainLayout)
@@ -68,7 +67,7 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
       println(currentPlayerObject.name)
       println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
 
-      mainLayout.updateActivePlayerAvatar()
+      mainLayout.updateActivePlayerAvatar
       Thread.sleep(1000)
 
       val nextMove: Option[Move] =
