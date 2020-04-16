@@ -13,7 +13,7 @@ object CurrentRoundPanel {
   val width = 1000
   val height = 400
   val backgroundColor = new Color(0,102, 0)
-  val fontSize = 17
+  val fontSize = 20
 }
 
 class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends Panel {
