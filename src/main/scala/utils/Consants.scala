@@ -3,6 +3,9 @@ package utils
 import game.FaceValue._
 import game.Suits._
 import game.{Card, Hand, Joker, NormalCard, SpecialCard, Value, WildCard}
+import javax.swing.ImageIcon
+
+import scala.swing.SimpleSwingApplication
 
 object Consants {
 
@@ -150,6 +153,126 @@ object Consants {
     13 -> KING,
     14 -> ACE
   )
+
+  /* Fetches the image resource for a given card */
+  def getImageResourceForCardInHand(card: Card, app: SimpleSwingApplication, isSelected: Boolean): ImageIcon = {
+    val directoryPrefix = if(isSelected) "selected/" else "unselected/"
+    card match {
+      case WildCard(THREE, Diamond, _) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}3_of_diamonds.png"))
+      case WildCard(THREE, Club, _) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}3_of_clubs.png"))
+      case WildCard(THREE, Heart, _) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}3_of_hearts.png"))
+      case WildCard(THREE, Spade, _) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}3_of_spades.png"))
+      case NormalCard(FOUR, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}4_of_diamonds.png"))
+      case NormalCard(FOUR, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}4_of_clubs.png"))
+      case NormalCard(FOUR, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}4_of_hearts.png"))
+      case NormalCard(FOUR, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}4_of_spades.png"))
+      case NormalCard(FIVE, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}5_of_diamonds.png"))
+      case NormalCard(FIVE, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}5_of_clubs.png"))
+      case NormalCard(FIVE, Heart)  => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}5_of_hearts.png"))
+      case NormalCard(FIVE, Spade)  => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}5_of_spades.png"))
+      case NormalCard(SIX, Diamond)  => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}6_of_diamonds.png"))
+      case NormalCard(SIX, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}6_of_clubs.png"))
+      case NormalCard(SIX, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}6_of_hearts.png"))
+      case NormalCard(SIX, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}6_of_spades.png"))
+      case NormalCard(SEVEN, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}7_of_diamonds.png"))
+      case NormalCard(SEVEN, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}7_of_clubs.png"))
+      case NormalCard(SEVEN, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}7_of_hearts.png"))
+      case NormalCard(SEVEN, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}7_of_spades.png"))
+      case NormalCard(EIGHT, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}8_of_diamonds.png"))
+      case NormalCard(EIGHT, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}8_of_clubs.png"))
+      case NormalCard(EIGHT, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}8_of_hearts.png"))
+      case NormalCard(EIGHT, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}8_of_spades.png"))
+      case NormalCard(NINE, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}9_of_diamonds.png"))
+      case NormalCard(NINE, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}9_of_clubs.png"))
+      case NormalCard(NINE, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}9_of_hearts.png"))
+      case NormalCard(NINE, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}9_of_spades.png"))
+      case NormalCard(TEN, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}10_of_diamonds.png"))
+      case NormalCard(TEN, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}10_of_clubs.png"))
+      case NormalCard(TEN, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}10_of_hearts.png"))
+      case NormalCard(TEN, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}10_of_spades.png"))
+      case NormalCard(JACK, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}jack_of_diamonds.png"))
+      case NormalCard(JACK, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}jack_of_clubs.png"))
+      case NormalCard(JACK, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}jack_of_hearts.png"))
+      case NormalCard(JACK, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}jack_of_spades.png"))
+      case NormalCard(QUEEN, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}queen_of_diamonds.png"))
+      case NormalCard(QUEEN, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}queen_of_clubs.png"))
+      case NormalCard(QUEEN, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}queen_of_hearts.png"))
+      case NormalCard(QUEEN, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}queen_of_spades.png"))
+      case NormalCard(KING, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}king_of_diamonds.png"))
+      case NormalCard(KING, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}king_of_clubs.png"))
+      case NormalCard(KING, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}king_of_hearts.png"))
+      case NormalCard(KING, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}king_of_spades.png"))
+      case NormalCard(ACE, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}ace_of_diamonds.png"))
+      case NormalCard(ACE, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}ace_of_clubs.png"))
+      case NormalCard(ACE, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}ace_of_hearts.png"))
+      case NormalCard(ACE, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}ace_of_spades.png"))
+      case SpecialCard(TWO, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}2_of_diamonds.png"))
+      case SpecialCard(TWO, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}2_of_clubs.png"))
+      case SpecialCard(TWO, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}2_of_hearts.png"))
+      case SpecialCard(TWO, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}2_of_spades.png"))
+      case Joker => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}black_joker.png"))
+    }
+  }
+
+  /* Fetches the image resource for a given card */
+  def getImageResourceForCardTile(card: Card, app: SimpleSwingApplication, isSelected: Boolean): ImageIcon = {
+    val directoryPrefix = if(isSelected) "selected/" else "unselected/"
+    card match {
+      case WildCard(THREE, Diamond, _) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}3_of_diamonds.png"))
+      case WildCard(THREE, Club, _) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}3_of_clubs.png"))
+      case WildCard(THREE, Heart, _) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}3_of_hearts.png"))
+      case WildCard(THREE, Spade, _) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}3_of_spades.png"))
+      case NormalCard(FOUR, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}4_of_diamonds.png"))
+      case NormalCard(FOUR, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}4_of_clubs.png"))
+      case NormalCard(FOUR, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}4_of_hearts.png"))
+      case NormalCard(FOUR, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}4_of_spades.png"))
+      case NormalCard(FIVE, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}5_of_diamonds.png"))
+      case NormalCard(FIVE, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}5_of_clubs.png"))
+      case NormalCard(FIVE, Heart)  => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}5_of_hearts.png"))
+      case NormalCard(FIVE, Spade)  => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}5_of_spades.png"))
+      case NormalCard(SIX, Diamond)  => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}6_of_diamonds.png"))
+      case NormalCard(SIX, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}6_of_clubs.png"))
+      case NormalCard(SIX, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}6_of_hearts.png"))
+      case NormalCard(SIX, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}6_of_spades.png"))
+      case NormalCard(SEVEN, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}7_of_diamonds.png"))
+      case NormalCard(SEVEN, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}7_of_clubs.png"))
+      case NormalCard(SEVEN, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}7_of_hearts.png"))
+      case NormalCard(SEVEN, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}7_of_spades.png"))
+      case NormalCard(EIGHT, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}8_of_diamonds.png"))
+      case NormalCard(EIGHT, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}8_of_clubs.png"))
+      case NormalCard(EIGHT, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}8_of_hearts.png"))
+      case NormalCard(EIGHT, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}8_of_spades.png"))
+      case NormalCard(NINE, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}9_of_diamonds.png"))
+      case NormalCard(NINE, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}9_of_clubs.png"))
+      case NormalCard(NINE, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}9_of_hearts.png"))
+      case NormalCard(NINE, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}9_of_spades.png"))
+      case NormalCard(TEN, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}10_of_diamonds.png"))
+      case NormalCard(TEN, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}10_of_clubs.png"))
+      case NormalCard(TEN, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}10_of_hearts.png"))
+      case NormalCard(TEN, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}10_of_spades.png"))
+      case NormalCard(JACK, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}jack_of_diamonds.png"))
+      case NormalCard(JACK, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}jack_of_clubs.png"))
+      case NormalCard(JACK, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}jack_of_hearts.png"))
+      case NormalCard(JACK, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}jack_of_spades.png"))
+      case NormalCard(QUEEN, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}queen_of_diamonds.png"))
+      case NormalCard(QUEEN, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}queen_of_clubs.png"))
+      case NormalCard(QUEEN, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}queen_of_hearts.png"))
+      case NormalCard(QUEEN, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}queen_of_spades.png"))
+      case NormalCard(KING, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}king_of_diamonds.png"))
+      case NormalCard(KING, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}king_of_clubs.png"))
+      case NormalCard(KING, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}king_of_hearts.png"))
+      case NormalCard(KING, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}king_of_spades.png"))
+      case NormalCard(ACE, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}ace_of_diamonds.png"))
+      case NormalCard(ACE, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}ace_of_clubs.png"))
+      case NormalCard(ACE, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}ace_of_hearts.png"))
+      case NormalCard(ACE, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}ace_of_spades.png"))
+      case SpecialCard(TWO, Diamond) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}2_of_diamonds.png"))
+      case SpecialCard(TWO, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}2_of_clubs.png"))
+      case SpecialCard(TWO, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}2_of_hearts.png"))
+      case SpecialCard(TWO, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}2_of_spades.png"))
+      case Joker => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}black_joker.png"))
+    }
+  }
 
   /*
   These are all shorthand method for defining cards

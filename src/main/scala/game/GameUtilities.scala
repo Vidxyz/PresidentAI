@@ -2,7 +2,7 @@ package game
 
 import game.FaceValue._
 import game.Suits._
-import player.{Player, PlayerIndicators}
+import player.{Player}
 import utils.Consants
 import utils.Consants._
 
@@ -208,6 +208,7 @@ case object GameUtilities {
                   .filter(move => isValidMove(move, gameState)))
   }
 
+  /* Assumption : All cards in move are the same, except in the case of 3s being used as a WildCard */
   def isValidMove(move: Move, gameState: Move): Boolean = {
     if(move.cards.isEmpty) return false
     if(gameState.cards.isEmpty) return true
@@ -236,6 +237,25 @@ case object GameUtilities {
     // 2. Move is comprised of NormalCard(s) + WildCard(s)
     // 3. Move is comprised of all WildCard(s)
     else checkIfBetter(move, gameState)
+  }
+
+  /*
+  A legal move is defined as one of the following
+  1. Comprised entirely of Jokers
+  2. Comprised entirely of SpecialCards
+  3. Comprised entirely of NormalCards
+  4. Comprised entirely of WildCards
+  5. Comprised of both WildCards and NormalCards
+  6. For cases 3-5, all faceValues/assumedValues are the same
+   */
+  def isLegalMove(move: Move): Boolean = {
+    if(move.cards.forall(card => card == Joker)) true
+    else if(move.cards.forall(card => card match { case s:SpecialCard => true; case _ => false})) true
+    else move.cards.forall(card => card match {
+        case n:NormalCard => n.intValue == move.moveFaceValue
+        case w:WildCard => w.assumedValue == move.moveFaceValue
+        case _ => false
+    })
   }
 
   // Returns true if move1 is "better" than move2 :- Higher value in numberToCardMap
@@ -344,7 +364,7 @@ case object GameUtilities {
                 case w: WildCard => true
                 case e => false })) {
                 listOfCard.map {
-                  case w: WildCard => w.copy(assumedValue = NormalCard(ACE, Spade).intValue)
+                  case w: WildCard => w.copy(assumedValue = ACE_Spade.intValue)
                   case e => e
                 }
               }
@@ -373,11 +393,13 @@ case object GameUtilities {
   def getNumberOfWildCardsInMove(validMove: Move): Int =
     validMove.cards.foldLeft(0)((total, card) => card match {case c: WildCard => total + 1; case _ => total})
 
+
   /*
   Returns the new hand comprising of cards from currentHand that do not appear in movePlayed
    */
   def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
     movePlayed.getOrElse(None) match {
+      case Move(List(Joker), _) => Hand(removeFirst(currentHand.listOfCards){_ == Joker})
       case move: Move => Hand(currentHand.listOfCards.filter(c => !move.cards.contains(c)))
       case None => currentHand
     }
@@ -385,9 +407,9 @@ case object GameUtilities {
 
   /*
   Takes in a list of valid moves and assigns dangling wildcards optimal assumedValues
-  A Dangling Wilcards is defined as a 3 or a set of 3s being played by themself, instead of with a NormalCard
+  A Dangling Wildcards is defined as a 3 or a set of 3s being played by themselves, instead of with a NormalCard
   For example, upon entry into this function, a Move such as <3> or <3-3> would be assumed to be ACEs by default
-  However, this isnt optimal, and it only suffices for checking validity of move
+  However, this isn't optimal, and it only suffices for checking validity of move
   Ideally, the <3> or <3-3> would assume value based on gameState
   This comes in one of three scenarios :-
   1. It maintains its assumedValue (highest possible faceValue of card)
@@ -422,6 +444,31 @@ case object GameUtilities {
         case _ => validMove
       }
     }
+  }
+
+  /* When a user chooses a move involving WildCards, they do not have an assumed value.
+  * This method assigns values to moves comprising purely of WildCards by using getMoveWithOptimalWildCardValue
+  * To do so, it first defaults such moves to a faceValue of ACE, and then re-assigns it if a burn is more appropriate
+  * If the move involves WildCards AND NormalCards, the WildCards assume the faceValue of the LAST card in the move
+  * This is because WildCards would inherently get sorted before any NormalCards, so there would be no question of assuming values
+  * */
+  def fixWildCardAssumedValueInMove(move: Move, gameState: Move): Move = {
+    // Return move, if no wildcards are present in it
+    if(!move.cards.exists(card => card match {case w:WildCard => true; case _ => false})) move
+    else {
+      if(move.cards.forall(card => card match {case w:WildCard => true; case _ => false})) {
+        val modifiedMove = Move(move.cards.map({case w:WildCard => w.copy(assumedValue = ACE_Spade.intValue); case e => e}))
+        getMoveWithOptimalWildCardValue(modifiedMove, gameState)
+      }
+      else
+        Move(move.cards.map({case w:WildCard => w.copy(assumedValue = move.cards.last.intValue); case e => e}))
+    }
+  }
+
+  /* Removes first occurrence of element in list that satisfies predicate function */
+  private def removeFirst[T](list: List[T])(pred: (T) => Boolean): List[T] = {
+    val (before, atAndAfter) = list span (x => !pred(x))
+    before ::: atAndAfter.drop(1)
   }
 
   case class IllegalMoveSuppliedException(s: String) extends IllegalArgumentException(s)
