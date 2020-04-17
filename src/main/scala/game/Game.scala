@@ -43,7 +43,6 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
       // Reset state if everyone has passed
       if(round.hasEveryoneExceptThePlayerWhoPlayedTheLastMovePassed) {
         println("END OF ROUND - CLEARING ROUND CARDS")
-        //      println(round.roundPassStatus)
         currentState = Move(List.empty)
 
         // Since everyone else has passed, next one to play is the last one who played
@@ -72,9 +71,10 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
 
       val nextMove: Option[Move] =
       // If player has not skipped turn this round already, then they get to play
-        if(!round.hasAlreadySkippedTurn(currentPlayerObject.name))
+        if(!round.hasAlreadySkippedTurn(currentPlayerObject.name)) {
           if(currentPlayerObject.isRealPlayer) mainLayout.getUserInputMove()
           else currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
+        }
         else {
           println("PASSED ALREADY")
           mainLayout.updateUserHasPassedOnRound(round.currentPlayerTurn)

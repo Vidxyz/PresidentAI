@@ -14,6 +14,7 @@ object CurrentRoundPanel {
   val height = 400
   val backgroundColor = new Color(0,102, 0)
   val fontSize = 20
+  val fontName = "TimesRoman"
 }
 
 class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends Panel {
@@ -40,7 +41,7 @@ class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends P
     g.drawImage(backgroundImage, affineTransform, null)
     roundCardUiList.foreach(roundCard => roundCard.drawSprite(g))
     g.setColor(Color.white)
-    g.setFont(Font("TimesRoman", Font.Plain, fontSize))
+    g.setFont(Font(fontName, Font.Plain, fontSize))
     g.drawString(s"# Moves Played : ${round.movesPlayed.size}", 5, 50)
   }
 
