@@ -2,6 +2,7 @@ package ui.layouts
 
 import game.{GameUtilities, Move, Round}
 import player.Player
+import ui.MainLayout
 import ui.models.{CardTile, HandCard}
 import ui.panels.{PlayerCardTilePanel, PlayerHandPanel, PlayerMoveOptionsPanel}
 
@@ -10,7 +11,7 @@ import scala.swing.{GridBagPanel, SimpleSwingApplication}
 /*
 This holds the PlayerHandPanel, PlayerCardListPanel, PlayerMoveOptionsPanel
  */
-class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var round: Round) extends GridBagPanel {
+class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlayer: Player, var round: Round) extends GridBagPanel {
 
   var playerCardTilePanel = new PlayerCardTilePanel(app, realPlayer, this)
   var playerHandPanel = new PlayerHandPanel(app, realPlayer, this)
@@ -90,7 +91,7 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
   def updateInternalMoveUsingSelectedCards: Unit = {
     import scala.swing.Dialog._
     if(!playerCardTilePanel.cardTileList.exists(tile => tile.isSelected)) {
-      showMessage(this, "Please select a card(s) to play", "No Cards Selected")
+      showMessage(parent, "Please select a card(s) to play", "No Cards Selected")
       return
     }
 
@@ -99,7 +100,7 @@ class BottomLayout(app: SimpleSwingApplication, var realPlayer: Player, var roun
 
     if(GameUtilities.isLegalMove(selectedMove.get) && GameUtilities.isValidMove(selectedMove.get, round.gameState)) isMoveSelected = true
     else {
-      showMessage(this, "Please select cards to make a valid move, or pass", "Invalid Move")
+      showMessage(parent, "Please select cards to make a valid move, or pass", "Invalid Move")
       resetSelectionOnCards
     }
   }

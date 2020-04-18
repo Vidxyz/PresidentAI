@@ -1,5 +1,6 @@
 import game.{Game, GameUtilities, Hand, Move, NormalCard}
 import ui.MainLayout
+import ui.layouts.MenuBarLayout
 
 import scala.swing.{Frame, MainFrame, SimpleSwingApplication, Swing}
 import utils.Consants._
@@ -39,6 +40,7 @@ object Main extends SimpleSwingApplication {
 
   def top: Frame = new MainFrame {
     title = "President Card Game"
+    menuBar = new MenuBarLayout(mainLayout)
     contents = mainLayout
     resizable = true
   }

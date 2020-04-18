@@ -11,7 +11,7 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     if(players.size >= 4) players(3).hand.listOfCards else List.empty,
     if(players.size >= 5) players(4).hand.listOfCards else List.empty, null)
   val middlePanel = new MiddleLayout(app, players(1).hand.listOfCards, if(players.size == 6) players.last.hand.listOfCards else List.empty, null)
-  val bottomPanel = new BottomLayout(app, players.head, null)
+  val bottomPanel = new BottomLayout(app, this, players.head, null)
 
   val c: Constraints = new Constraints()
 
