@@ -107,9 +107,9 @@ class MiddleLayout(app: SimpleSwingApplication, player2Hand: List[Card], player6
     repaint()
   }
 
-  def updatePlayers(players: List[Player]) = {
-    if(players.size >= 2) player2AvatarPanel.updatePlayerObject(players(1))
-    if(players.size >= 6) player6AvatarPanel.updatePlayerObject(players(5))
+  def updatePlayerHands(players: List[Player]) = {
+    if(players.size >= 2) player2AvatarPanel.updatePlayerHand(players(1).hand.listOfCards) else player2AvatarPanel.updatePlayerHand(List.empty)
+    if(players.size >= 6) player6AvatarPanel.updatePlayerHand(players(5).hand.listOfCards) else player6AvatarPanel.updatePlayerHand(List.empty)
   }
 
 }

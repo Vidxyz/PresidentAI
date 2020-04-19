@@ -16,7 +16,7 @@ case object Game {
   }
 }
 
-case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLayout: MainLayout) {
+case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLayout: MainLayout, var isActive: Boolean = true) {
 
   /*
   Keeps a completion order of the form (playerName, roundEnded)
@@ -36,7 +36,7 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
     while(listOfPlayers
       .map(player => player.status)
       .map(playerstatus => playerstatus == Active)
-      .count(_ == true) > 1) {
+      .count(_ == true) > 1 && isActive) {
 
       mainLayout.updateRoundObject(round)
 

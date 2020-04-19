@@ -120,10 +120,12 @@ class TopLayout(app: SimpleSwingApplication, player3Hand: List[Card],
     repaint()
   }
 
-  def updatePlayers(players: List[Player]) = {
-    if(players.size >= 3) player3AvatarPanel.updatePlayerObject(players(2))
-    if(players.size >= 4) player4AvatarPanel.updatePlayerObject(players(3))
-    if(players.size >= 5) player5AvatarPanel.updatePlayerObject(players(4))
+  def updatePlayerHands(players: List[Player]) = {
+    if(players.size >= 3) player3AvatarPanel.updatePlayerHand(players(2).hand.listOfCards) else player3AvatarPanel.updatePlayerHand(List.empty)
+    if(players.size >= 4) player4AvatarPanel.updatePlayerHand(players(3).hand.listOfCards) else player4AvatarPanel.updatePlayerHand(List.empty)
+    if(players.size >= 5) player5AvatarPanel.updatePlayerHand(players(4).hand.listOfCards) else player5AvatarPanel.updatePlayerHand(List.empty)
   }
+
+
 
 }

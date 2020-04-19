@@ -1,17 +1,31 @@
 package ui
 
-import game.{Move, Round}
+import game.{Game, GameUtilities, Move, Round}
 import player.Player
 import ui.layouts.{BottomLayout, MiddleLayout, TopLayout}
-import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
-class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends GridBagPanel {
+import scala.swing.{GridBagPanel, SimpleSwingApplication, Swing}
+import scala.swing.Dialog._
 
-  val topPanel = new TopLayout(app, if(players.size >= 3) players(2).hand.listOfCards else List.empty,
+class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
+
+  val playerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andrew")
+  val players = GameUtilities.generatePlayersAndDealHands(playerNames)
+    .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
+
+  val topPanel = new TopLayout(app,
+    if(players.size >= 3) players(2).hand.listOfCards else List.empty,
     if(players.size >= 4) players(3).hand.listOfCards else List.empty,
     if(players.size >= 5) players(4).hand.listOfCards else List.empty, null)
-  val middlePanel = new MiddleLayout(app, players(1).hand.listOfCards, if(players.size == 6) players.last.hand.listOfCards else List.empty, null)
+  val middlePanel = new MiddleLayout(app, players(1).hand.listOfCards,
+    if(players.size == 6) players.last.hand.listOfCards else List.empty, null)
   val bottomPanel = new BottomLayout(app, this, players.head, null)
+
+
+  var game: Game = Game(Move(List.empty), players.toBuffer, this)
+  println("The starting state is : " + game.startState)
+  println("\n")
+  beginGame
 
   val c: Constraints = new Constraints()
 
@@ -39,8 +53,8 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
   }
 
   def updatePlayerObjects(players: List[Player]) = {
-    topPanel.updatePlayers(players)
-    middlePanel.updatePlayers(players)
+    topPanel.updatePlayerHands(players)
+    middlePanel.updatePlayerHands(players)
     bottomPanel.updateRealPlayerObject(players.head)
     revalidate()
     repaint()
@@ -82,6 +96,40 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     bottomPanel.resetUserPassStatus
     revalidate()
     repaint()
+  }
+
+  def promptDialogForNewGame = {
+    game.isActive = false
+
+    val choices = List("2", "3", "4", "5", "6")
+    val userChoice = showInput(this, "Select total number of players in game", "Game Settings", Message.Plain, Swing.EmptyIcon, choices, choices.head)
+    val selectedChoice = userChoice.getOrElse(choices.head).toInt
+    val newPlayers = playerNames.take(selectedChoice)
+    val newListOfPlayers = GameUtilities.generatePlayersAndDealHands(newPlayers).map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
+
+    game = Game(Move(List.empty), newListOfPlayers.toBuffer, this)
+
+    updatePlayerObjects(newListOfPlayers)
+    updateRoundObject(null)
+    revalidate()
+    repaint()
+
+    beginGame
+
+  }
+
+  def reDealHandsForThisGame = {
+
+  }
+
+  def beginGame = {
+    val thread = new Thread {
+      override def run {
+        println("Starting a new game")
+        game.play()
+      }
+    }
+    thread.start()
   }
 
 }

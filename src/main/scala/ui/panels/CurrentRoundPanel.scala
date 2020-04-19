@@ -47,7 +47,7 @@ class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends P
 
   def updateRoundObject(newRound: Round) = {
     this.round = newRound
-    handToDisplay = round.movesPlayed.flatMap(move => move.cards)
+    handToDisplay = if(round == null) List.empty else round.movesPlayed.flatMap(move => move.cards)
     roundCardUiList = handToDisplay.zipWithIndex.map({
       case (card, index) => RoundCard(card, app, index)
     })

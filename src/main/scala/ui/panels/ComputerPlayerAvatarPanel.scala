@@ -48,7 +48,7 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: Lis
         computerPlayer.drawSprite(g)
         g.setColor(Color.red)
         g.setFont(Font(fontName, Font.Bold, fontSize))
-        g.drawString("DONE", width/2 - 25 , height-50)
+        g.drawString("DONE", width/2 - 25 , height - 50)
       }
     }
   }
@@ -81,8 +81,8 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: Lis
     }
   }
 
-  def updatePlayerObject(player: Player): Unit = {
-    this.playerHand = player.hand.listOfCards
+  def updatePlayerHand(newPlayerHand: List[Card]): Unit = {
+    this.playerHand = newPlayerHand
     numberOfCardsInHand = playerHand.size
     maxAngle = maxHandSpreadAngle * numberOfCardsInHand/maxPossibleCardsInHand
     angleList = -numberOfCardsInHand/2 to numberOfCardsInHand/2
