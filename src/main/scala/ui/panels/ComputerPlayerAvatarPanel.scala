@@ -54,11 +54,9 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: Lis
   }
 
   def setPlayerAvatarStatus(currentTurn: Boolean): Unit = {
-    if(!hasPlayerCompleted) {
-      computerPlayer.updateActivePlayerAvatar(currentTurn)
-      revalidate()
-      repaint()
-    }
+    computerPlayer.updateActivePlayerAvatar(currentTurn)
+    revalidate()
+    repaint()
   }
 
   def setPlayerAvatarToComplete: Unit = {
