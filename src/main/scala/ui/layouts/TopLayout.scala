@@ -126,6 +126,23 @@ class TopLayout(app: SimpleSwingApplication, player3Hand: List[Card],
     if(players.size >= 5) player5AvatarPanel.updatePlayerHand(players(4).hand.listOfCards) else player5AvatarPanel.updatePlayerHand(List.empty)
   }
 
+  def updateLastRemainingPlayer(indexOfLastPlayer: Int) = {
+    indexOfLastPlayer match {
+      case 2 => player3AvatarPanel.setPlayerAvatarToBum
+      case 3 => player4AvatarPanel.setPlayerAvatarToBum
+      case 4 => player5AvatarPanel.setPlayerAvatarToBum
+      case _ =>
+    }
+    revalidate()
+    repaint()
+  }
 
+  def resetPlayerCompletionStatus = {
+    player3AvatarPanel.resetUserCompletionStatus
+    player4AvatarPanel.resetUserCompletionStatus
+    player5AvatarPanel.resetUserCompletionStatus
+    revalidate()
+    repaint()
+  }
 
 }

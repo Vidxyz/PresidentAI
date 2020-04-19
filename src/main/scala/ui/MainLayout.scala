@@ -100,6 +100,14 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     repaint()
   }
 
+  def resetPlayerCompletionStatus = {
+    topPanel.resetPlayerCompletionStatus
+    middlePanel.resetPlayerCompletionStatus
+    bottomPanel.resetPlayerCompletionStatus
+    revalidate()
+    repaint()
+  }
+
   def promptDialogForNewGame = {
     game.isActive = false
 
@@ -114,6 +122,7 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
 
     updatePlayerObjects(players)
     updateRoundObject(null)
+    resetPlayerCompletionStatus
     resetUserPassStatus
     revalidate()
     repaint()
@@ -131,6 +140,7 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
 
     updatePlayerObjects(players)
     updateRoundObject(null)
+    resetPlayerCompletionStatus
     resetUserPassStatus
     revalidate()
     repaint()
@@ -147,6 +157,12 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
       }
     }
     gameThread.start()
+  }
+
+  def updateLastRemainingPlayer(indexOfLastRemainingPlayer: Int) = {
+    topPanel.updateLastRemainingPlayer(indexOfLastRemainingPlayer)
+    middlePanel.updateLastRemainingPlayer(indexOfLastRemainingPlayer)
+    bottomPanel.updateLastRemainingPlayer(indexOfLastRemainingPlayer)
   }
 
   def isGameActive: Boolean = game.isActive

@@ -149,6 +149,8 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
 
 
     }
+    // This check exists so that BUM doesnt get updated when the user has requested a re-deal/new game
+    if(isActive) mainLayout.updateLastRemainingPlayer(listOfPlayers.indexWhere(player => player.status == Active))
     printStats()
   }
 

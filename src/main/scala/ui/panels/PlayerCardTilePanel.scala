@@ -22,7 +22,6 @@ class PlayerCardTilePanel(app: SimpleSwingApplication, var player: Player, paren
   import PlayerCardTilePanel._
 
   background = backgroundColor
-  //  border = Swing.LineBorder(Color.BLACK)
 
   preferredSize = new Dimension(width, height)
   minimumSize = new Dimension(width, height)

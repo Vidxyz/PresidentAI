@@ -112,4 +112,21 @@ class MiddleLayout(app: SimpleSwingApplication, player2Hand: List[Card], player6
     if(players.size >= 6) player6AvatarPanel.updatePlayerHand(players(5).hand.listOfCards) else player6AvatarPanel.updatePlayerHand(List.empty)
   }
 
+  def updateLastRemainingPlayer(indexOfLastPlayer: Int) = {
+    indexOfLastPlayer match {
+      case 1 => player2AvatarPanel.setPlayerAvatarToBum
+      case 5 => player6AvatarPanel.setPlayerAvatarToBum
+      case _ =>
+    }
+    revalidate()
+    repaint()
+  }
+
+  def resetPlayerCompletionStatus: Unit = {
+    player2AvatarPanel.resetUserCompletionStatus
+    player6AvatarPanel.resetUserCompletionStatus
+    revalidate()
+    repaint()
+  }
+
 }

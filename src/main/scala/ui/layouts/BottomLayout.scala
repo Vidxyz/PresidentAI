@@ -73,6 +73,10 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
     // Do nothing for now
   }
 
+  def updateLastRemainingPlayer(indexOfLastPlayer: Int) = {
+    if(indexOfLastPlayer == 0) playerHandPanel.setPlayerAvatarToBum
+  }
+
   def highlightPossibleCards = {
     val p = realPlayer.copy(isRealPlayer = false)
     val nextMove = p.playNextMove(p.hand, round.gameState)
@@ -145,8 +149,13 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
     repaint()
   }
 
+  def resetPlayerCompletionStatus = {
+    playerHandPanel.resetPlayerCompletionStatus
+  }
+
   /* Returns true iff real player is set to play next, and they haven't passed the round already */
   def getIfRealPlayerTurn: Boolean = {
     round.currentPlayerTurn == 0 && !round.roundPassStatus.getOrElse(realPlayer.name, false)
   }
+
 }
