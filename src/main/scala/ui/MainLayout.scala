@@ -9,8 +9,10 @@ import scala.swing.Dialog._
 
 class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
 
+  var gameThread: Thread = _
   val playerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andrew")
-  val players = GameUtilities.generatePlayersAndDealHands(playerNames)
+  var selectedPlayerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andrew")
+  var players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames)
     .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
 
   val topPanel = new TopLayout(app,
@@ -104,13 +106,15 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     val choices = List("2", "3", "4", "5", "6")
     val userChoice = showInput(this, "Select total number of players in game", "Game Settings", Message.Plain, Swing.EmptyIcon, choices, choices.head)
     val selectedChoice = userChoice.getOrElse(choices.head).toInt
-    val newPlayers = playerNames.take(selectedChoice)
-    val newListOfPlayers = GameUtilities.generatePlayersAndDealHands(newPlayers).map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
+    selectedPlayerNames = playerNames.take(selectedChoice)
 
-    game = Game(Move(List.empty), newListOfPlayers.toBuffer, this)
+    gameThread.join()
+    players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames).map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
+    game = Game(Move(List.empty), players.toBuffer, this)
 
-    updatePlayerObjects(newListOfPlayers)
+    updatePlayerObjects(players)
     updateRoundObject(null)
+    resetUserPassStatus
     revalidate()
     repaint()
 
@@ -119,17 +123,32 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
   }
 
   def reDealHandsForThisGame = {
+    game.isActive = false
 
+    gameThread.join()
+    players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames).map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
+    game = Game(Move(List.empty), players.toBuffer, this)
+
+    updatePlayerObjects(players)
+    updateRoundObject(null)
+    resetUserPassStatus
+    revalidate()
+    repaint()
+
+    beginGame
   }
 
   def beginGame = {
-    val thread = new Thread {
+    gameThread = new Thread {
       override def run {
         println("Starting a new game")
         game.play()
+        println("Game thread is over!")
       }
     }
-    thread.start()
+    gameThread.start()
   }
+
+  def isGameActive: Boolean = game.isActive
 
 }

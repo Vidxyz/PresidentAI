@@ -111,11 +111,11 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
   }
 
   def getUserInputMove(): Option[Move] = {
-    while(!isMoveSelected) {
+    while(!isMoveSelected && parent.isGameActive) {
       Thread.sleep(100)
     }
     isMoveSelected = false
-    selectedMove
+    if(parent.isGameActive) selectedMove else None
   }
 
   def updateRealPlayerObject(newPlayer: Player) = {
