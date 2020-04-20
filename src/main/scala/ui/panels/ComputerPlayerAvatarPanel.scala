@@ -17,7 +17,9 @@ object ComputerPlayerAvatarPanel {
   val fontName = "TimesRoman"
 }
 
-class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: List[Card],
+class ComputerPlayerAvatarPanel(app: SimpleSwingApplication,
+                                val playerName: String,
+                                var playerHand: List[Card],
                                 var hasPlayerCompleted: Boolean = false,
                                 var isPlayerBum: Boolean = false) extends Panel {
   import ComputerPlayerAvatarPanel._
@@ -26,7 +28,7 @@ class ComputerPlayerAvatarPanel(app: SimpleSwingApplication, var playerHand: Lis
   preferredSize = new Dimension(width, height)
   border = Swing.LineBorder(Color.BLACK)
 
-  val computerPlayer = ComputerPlayer(app)
+  val computerPlayer = ComputerPlayer(app, playerName)
 
   var numberOfCardsInHand = playerHand.size
   var maxAngle = maxHandSpreadAngle * numberOfCardsInHand/maxPossibleCardsInHand

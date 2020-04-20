@@ -6,17 +6,20 @@ import ui.panels.{ComputerPlayerAvatarPanel, EmptyFillerPanel}
 
 import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
-class TopLayout(app: SimpleSwingApplication, player3Hand: List[Card],
-                player4Hand: List[Card], player5Hand: List[Card], var round: Round) extends GridBagPanel {
+class TopLayout(app: SimpleSwingApplication, player3: Player,
+                player4: Player, player5: Player, var round: Round) extends GridBagPanel {
 
 
-  val player3AvatarPanel = new ComputerPlayerAvatarPanel(app, player3Hand)
+  val player3AvatarPanel = new ComputerPlayerAvatarPanel(app, if(player3 == null) "" else player3.name,
+    if(player3 == null) List.empty else player3.hand.listOfCards)
   val filler1 = new EmptyFillerPanel
   val filler12 = new EmptyFillerPanel
-  val player4AvatarPanel = new ComputerPlayerAvatarPanel(app, player4Hand)
+  val player4AvatarPanel = new ComputerPlayerAvatarPanel(app, if(player4 == null) "" else player4.name,
+    if(player4 == null) List.empty else player4.hand.listOfCards)
   val filler2 = new EmptyFillerPanel
   val filler22 = new EmptyFillerPanel
-  val player5AvatarPanel = new ComputerPlayerAvatarPanel(app, player5Hand)
+  val player5AvatarPanel = new ComputerPlayerAvatarPanel(app, if(player5 == null) "" else player5.name,
+    if(player5 == null) List.empty else player5.hand.listOfCards)
 
   val c: Constraints = new Constraints()
 

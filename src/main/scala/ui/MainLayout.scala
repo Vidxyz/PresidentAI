@@ -10,17 +10,19 @@ import scala.swing.Dialog._
 class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
 
   var gameThread: Thread = _
-  val playerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andrew")
-  var selectedPlayerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andrew")
+  val playerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andre")
+  var selectedPlayerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andre")
   var players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames)
     .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
 
   val topPanel = new TopLayout(app,
-    if(players.size >= 3) players(2).hand.listOfCards else List.empty,
-    if(players.size >= 4) players(3).hand.listOfCards else List.empty,
-    if(players.size >= 5) players(4).hand.listOfCards else List.empty, null)
-  val middlePanel = new MiddleLayout(app, players(1).hand.listOfCards,
-    if(players.size == 6) players.last.hand.listOfCards else List.empty, null)
+    if(players.size >= 3) players(2) else null,
+    if(players.size >= 4) players(3) else null,
+    if(players.size >= 5) players(4) else null, null)
+
+  val middlePanel = new MiddleLayout(app, players(1),
+    if(players.size == 6) players.last else null, null)
+
   val bottomPanel = new BottomLayout(app, this, players.head, null)
 
 
