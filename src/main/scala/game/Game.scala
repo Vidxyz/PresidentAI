@@ -10,30 +10,68 @@ import scala.collection.mutable.ListBuffer
 case class IllegalNumberOfPlayersException(s: String) extends IllegalArgumentException(s)
 
 case object Game {
-  def apply(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLayout: MainLayout): Game = {
-    if(listOfPlayers.size < 2 || listOfPlayers.size > 6) throw IllegalNumberOfPlayersException("Need 2-6 players to play the game")
-    else new Game(startState, listOfPlayers, mainLayout)
+  def apply(startState: Move, playerNames: List[String], mainLayout: MainLayout): Game = {
+    if(playerNames.size < 2 || playerNames.size > 6) throw IllegalNumberOfPlayersException("Need 2-6 players to play the game")
+    else {
+      val players = GameUtilities.generatePlayersAndDealHands(playerNames)
+        .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
+      new Game(startState, players.toBuffer, mainLayout)
+    }
   }
 }
 
-case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLayout: MainLayout, var isActive: Boolean = true) {
+case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayout: MainLayout, var isActive: Boolean = true) {
 
   /*
   Keeps a completion order of the form (playerName, roundEnded)
    */
   var playerCompletionOrder: ListBuffer[String] = new ListBuffer[String]
+  var startingPlayerIndex = 0
 
   /*
- Simulates a run of the game, given a list of player.Player and a starting state
+ Simulates multiple runs of the game, until user quits. First game begins with P1 starting
   */
   def play(): Unit = {
 
+    while(true) {
+      playerCompletionOrder.clear()
+      runSingleGame(startingPlayerIndex)
+
+      // This check exists so that BUM doesnt get updated when the user has requested a re-deal/new game
+      // This is true if the game has ended gracefully -> aka there is a BUM
+      if(isActive) {
+        mainLayout.updateLastRemainingPlayer(players.indexWhere(player => player.status == Active))
+        startingPlayerIndex = players.map(_.name).indexOf(playerCompletionOrder.head)
+
+        printStats()
+        Thread.sleep(3000)
+
+        players = GameUtilities.generatePlayersAndDealHands(players.map(_.name).toList)
+          .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player).toBuffer
+        updateUI(players)
+
+      }
+      else return
+    }
+
+  }
+
+  def updateUI(players: mutable.Buffer[Player]) = {
+    mainLayout.updatePlayerObjects(players.toList)
+    mainLayout.updateRoundObject(null)
+    mainLayout.resetPlayerCompletionStatus
+    mainLayout.resetUserPassStatus
+    mainLayout.revalidate()
+    mainLayout.repaint()
+  }
+
+  def runSingleGame(startingPlayerIndex: Int) = {
     var currentState = this.startState
 
-    var round = Round(currentState, "", 0, listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
+    var round = Round(currentState, "", startingPlayerIndex, players.toList, Round.getPassStatusFalseForAll(players.toList))
 
     // Keep the game going, until exactly one player is game.Active (Bum)
-    while(listOfPlayers
+    while(players
       .map(player => player.status)
       .map(playerstatus => playerstatus == Active)
       .count(_ == true) > 1 && isActive) {
@@ -57,12 +95,12 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
 
         // Update round with index of next player and reset pass list and clean round.movesPlayed
         round = Round(currentState, round.lastMovePlayedBy, nextPlayerIndex,
-          listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
+          players.toList, Round.getPassStatusFalseForAll(players.toList))
         mainLayout.updateRoundObject(round)
         mainLayout.resetUserPassStatus
       }
 
-      val currentPlayerObject = listOfPlayers(round.currentPlayerTurn)
+      val currentPlayerObject = players(round.currentPlayerTurn)
       println(currentPlayerObject.name)
       println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
 
@@ -85,13 +123,13 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
       currentState = getNextGameState(currentState, nextMove)
       // If nextMove is not none, update lastMovePlayedBy since the player is gonna play the move
       if(nextMove.isDefined){
-        round = Round(currentState, currentPlayerObject.name, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus, round.movesPlayed  :+ nextMove.get)
+        round = Round(currentState, currentPlayerObject.name, round.currentPlayerTurn, players.toList, round.roundPassStatus, round.movesPlayed  :+ nextMove.get)
       }
       // This means that the user is passing, nextMove is not defined. Update the roundPassStatus list
       else {
         println("PASS")
         val newRoundPassStatus = round.roundPassStatus + (currentPlayerObject.name -> true)
-        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, newRoundPassStatus, round.movesPlayed)
+        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, players.toList, newRoundPassStatus, round.movesPlayed)
         // Make call to update UI to draw PASS here
         mainLayout.updateUserHasPassedOnRound(round.currentPlayerTurn)
       }
@@ -103,11 +141,11 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
       // Reset roundPassStatus list if currentState has become Empty, and reset roundMovesPlayed as well
       // This can only happen when it is a suit-burn/2-burn/game.Joker/All-pass right now
       if(currentState.isEmpty) {
-        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, Round.getPassStatusFalseForAll(listOfPlayers.toList))
+        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, players.toList, Round.getPassStatusFalseForAll(players.toList))
         mainLayout.resetUserPassStatus
       }
       else
-        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, listOfPlayers.toList, round.roundPassStatus, round.movesPlayed)
+        round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn, players.toList, round.roundPassStatus, round.movesPlayed)
 
       mainLayout.updateRoundObject(round)
 
@@ -116,20 +154,20 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
       //    println("The pass status is : " + round.roundPassStatus)
 
       val newHandAfterPlaying = GameUtilities.getNewHand(currentPlayerObject.hand, nextMove)
-      listOfPlayers.update(round.currentPlayerTurn, currentPlayerObject.copy(hand = newHandAfterPlaying))
+      players.update(round.currentPlayerTurn, currentPlayerObject.copy(hand = newHandAfterPlaying))
 
       // Check if playing last move led player to complete
-      if(listOfPlayers(round.currentPlayerTurn).status == Complete) {
-        println(listOfPlayers(round.currentPlayerTurn).name + " has finished!\n")
+      if(players(round.currentPlayerTurn).status == Complete) {
+        println(players(round.currentPlayerTurn).name + " has finished!\n")
         round = Round(currentState, round.lastMovePlayedBy, round.currentPlayerTurn,
-          listOfPlayers.toList, round.updatedRoundPassStatus(currentPlayerObject.name), round.movesPlayed)
+          players.toList, round.updatedRoundPassStatus(currentPlayerObject.name), round.movesPlayed)
         playerCompletionOrder += currentPlayerObject.name
         mainLayout.updatePlayerCompletion(round.currentPlayerTurn)
       }
 
 
       // Updating player object so that the hand is refreshed
-      mainLayout.updatePlayerObjects(listOfPlayers.toList)
+      mainLayout.updatePlayerObjects(players.toList)
       // Updating round object so that the gameState is accurately reflected
       mainLayout.updateRoundObject(round)
 
@@ -141,7 +179,7 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
       */
       if(currentState.cards.nonEmpty || round.playerEndedTheGameOnABurn)  {
         round = Round(currentState, round.lastMovePlayedBy, round.getNextActivePlayerInSequence(round.currentPlayerTurn),
-          listOfPlayers.toList, round.roundPassStatus, round.movesPlayed)
+          players.toList, round.roundPassStatus, round.movesPlayed)
       }
 
       println("------------------------\n")
@@ -149,12 +187,10 @@ case class Game(startState: Move, listOfPlayers: mutable.Buffer[Player], mainLay
 
 
     }
-    // This check exists so that BUM doesnt get updated when the user has requested a re-deal/new game
-    if(isActive) mainLayout.updateLastRemainingPlayer(listOfPlayers.indexWhere(player => player.status == Active))
-    printStats()
   }
 
   def printStats(): Unit = {
+    println("---------")
     println("GAME OVER")
     println("---------")
     println(playerCompletionOrder)

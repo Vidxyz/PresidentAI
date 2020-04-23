@@ -12,21 +12,21 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
   var gameThread: Thread = _
   val playerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andre")
   var selectedPlayerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andre")
-  var players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames)
-    .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
+
+  var game: Game = Game(Move(List.empty), selectedPlayerNames, this)
 
   val topPanel = new TopLayout(app,
-    if(players.size >= 3) players(2) else null,
-    if(players.size >= 4) players(3) else null,
-    if(players.size >= 5) players(4) else null, null)
+    if(game.players.size >= 3) game.players(2) else null,
+    if(game.players.size >= 4) game.players(3) else null,
+    if(game.players.size >= 5) game.players(4) else null, null)
 
-  val middlePanel = new MiddleLayout(app, players(1),
-    if(players.size == 6) players.last else null, null)
+  val middlePanel = new MiddleLayout(app, game.players(1),
+    if(game.players.size == 6) game.players.last else null, null)
 
-  val bottomPanel = new BottomLayout(app, this, players.head, null)
+  val bottomPanel = new BottomLayout(app, this, game.players.head, null)
 
 
-  var game: Game = Game(Move(List.empty), players.toBuffer, this)
+
   println("The starting state is : " + game.startState)
   println("\n")
   beginGame
@@ -56,6 +56,7 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     bottomPanel.getUserInputMove()
   }
 
+  // Note - Top and Middle Panels only update hands, not names. Potential source of bug later
   def updatePlayerObjects(players: List[Player]) = {
     topPanel.updatePlayerHands(players)
     middlePanel.updatePlayerHands(players)
@@ -119,10 +120,9 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     selectedPlayerNames = playerNames.take(selectedChoice)
 
     gameThread.join()
-    players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames).map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
-    game = Game(Move(List.empty), players.toBuffer, this)
+    game = Game(Move(List.empty), selectedPlayerNames, this)
 
-    updatePlayerObjects(players)
+    updatePlayerObjects(game.players.toList)
     updateRoundObject(null)
     resetPlayerCompletionStatus
     resetUserPassStatus
@@ -133,17 +133,25 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
 
   }
 
+  // Difference between new game and re-dealing hands is that state is saved
+  // Saved state for redealing hands include startIndex (may or may not be 0, based on if one game has already competed)
+  // While the game initially starts with index 0, once one game ends, the winner of that game starts next
+  // startIndex could thus be not 0 in these situations
   def reDealHandsForThisGame = {
     game.isActive = false
-
     gameThread.join()
-    players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames).map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
-    game = Game(Move(List.empty), players.toBuffer, this)
 
-    updatePlayerObjects(players)
-    updateRoundObject(null)
+    game.players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames)
+                  .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player).toBuffer
+    game.isActive = true
+
+    val freshRound = Round(game.startState, "", game.startingPlayerIndex, game.players.toList, Round.getPassStatusFalseForAll(game.players.toList))
+
+    updatePlayerObjects(game.players.toList)
+    updateRoundObject(freshRound)
     resetPlayerCompletionStatus
     resetUserPassStatus
+    updateActivePlayerAvatar
     revalidate()
     repaint()
 
