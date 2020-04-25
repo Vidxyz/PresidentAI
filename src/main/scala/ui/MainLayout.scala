@@ -188,7 +188,7 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     dialog.close()
   }
 
-  def showUserPromptForGameCompletionStatus(playerCompletionOrder: List[String], playerCompletionStatusOrder: List[PlayerCompletionStatus]) = {
+  def showUserPromptForGameCompletionStatus(playerCompletionOrder: List[String], playerCompletionStatusOrder: List[PlayerCompletionStatus]): Unit = {
     val playerPosition = playerCompletionOrder.zip(playerCompletionStatusOrder)
       .filter(tuple => tuple._1 == game.players.filter(_.isRealPlayer).head.name)
       .map(_._2).head
