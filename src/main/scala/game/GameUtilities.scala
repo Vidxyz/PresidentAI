@@ -135,6 +135,15 @@ case object GameUtilities {
   }
 
   /*
+  Sorts cards to give away as defined by cardGiveAwayPreference
+   */
+  def sortCardsToGiveAway(listOfNonNormalCards: List[Card]): List[Card] = {
+    listOfNonNormalCards.sortWith(
+      (card1, card2) => cardGiveAwayPreference.getOrElse(card1, -1) < cardGiveAwayPreference.getOrElse(card2, -1)
+    )
+  }
+
+  /*
   Generate Lists of Similar cards
   Similar cards include cards with same game.FaceValue but differing game.Suit
   Assumption :- hand is sorted
@@ -468,7 +477,7 @@ case object GameUtilities {
   /*
   Drops cards, and replaces them with cards, and returns a sorted hand
   Must handle dual joker situations carefully due to card comparision edge cases
-  // todo - test this
+  // todo - test this and write tests for it
    */
   def dropAndReplaceCardsInHand(hand: Hand, cardsToDrop: List[Card], cardsToReplce: List[Card]): Hand = {
     var jokersToRemove = cardsToDrop.count(c => c == Joker)

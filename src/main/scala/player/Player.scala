@@ -12,22 +12,27 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   implicit lazy val playerIndicators: PlayerIndicators = PlayerIndicators(hand)
 
   /*
-  * Gets the top x worst cards in hand, defined as lowest normalcards in a sorted hand
-  * Pitfall - if hand is comprised of < 2 cards, what happens then? Will iterate on this
+  * Gets the top x worst cards in hand, defined as lowest NormalCards in a sorted hand
+  * Pitfall - what about worst cards in terms of being part of a set? We don't want to split up triple-4s do we?
+  * todo - write tests
   */
   def getWorstCards(totalCardsToGet: Int): List[Card] = {
-    GameUtilities.sortCards(hand.listOfCards).filter({
-      case c: NormalCard => true
-      case _ => false
-    }).take(totalCardsToGet)
+    val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
+    val nonNormalCardsInHand = GameUtilities.sortCardsToGiveAway(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
+    val handInGivingAwayOrder = normalCardsInHand ++ nonNormalCardsInHand
+    handInGivingAwayOrder.take(totalCardsToGet)
   }
 
-  /* Gets top x best cards in hand. Need to implement logic for preferring some 3s over 2s
+  /*
+  * Gets top x best cards in hand. Need to implement logic for preferring some 3s over 2s
   * Does so my preferring Jokers > TWO(spade/heart) > 3(spade/heart) > 2(club/diamond) > 3(club/diamond)
-  * Iterate on this - currently just picks from the end
+  * todo - write tests
    */
   def getBestCards(totalCardsToGet: Int): List[Card] = {
-    GameUtilities.sortCards(hand.listOfCards).takeRight(totalCardsToGet)
+    val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
+    val nonNormalCardsInHand = GameUtilities.sortCardsToGiveAway(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
+    val handInGivingAwayOrder = normalCardsInHand ++ nonNormalCardsInHand
+    handInGivingAwayOrder.takeRight(totalCardsToGet)
   }
 
   /*

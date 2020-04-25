@@ -62,7 +62,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
         players = GameUtilities.generatePlayersAndDealHands(players.map(_.name).toList)
           .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player).toBuffer
         updateUI(players)
-        Thread.sleep(3000)
+        Thread.sleep(sleepTimeBetweenGames)
         players = exchangeHands(players, playerCompletionOrder.toList)
         updateUI(players)
       }
@@ -76,7 +76,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
   Neutral hand is untouched
   Assumes playerCompletionOrder.size == playerCompletionStatusOrder.size
   Assumes newPlayers.names == player names in completion order
-  // todo - test this code
+  // todo - test this code and write tests
    */
   def exchangeHands(newPlayers: mutable.Buffer[Player], playerCompletionOrder: List[String]): mutable.Buffer[Player] = {
     val totalCardsToDrop = if(newPlayers.size >= 4) 2 else 1
