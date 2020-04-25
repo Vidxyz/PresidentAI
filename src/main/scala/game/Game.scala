@@ -10,6 +10,10 @@ import scala.collection.mutable.ListBuffer
 case class IllegalNumberOfPlayersException(s: String) extends IllegalArgumentException(s)
 
 case object Game {
+
+  val sleepTimeBetweenGames = 5000
+  val sleepTime = 100
+
   def apply(startState: Move, playerNames: List[String], mainLayout: MainLayout): Game = {
     if(playerNames.size < 2 || playerNames.size > 6) throw IllegalNumberOfPlayersException("Need 2-6 players to play the game")
     else {
@@ -21,7 +25,7 @@ case object Game {
 }
 
 case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayout: MainLayout, var isActive: Boolean = true) {
-
+  import Game._
   /*
   Keeps a completion order of the form (playerName, roundEnded)
    */
@@ -41,15 +45,14 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
       // This is true if the game has ended gracefully -> aka there is a BUM
       if(isActive) {
         mainLayout.updateLastRemainingPlayer(players.indexWhere(player => player.status == Active))
+        // Update next iteration of game's startingPlayerIndex => President gets to start the next game
         startingPlayerIndex = players.map(_.name).indexOf(playerCompletionOrder.head)
-
+        // Print stats to console and show UI dialog
         printStats()
-        Thread.sleep(3000)
-
+        // Re-deal fresh set of hands and update UI
         players = GameUtilities.generatePlayersAndDealHands(players.map(_.name).toList)
           .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player).toBuffer
         updateUI(players)
-
       }
       else return
     }
@@ -105,7 +108,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
       println(Hand(sortCards(currentPlayerObject.hand.listOfCards)))
 
       mainLayout.updateActivePlayerAvatar
-      Thread.sleep(1000)
+      Thread.sleep(sleepTime)
 
       val nextMove: Option[Move] =
       // If player has not skipped turn this round already, then they get to play
@@ -136,7 +139,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
       mainLayout.updateRoundObject(round)
 
       // Add a timing break here so that visual changes are reflected
-      Thread.sleep(1000)
+      Thread.sleep(sleepTime)
 
       // Reset roundPassStatus list if currentState has become Empty, and reset roundMovesPlayed as well
       // This can only happen when it is a suit-burn/2-burn/game.Joker/All-pass right now
@@ -183,10 +186,11 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
       }
 
       println("------------------------\n")
-      Thread.sleep(1000)
-
+      Thread.sleep(sleepTime)
 
     }
+    // Add in the last player in the completion list
+    playerCompletionOrder += players(round.currentPlayerTurn).name
   }
 
   def printStats(): Unit = {
@@ -194,5 +198,6 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
     println("GAME OVER")
     println("---------")
     println(playerCompletionOrder)
+    mainLayout.printStats(playerCompletionOrder.toList)
   }
 }

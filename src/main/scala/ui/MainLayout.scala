@@ -3,8 +3,9 @@ package ui
 import game.{Game, GameUtilities, Move, Round}
 import player.Player
 import ui.layouts.{BottomLayout, MiddleLayout, TopLayout}
+import ui.panels.GameOverPanel
 
-import scala.swing.{GridBagPanel, SimpleSwingApplication, Swing}
+import scala.swing.{Dialog, GridBagPanel, SimpleSwingApplication, Swing}
 import scala.swing.Dialog._
 
 class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
@@ -176,5 +177,15 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
   }
 
   def isGameActive: Boolean = game.isActive
+
+  def printStats(playerCompletionOrder: List[String]) = {
+    val dialog = new Dialog()
+    dialog.contents = new GameOverPanel(playerCompletionOrder)
+    dialog.resizable = false
+    dialog.centerOnScreen()
+    dialog.open()
+    Thread.sleep(Game.sleepTimeBetweenGames)
+    dialog.close()
+  }
 
 }

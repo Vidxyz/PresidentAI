@@ -17,6 +17,7 @@ object PlayerHandPanel {
   val maxHandSpreadAngle = 180d
   val maxPossibleCardsInHand = 27
   val backgroundColor = new Color(4,6,84)
+  val fontName = "TimesRoman"
   val fontSize = 40
 }
 
@@ -60,7 +61,7 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
     super.paintComponent(g)
     if(handCardList.isEmpty) {
       g.setColor(Color.red)
-      g.setFont(Font("TimesRoman", Font.Bold, fontSize))
+      g.setFont(Font(fontName, Font.Bold, fontSize))
       g.drawString("OVER", width/2, height/2)
     }
     else handCardList.foreach(h => h.drawSprite(g))
