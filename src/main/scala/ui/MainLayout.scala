@@ -11,8 +11,8 @@ import scala.swing.Dialog._
 class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
 
   var gameThread: Thread = _
-  val playerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andre")
-  var selectedPlayerNames = List("Real", "Bob", "Mike", "Joe", "Kevin", "Andre")
+  val playerNames = List(Game.realPlayerName, "Bob", "Mike", "Joe", "Kevin", "Andre")
+  var selectedPlayerNames = List(Game.realPlayerName, "Bob", "Mike", "Joe", "Kevin", "Andre")
 
   var game: Game = Game(Move(List.empty), selectedPlayerNames, this)
 
@@ -143,7 +143,7 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     gameThread.join()
 
     game.players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames)
-                  .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player).toBuffer
+                  .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
     game.isActive = true
 
     val freshRound = Round(game.startState, "", game.startingPlayerIndex, game.players.toList, Round.getPassStatusFalseForAll(game.players.toList))

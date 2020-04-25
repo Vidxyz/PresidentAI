@@ -11,8 +11,9 @@ case class IllegalNumberOfPlayersException(s: String) extends IllegalArgumentExc
 
 case object Game {
 
+  val realPlayerName = "YOU"
   val sleepTimeBetweenGames = 5000
-  val sleepTime = 100
+  val sleepTime = 2000
 
   val totalPlayerSizeMap: Map[Int, List[PlayerCompletionStatus]] = Map(
     2 -> List(President, Bum),
@@ -26,7 +27,7 @@ case object Game {
     if(playerNames.size < 2 || playerNames.size > 6) throw IllegalNumberOfPlayersException("Need 2-6 players to play the game")
     else {
       val players = GameUtilities.generatePlayersAndDealHands(playerNames)
-        .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
+        .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player)
       new Game(startState, players.toBuffer, mainLayout)
     }
   }
@@ -60,7 +61,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
         printStats()
         // Re-deal fresh set of hands and update UI
         players = GameUtilities.generatePlayersAndDealHands(players.map(_.name).toList)
-          .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player).toBuffer
+          .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
         updateUI(players)
         Thread.sleep(sleepTimeBetweenGames)
         players = exchangeHands(players, playerCompletionOrder.toList)
@@ -106,7 +107,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
           droppedCards.getOrElse(Bum, List.empty), droppedCards.getOrElse(President, List.empty)))
         case (player, Neutral) => player
         })
-      .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
+      .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player)
 
   }
 
