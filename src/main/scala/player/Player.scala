@@ -12,6 +12,25 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   implicit lazy val playerIndicators: PlayerIndicators = PlayerIndicators(hand)
 
   /*
+  * Gets the top x worst cards in hand, defined as lowest normalcards in a sorted hand
+  * Pitfall - if hand is comprised of < 2 cards, what happens then? Will iterate on this
+  */
+  def getWorstCards(totalCardsToGet: Int): List[Card] = {
+    GameUtilities.sortCards(hand.listOfCards).filter({
+      case c: NormalCard => true
+      case _ => false
+    }).take(totalCardsToGet)
+  }
+
+  /* Gets top x best cards in hand. Need to implement logic for preferring some 3s over 2s
+  * Does so my preferring Jokers > TWO(spade/heart) > 3(spade/heart) > 2(club/diamond) > 3(club/diamond)
+  * Iterate on this - currently just picks from the end
+   */
+  def getBestCards(totalCardsToGet: Int): List[Card] = {
+    GameUtilities.sortCards(hand.listOfCards).takeRight(totalCardsToGet)
+  }
+
+  /*
   Returns the move chosen to play, given current hand and current state
    */
   def playNextMove(currentHand: Hand, currentState: Move): Option[Move] = {

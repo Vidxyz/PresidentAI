@@ -465,6 +465,28 @@ case object GameUtilities {
     }
   }
 
+  /*
+  Drops cards, and replaces them with cards, and returns a sorted hand
+  Must handle dual joker situations carefully due to card comparision edge cases
+  // todo - test this
+   */
+  def dropAndReplaceCardsInHand(hand: Hand, cardsToDrop: List[Card], cardsToReplce: List[Card]): Hand = {
+    var jokersToRemove = cardsToDrop.count(c => c == Joker)
+    Hand(GameUtilities.sortCards(hand.listOfCards.filter({
+      case card: NormalCard => !cardsToDrop.contains(card)
+      case card: SpecialCard => !cardsToDrop.contains(card)
+      case card: WildCard => !cardsToDrop.contains(card)
+      // This case will have to be Joker
+      case card: Card => {
+        if(jokersToRemove > 0) {
+          jokersToRemove -= 1
+          !cardsToDrop.contains(card)
+        }
+        else false
+      }
+    }) ++ cardsToReplce))
+  }
+
   /* Removes first occurrence of element in list that satisfies predicate function */
   private def removeFirst[T](list: List[T])(pred: (T) => Boolean): List[T] = {
     val (before, atAndAfter) = list span (x => !pred(x))

@@ -14,6 +14,14 @@ case object Game {
   val sleepTimeBetweenGames = 5000
   val sleepTime = 100
 
+  val totalPlayerSizeMap: Map[Int, List[PlayerCompletionStatus]] = Map(
+    2 -> List(President, Bum),
+    3 -> List(President, Neutral, Bum),
+    4 -> List(President, VicePres, ViceBum, Bum),
+    5 -> List(President, VicePres, Neutral, ViceBum, Bum),
+    6 -> List(President, VicePres, Neutral, Neutral, ViceBum, Bum)
+  )
+
   def apply(startState: Move, playerNames: List[String], mainLayout: MainLayout): Game = {
     if(playerNames.size < 2 || playerNames.size > 6) throw IllegalNumberOfPlayersException("Need 2-6 players to play the game")
     else {
@@ -29,6 +37,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
   /*
   Keeps a completion order of the form (playerName, roundEnded)
    */
+  val playerCompletionStatusOrder: List[PlayerCompletionStatus] = totalPlayerSizeMap.getOrElse(players.size, List.empty)
   var playerCompletionOrder: ListBuffer[String] = new ListBuffer[String]
   var startingPlayerIndex = 0
 
@@ -53,9 +62,51 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
         players = GameUtilities.generatePlayersAndDealHands(players.map(_.name).toList)
           .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player).toBuffer
         updateUI(players)
+        Thread.sleep(3000)
+        players = exchangeHands(players, playerCompletionOrder.toList)
+        updateUI(players)
       }
       else return
     }
+
+  }
+
+  /*
+  Exchanges hands with president-bum, vp-vb
+  Neutral hand is untouched
+  Assumes playerCompletionOrder.size == playerCompletionStatusOrder.size
+  Assumes newPlayers.names == player names in completion order
+  // todo - test this code
+   */
+  def exchangeHands(newPlayers: mutable.Buffer[Player], playerCompletionOrder: List[String]): mutable.Buffer[Player] = {
+    val totalCardsToDrop = if(newPlayers.size >= 4) 2 else 1
+    val droppedCards: mutable.Map[PlayerCompletionStatus, List[Card]] = collection.mutable.Map.empty
+    val completionMap: Map[String, PlayerCompletionStatus] =  playerCompletionOrder.zip(playerCompletionStatusOrder).toMap
+
+    newPlayers
+      .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
+      .foreach({
+        case (player, President) => droppedCards(President) = player.getWorstCards(totalCardsToDrop)
+        case (player, VicePres) => droppedCards(VicePres) = player.getWorstCards(1)
+        case (player, ViceBum) => droppedCards(ViceBum) = player.getBestCards(1)
+        case (player, Bum) => droppedCards(Bum) = player.getBestCards(totalCardsToDrop)
+        case (player, Neutral) =>
+      })
+
+    newPlayers
+      .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
+      .map({
+        case (player, President) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
+                    droppedCards.getOrElse(President, List.empty), droppedCards.getOrElse(Bum, List.empty)))
+        case (player, VicePres) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
+          droppedCards.getOrElse(VicePres, List.empty), droppedCards.getOrElse(ViceBum, List.empty)))
+        case (player, ViceBum) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
+          droppedCards.getOrElse(ViceBum, List.empty), droppedCards.getOrElse(VicePres, List.empty)))
+        case (player, Bum) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
+          droppedCards.getOrElse(Bum, List.empty), droppedCards.getOrElse(President, List.empty)))
+        case (player, Neutral) => player
+        })
+      .map(player => if(player.name == "Real") player.copy(isRealPlayer = true) else player)
 
   }
 
