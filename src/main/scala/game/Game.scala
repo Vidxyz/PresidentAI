@@ -13,7 +13,7 @@ case object Game {
 
   val realPlayerName = "YOU"
   val sleepTimeBetweenGames = 5000
-  val sleepTime = 2000
+  val sleepTime = 200
 
   val totalPlayerSizeMap: Map[Int, List[PlayerCompletionStatus]] = Map(
     2 -> List(President, Bum),
@@ -22,6 +22,34 @@ case object Game {
     5 -> List(President, VicePres, Neutral, ViceBum, Bum),
     6 -> List(President, VicePres, Neutral, Neutral, ViceBum, Bum)
   )
+
+  // Todo - ensure correct number of cards are shown on text - sometimes you lose/gain 2 cards, and other times, just the 1
+  val playerCompletionMessages: Map[PlayerCompletionStatus, String] = Map(
+    President -> "Congratulations! You are the new President! As a reward, two of your worst cards will be replaced with the Bum's best cards. \n You also get to start the next game!",
+    VicePres -> "Congratulations, You are the new VicePresident! As a rewards, your worst card will be replaced with the ViceBum's bext card.",
+    Neutral -> "Congratulations, You are Neutral. You will not be involved in any exchange of cards.",
+    ViceBum -> "Sorry, you are the ViceBum. You will be forced to give up your best card in exchange for the VicePresident's worst.",
+    Bum -> "Sorry, you are the Bum. You will be forced to give up two of your best cards in exchange for 2 of the President's worst cards."
+  )
+
+
+  def getPlayerCompletionMessage(status: PlayerCompletionStatus, totalNumberOfPlayers: Int): String = {
+    val numberOfCards = if(totalNumberOfPlayers >= 4) 2 else 1
+    status match {
+      case President => {
+        if(numberOfCards == 1) "Congratulations! You are the new President! As a reward, your worst card will be replaced with the Bum's best card. \n You also get to start the next game!"
+        else "Congratulations! You are the new President! As a reward, two of your worst cards will be replaced with the Bum's best cards. \n You also get to start the next game!"
+      }
+      case VicePres => "Congratulations, You are the new VicePresident! As a rewards, your worst card will be replaced with the ViceBum's bext card."
+      case Neutral =>  "Congratulations, You are Neutral. You will not be involved in any exchange of cards."
+      case ViceBum => "Sorry, you are the ViceBum. You will be forced to give up your best card in exchange for the VicePresident's worst."
+      case Bum => {
+        if(numberOfCards == 1) "Sorry, you are the Bum. You will be forced to give up your best card in exchange for the President's worst card."
+        else "Sorry, you are the Bum. You will be forced to give up your 2 best cards in exchange for the President's 2 worst cards."
+
+      }
+    }
+  }
 
   def apply(startState: Move, playerNames: List[String], mainLayout: MainLayout): Game = {
     if(playerNames.size < 2 || playerNames.size > 6) throw IllegalNumberOfPlayersException("Need 2-6 players to play the game")
@@ -63,7 +91,8 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
         players = GameUtilities.generatePlayersAndDealHands(players.map(_.name).toList)
           .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
         updateUI(players)
-        Thread.sleep(sleepTimeBetweenGames)
+        // This blocks passage until user dismisses dialog
+        mainLayout.showUserPromptForGameCompletionStatus(playerCompletionOrder.toList, playerCompletionStatusOrder)
         players = exchangeHands(players, playerCompletionOrder.toList)
         updateUI(players)
       }

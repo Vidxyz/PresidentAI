@@ -1,6 +1,6 @@
 package ui
 
-import game.{Game, GameUtilities, Move, Round}
+import game.{Game, GameUtilities, Move, PlayerCompletionStatus, Round}
 import player.Player
 import ui.layouts.{BottomLayout, MiddleLayout, TopLayout}
 import ui.panels.GameOverPanel
@@ -186,6 +186,14 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     dialog.open()
     Thread.sleep(Game.sleepTimeBetweenGames)
     dialog.close()
+  }
+
+  def showUserPromptForGameCompletionStatus(playerCompletionOrder: List[String], playerCompletionStatusOrder: List[PlayerCompletionStatus]) = {
+    val playerPosition = playerCompletionOrder.zip(playerCompletionStatusOrder)
+      .filter(tuple => tuple._1 == game.players.filter(_.isRealPlayer).head.name)
+      .map(_._2).head
+    val completionMessage = Game.getPlayerCompletionMessage(playerPosition, playerCompletionOrder.size)
+    showMessage(this, completionMessage, playerPosition.toString)
   }
 
 }
