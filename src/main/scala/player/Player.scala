@@ -17,7 +17,7 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   */
   def getWorstCards(totalCardsToGet: Int): List[Card] = {
     val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
-    val nonNormalCardsInHand = GameUtilities.sortCardsToGiveAway(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
+    val nonNormalCardsInHand = GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
     val handInGivingAwayOrder = normalCardsInHand ++ nonNormalCardsInHand
     handInGivingAwayOrder.take(totalCardsToGet)
   }
@@ -28,7 +28,7 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
    */
   def getBestCards(totalCardsToGet: Int): List[Card] = {
     val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
-    val nonNormalCardsInHand = GameUtilities.sortCardsToGiveAway(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
+    val nonNormalCardsInHand = GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
     val handInGivingAwayOrder = normalCardsInHand ++ nonNormalCardsInHand
     handInGivingAwayOrder.takeRight(totalCardsToGet)
   }

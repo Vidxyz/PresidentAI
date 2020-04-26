@@ -4,7 +4,7 @@ import utils.Consants
 
 import scala.util.Random
 import game.FaceValue._
-import game.GameUtilities.IllegalMoveSuppliedException
+import game.GameUtilities.{IllegalCardSuppliedException, IllegalMoveSuppliedException}
 import game.Suits._
 import player.Player
 import utils.Consants._
@@ -1835,6 +1835,36 @@ class GameUtilitiesTest extends FunSpec {
           val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade, Joker, Joker))
           assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
         }
+      }
+    }
+  }
+
+  describe("Tests for sortCardsToGiveAway") {
+
+    it("Should throw an exception when supplied with a Normal Card") {
+      val listOfCards = List(THREE_Spade, KING_Spade, TWO_Diamond, Joker)
+      assertThrows[IllegalCardSuppliedException](GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfCards))
+    }
+
+    it("Should return empty list when supplied list is empty") {
+      assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(List.empty) == List.empty)
+    }
+
+    describe("When only non-normal cards are supplied") {
+      it("Should return the same list of size 1") {
+        val listOfCards = List(TWO_Diamond)
+        assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfCards) == listOfCards)
+      }
+
+      it("Should sort the list of size 2 appropriately") {
+        val listOfCards = List(TWO_Diamond, THREE_Spade, Joker)
+        assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfCards) == List(Joker, THREE_Spade, TWO_Diamond))
+      }
+
+      it("Should sort the list of size 10 appropriately") {
+        val expectedListOfCards = List(TWO_Diamond, TWO_Club, THREE_Diamond, THREE_Club, THREE_Heart,
+                                      THREE_Spade, TWO_Heart, TWO_Spade, Joker, Joker).reverse
+        assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(Random.shuffle(expectedListOfCards)) == expectedListOfCards)
       }
     }
 

@@ -136,9 +136,10 @@ case object GameUtilities {
 
   /*
   Sorts cards to give away as defined by cardGiveAwayPreference
-  // todo - add unit tests
+  Expects only non-normal cards - throws exception otherwise
    */
-  def sortCardsToGiveAway(listOfNonNormalCards: List[Card]): List[Card] = {
+  def sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfNonNormalCards: List[Card]): List[Card] = {
+    listOfNonNormalCards.foreach({ case c: NormalCard => throw IllegalCardSuppliedException("Error: Expected non-normal cards only"); case _ => })
     listOfNonNormalCards.sortWith(
       (card1, card2) => cardGiveAwayPreference.getOrElse(card1, -1) < cardGiveAwayPreference.getOrElse(card2, -1)
     )
@@ -502,4 +503,5 @@ case object GameUtilities {
   }
 
   case class IllegalMoveSuppliedException(s: String) extends IllegalArgumentException(s)
+  case class IllegalCardSuppliedException(s: String) extends IllegalArgumentException(s)
 }
