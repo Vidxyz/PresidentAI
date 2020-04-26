@@ -27,10 +27,10 @@ case object Game {
     val numberOfCards = if(totalNumberOfPlayers >= 4) 2 else 1
     status match {
       case President => {
-        if(numberOfCards == 1) "Congratulations! You are the new President!\nAs a reward, your worst card will be replaced with the Bum's best card.\nYou also get to start the next game!"
-        else "Congratulations! You are the new President!\nAs a reward, two of your worst cards will be replaced with the Bum's best cards.\nYou also get to start the next game!"
+        if(numberOfCards == 1) "Congratulations! You are the new President!\nAs a reward, you will get the Bum's best card.\nAdditionally, you can choose 1 card to give away.\nYou also get to start the next game!"
+        else "Congratulations! You are the new President!\nAs a reward, you get the Bum's 2 best cards.\nAdditionally, you can also choose 2 cards to give away.\nYou also get to start the next game!"
       }
-      case VicePres => "Congratulations, You are the new VicePresident!\nAs a reward, your worst card will be replaced with the ViceBum's bext card."
+      case VicePres => "Congratulations, You are the new VicePresident!\nAs a reward, you will get the Bum's best card.\nAdditionally, you can choose 1 card to give away."
       case Neutral =>  "Good Job, You are Neutral!\nYou will not be involved in any exchange of cards."
       case ViceBum => "Sorry, you are the ViceBum.\nYou will be forced to give up your best card in exchange for the VicePresident's worst."
       case Bum => {

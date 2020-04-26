@@ -11,7 +11,7 @@ object PlayerCompletionUserPromptPanel {
   val width = 600
   val height = 200
   val fontName = "TimesRoman"
-  val fontSize = 21
+  val fontSize = 24
   val backgroundColor = new Color(4,6,84)
 }
 
@@ -29,9 +29,9 @@ class PlayerCompletionUserPromptPanel(status: PlayerCompletionStatus, message: S
     g.setColor(Color.red)
     g.setFont(Font(fontName, Font.Bold, fontSize))
     g.drawString(strings.head, 60, height/4)
-    g.setFont(Font(fontName, Font.Bold, fontSize - 7))
+    g.setFont(Font(fontName, Font.Bold, fontSize - 6))
     strings.drop(1).zipWithIndex.foreach({
-      case  (message, index) => g.drawString(message, 15 ,  (index + 2) * height/4)
+      case  (message, index) => g.drawString(message, width/6 ,  (index + 2) * height/4)
     })
   }
 

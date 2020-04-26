@@ -50,6 +50,7 @@ class UserPromptDialogLayout(app: SimpleSwingApplication, hand: Hand, parent: Di
   c.weightx = 1
   c.gridx = 0
   c.gridy = 2
+  c.insets = new Insets(0, 0, 25, 0)
   layout(new Button("Confirm Selection") {
     preferredSize = new Dimension(width, 200)
     font = Font(fontName, Font.Plain, fontSize)
