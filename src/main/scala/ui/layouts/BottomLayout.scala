@@ -78,6 +78,9 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
   }
 
   def highlightPossibleCards = {
+    // This is a bit of a hack - to clear all cards being selected, we can achieve the same by supplying an empty move
+    playerHandPanel.setCardsAsSelected(Move(List.empty))
+    playerCardTilePanel.setCardsAsSelected(Move(List.empty))
     val p = realPlayer.copy(isRealPlayer = false)
     val nextMove = p.playNextMove(p.hand, round.gameState)
     if(nextMove.isDefined) {
