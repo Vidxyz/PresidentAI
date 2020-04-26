@@ -52,10 +52,12 @@ case object Game {
 
 case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayout: MainLayout, var isActive: Boolean = true) {
   import Game._
-  /*
-  Keeps a completion order of the form (playerName, roundEnded)
-   */
+
   val playerCompletionStatusOrder: List[PlayerCompletionStatus] = totalPlayerSizeMap.getOrElse(players.size, List.empty)
+
+  var previousRoundPlayerCompletionStatuses: List[PlayerCompletionStatus] = players.map(_ => Neutral).toList
+  var previousRoundPlayerCompletionOrder: List[String] = players.map(_.name).toList
+
   var playerCompletionOrder: ListBuffer[String] = new ListBuffer[String]
   var startingPlayerIndex = 0
 
@@ -74,6 +76,9 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
         mainLayout.updateLastRemainingPlayer(players.indexWhere(player => player.status == Active))
         // Update next iteration of game's startingPlayerIndex => President gets to start the next game
         startingPlayerIndex = players.map(_.name).indexOf(playerCompletionOrder.head)
+        // Update the round completion status of the previous round = Graceful exit means all positions are filled
+        previousRoundPlayerCompletionStatuses = playerCompletionStatusOrder
+        previousRoundPlayerCompletionOrder = playerCompletionOrder.toList
         // Print stats to console and show UI dialog
         printStats()
         // Re-deal fresh set of hands and update UI
@@ -81,8 +86,8 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
           .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
         updateUI(players)
         // This blocks passage until user dismisses dialog
-        mainLayout.showUserPromptForGameCompletionStatus(playerCompletionOrder.toList, playerCompletionStatusOrder)
-        players = exchangeHands(players, playerCompletionOrder.toList)
+        mainLayout.showUserPromptForGameCompletionStatus(previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses)
+        players = exchangeHands(players, previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses)
         mainLayout.selectedCardsToGetRidOf = List.empty
         updateUI(players)
       }
@@ -98,15 +103,16 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
   Assumes newPlayers.names == player names in completion order
   // todo - test this code and write tests
    */
-  def exchangeHands(newPlayers: mutable.Buffer[Player], playerCompletionOrder: List[String]): mutable.Buffer[Player] = {
+  def exchangeHands(newPlayers: mutable.Buffer[Player], playerCompletionOrder: List[String],
+                    playerCompletionStatuses: List[PlayerCompletionStatus]): mutable.Buffer[Player] = {
     val totalCardsToDrop = if(newPlayers.size >= 4) 2 else 1
     val droppedCards: mutable.Map[PlayerCompletionStatus, List[Card]] = collection.mutable.Map.empty
-    val completionMap: Map[String, PlayerCompletionStatus] =  playerCompletionOrder.zip(playerCompletionStatusOrder).toMap
+    val completionMap: Map[String, PlayerCompletionStatus] =  playerCompletionOrder.zip(playerCompletionStatuses).toMap
 
     newPlayers
       .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
       .foreach({
-        case (player, President) => if(player.isRealPlayer)  droppedCards(President) = mainLayout.selectedCardsToGetRidOf
+        case (player, President) => if(player.isRealPlayer) droppedCards(President) = mainLayout.selectedCardsToGetRidOf
                                     else droppedCards(President) = player.getWorstCards(totalCardsToDrop)
         case (player, VicePres) => if(player.isRealPlayer) droppedCards(VicePres) = mainLayout.selectedCardsToGetRidOf
                                     else  droppedCards(VicePres) = player.getWorstCards(1)

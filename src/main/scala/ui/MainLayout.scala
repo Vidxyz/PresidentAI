@@ -1,6 +1,7 @@
 package ui
 
 import game.{Card, Game, GameUtilities, Move, PlayerCompletionStatus, President, Round, VicePres}
+import javax.swing.SwingUtilities
 import player.Player
 import ui.layouts.{BottomLayout, MiddleLayout, TopLayout, UserPromptDialogLayout}
 import ui.panels.GameOverPanel
@@ -142,10 +143,15 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
   // startIndex could thus be not 0 in these situations
   def reDealHandsForThisGame = {
     game.isActive = false
-    gameThread.join()
 
+    gameThread.join()
     game.players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames)
                   .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
+
+    showUserPromptForGameCompletionStatus(game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses)
+    game.players = game.exchangeHands(game.players, game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses)
+    selectedCardsToGetRidOf = List.empty
+
     game.isActive = true
 
     val freshRound = Round(game.startState, "", game.startingPlayerIndex, game.players.toList, Round.getPassStatusFalseForAll(game.players.toList))
@@ -195,7 +201,6 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
       .filter(tuple => tuple._1 == game.players.filter(_.isRealPlayer).head.name)
       .map(_._2).head
     val completionMessage = Game.getPlayerCompletionMessage(playerPosition, playerCompletionOrder.size)
-
     playerPosition match {
       case President | VicePres => showUserDialogToPromptCardsToGetRidOf(playerPosition, completionMessage)
       case _ =>  showMessage(this, completionMessage, playerPosition.toString)
@@ -205,16 +210,19 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
   def showUserDialogToPromptCardsToGetRidOf(playerPosition: PlayerCompletionStatus, completionMessage: String) = {
     val dialog = new Dialog()
     val currentHand = game.players.filter(_.isRealPlayer).head.hand
+    println(currentHand)
     val userPromptDialogLayout = new UserPromptDialogLayout(app, currentHand, dialog, playerPosition, completionMessage)
     dialog.contents = userPromptDialogLayout
     dialog.resizable = false
     dialog.centerOnScreen()
+    dialog.modal = true
     dialog.open()
     // This is to busy wait until user closes the dialog, which is done via mouse click listener
     while(dialog.peer.isVisible) {
       Thread.sleep(100)
     }
     selectedCardsToGetRidOf = userPromptDialogLayout.selectedCards
+    dialog.dispose()
   }
 
 }

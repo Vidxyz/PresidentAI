@@ -491,7 +491,7 @@ case object GameUtilities {
           jokersToRemove -= 1
           !cardsToDrop.contains(card)
         }
-        else false
+        else true
       }
     }) ++ cardsToReplce))
   }

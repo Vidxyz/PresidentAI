@@ -11,6 +11,13 @@ import scala.swing.event.MousePressed
 import scala.swing.{Dimension, Graphics2D, Panel, SimpleSwingApplication, Swing}
 import scala.collection.immutable.Queue
 
+class FiniteQueue[A](q: Queue[A]) {
+  def enqueueFinite[B >: A](elem: B, maxSize: Int): Queue[B] = {
+    var ret = q.enqueue(elem)
+    while (ret.size > maxSize) { ret = ret.dequeue._2 }
+    ret
+  }
+}
 
 object UserPromptCardTilePanel {
   val width = 600
@@ -22,19 +29,12 @@ object UserPromptCardTilePanel {
 class UserPromptCardTilePanel(app: SimpleSwingApplication, cards: List[Card], cardsToDrop: Int) extends Panel {
   import UserPromptCardTilePanel._
 
+  implicit def queue2finitequeue[A](q: Queue[A]) = new FiniteQueue[A](q)
+
   background = backgroundColor
   preferredSize = new Dimension(width, height)
   minimumSize = new Dimension(width, height)
   val c: Constraints = new Constraints()
-
-  class FiniteQueue[A](q: Queue[A]) {
-    def enqueueFinite[B >: A](elem: B, maxSize: Int): Queue[B] = {
-      var ret = q.enqueue(elem)
-      while (ret.size > maxSize) { ret = ret.dequeue._2 }
-      ret
-    }
-  }
-  implicit def queue2finitequeue[A](q: Queue[A]) = new FiniteQueue[A](q)
 
   var totalCards = cards.size
   var handToDisplay = GameUtilities.sortCards(cards)
@@ -44,7 +44,6 @@ class UserPromptCardTilePanel(app: SimpleSwingApplication, cards: List[Card], ca
   focusable = true
   listenTo(mouse.clicks)
 
-  // todo - need to reexchange hands when re-deal happens in round
   // todo - need to handle edge case situation of joker selection here
   reactions += {
     case e: MousePressed => {
@@ -59,7 +58,5 @@ class UserPromptCardTilePanel(app: SimpleSwingApplication, cards: List[Card], ca
     super.paintComponent(g)
     cardTileList.foreach(_.drawSprite(g))
   }
-
-  private def getSelectedCardsSize = cardTileList.count(c => c.isSelected)
 
 }

@@ -28,7 +28,7 @@ class PlayerCompletionUserPromptPanel(status: PlayerCompletionStatus, message: S
     super.paintComponent(g)
     g.setColor(Color.red)
     g.setFont(Font(fontName, Font.Bold, fontSize))
-    g.drawString(strings.head, width/2 - 120, height/4)
+    g.drawString(strings.head, 60, height/4)
     g.setFont(Font(fontName, Font.Bold, fontSize - 7))
     strings.drop(1).zipWithIndex.foreach({
       case  (message, index) => g.drawString(message, 15 ,  (index + 2) * height/4)
