@@ -1748,4 +1748,96 @@ class GameUtilitiesTest extends FunSpec {
 
   }
 
+  describe("Tests for dropAndReplaceCardsInHand") {
+
+    describe("When hand is empty") {
+      val hand = Hand(List.empty)
+      describe("When cards to drop is empty") {
+        val cardsToDrop = List.empty
+        val cardsToReplace = List(TWO_Diamond, Joker)
+        val expectedHand = Hand(cardsToReplace)
+        assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+      }
+
+      describe("When cards to replace is empty") {
+        val cardsToDrop = List(SIX_Spade, SEVEN_Club)
+        val cardsToReplace = List.empty
+        val expectedHand = Hand(cardsToReplace)
+        assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+      }
+
+      describe("When both cards to drop and cards to replace is non-empty") {
+        it("Should only add cards and not drop anything") {
+          val cardsToDrop = List(SIX_Spade, SEVEN_Club)
+          val cardsToReplace = List(TWO_Diamond, Joker)
+          val expectedHand = Hand(cardsToReplace)
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+
+        it("Should work fine when 2 jokers are to be added") {
+          val cardsToDrop = List(SIX_Spade, SEVEN_Club)
+          val cardsToReplace = List(Joker, Joker)
+          val expectedHand = Hand(cardsToReplace)
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+      }
+    }
+
+    describe("When hand is non-empty") {
+      val hand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker))
+
+      describe("When cards to drop is empty") {
+        it("Should drop no cards and replace as needed") {
+          val cardsToDrop = List.empty
+          val cardsToReplace = List(Joker, THREE_Club, Joker, EIGHT_Diamond)
+          val expectedHand = Hand(GameUtilities.sortCards(hand.listOfCards ++ cardsToReplace))
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+      }
+
+      describe("When cards to replace with is empty") {
+        it("Should only drop cards and not replace them with anything") {
+          val cardsToReplace = List.empty
+          val cardsToDrop = List(SIX_Club, SIX_Spade, THREE_Spade, TWO_Heart, TWO_Club, Joker)
+          val expectedHand = Hand(List(EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade))
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+      }
+
+      describe("When there are cards to drop and replace") {
+        it("Should only drop those cards that appear in the hand and add cardToReplace to hand even if there are duplicates") {
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, Joker, NINE_Spade)
+          val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade))
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+
+        it("Should drop both jokers accurately and replace") {
+          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker, Joker))
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, Joker, NINE_Spade, Joker)
+          val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade))
+          assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+
+        it("Should drop only one joker accurately and replace") {
+          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker, Joker))
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, Joker, NINE_Spade)
+          val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade, Joker))
+          assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+
+        it("Should drop no jokers and replace as required") {
+          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker, Joker))
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, NINE_Spade)
+          val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade, Joker, Joker))
+          assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+      }
+    }
+
+  }
+
 }
