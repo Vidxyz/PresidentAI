@@ -1,7 +1,6 @@
 package ui
 
 import game.{Card, Game, GameUtilities, Move, PlayerCompletionStatus, President, Round, VicePres}
-import javax.swing.SwingUtilities
 import player.Player
 import ui.layouts.{BottomLayout, MiddleLayout, TopLayout, UserPromptDialogLayout}
 import ui.panels.GameOverPanel
