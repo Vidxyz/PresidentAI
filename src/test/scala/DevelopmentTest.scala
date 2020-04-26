@@ -7,7 +7,6 @@ import player.PlayerIndicators
 
 class DevelopmentTest extends FunSpec {
 
-  // TODO - delete when done
   describe("*********************************") {
     it("**** EXPERIMENTAL TEST TO VALIDATE BEHAVIOUR *****") {
       val hand = Hand(List(

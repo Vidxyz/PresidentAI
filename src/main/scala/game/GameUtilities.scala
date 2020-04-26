@@ -136,6 +136,7 @@ case object GameUtilities {
 
   /*
   Sorts cards to give away as defined by cardGiveAwayPreference
+  // todo - add unit tests
    */
   def sortCardsToGiveAway(listOfNonNormalCards: List[Card]): List[Card] = {
     listOfNonNormalCards.sortWith(
