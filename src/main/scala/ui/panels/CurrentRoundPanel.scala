@@ -42,12 +42,12 @@ class CurrentRoundPanel(app: SimpleSwingApplication, var round: Round) extends P
     roundCardUiList.foreach(roundCard => roundCard.drawSprite(g))
     g.setColor(Color.white)
     g.setFont(Font(fontName, Font.Plain, fontSize))
-    g.drawString(s"# Moves Played : ${round.movesPlayed.size}", 5, 50)
+    g.drawString(s"# Moves Played : ${if(round == null) 0 else round.movesPlayed.size}", 5, 50)
   }
 
   def updateRoundObject(newRound: Round) = {
     this.round = newRound
-    handToDisplay = round.movesPlayed.flatMap(move => move.cards)
+    handToDisplay = if(round == null) List.empty else round.movesPlayed.flatMap(move => move.cards)
     roundCardUiList = handToDisplay.zipWithIndex.map({
       case (card, index) => RoundCard(card, app, index)
     })

@@ -1,7 +1,5 @@
 package game
 
-import game.FaceValue.THREE
-import game.Suits.Diamond
 import player.PlayerIndicators
 import utils.Consants
 
@@ -145,6 +143,7 @@ case object GameEngine {
   NOTE:-
   1. validMoves will comprise of moves with Special Cards (2s, Jokers) IFF no game.NormalCard moves are available
     1.1 Even then, there isnt a guarantee that the special card will be chosen
+    // todo - when Joker and something else is left, we should play Joker first - this logic is lacking right now
    */
   def getNextMove(validMoves: Moves, gameState: Move)(heuristic: (Move, Move, PlayerIndicators) => Move,
                                                       playerIndicators: PlayerIndicators): Option[Move] = {

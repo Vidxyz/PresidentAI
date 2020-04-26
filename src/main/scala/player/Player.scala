@@ -12,6 +12,28 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   implicit lazy val playerIndicators: PlayerIndicators = PlayerIndicators(hand)
 
   /*
+  * Gets the top x worst cards in hand, defined as lowest NormalCards in a sorted hand
+  * Pitfall - what about worst cards in terms of being part of a set? We don't want to split up triple-4s do we?
+  */
+  def getWorstCards(totalCardsToGet: Int): List[Card] = {
+    val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
+    val nonNormalCardsInHand = GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
+    val handInGivingAwayOrder = normalCardsInHand ++ nonNormalCardsInHand
+    handInGivingAwayOrder.take(totalCardsToGet)
+  }
+
+  /*
+  * Gets top x best cards in hand. Need to implement logic for preferring some 3s over 2s
+  * Does so my preferring Jokers > TWO(spade/heart) > 3(spade/heart) > 2(club/diamond) > 3(club/diamond)
+   */
+  def getBestCards(totalCardsToGet: Int): List[Card] = {
+    val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
+    val nonNormalCardsInHand = GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
+    val handInGivingAwayOrder = normalCardsInHand ++ nonNormalCardsInHand
+    handInGivingAwayOrder.takeRight(totalCardsToGet)
+  }
+
+  /*
   Returns the move chosen to play, given current hand and current state
    */
   def playNextMove(currentHand: Hand, currentState: Move): Option[Move] = {

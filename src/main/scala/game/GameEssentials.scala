@@ -2,13 +2,20 @@ package game
 
 import game.FaceValue.{TWO, _}
 
+sealed trait PlayerCompletionStatus
 sealed trait PlayerStatus
 sealed trait Suit
 sealed trait Value
 sealed trait Card {
-  def value: String = "game.Card"
+  def value: String = "Card"
   val intValue: Int
 }
+
+case object President extends PlayerCompletionStatus
+case object VicePres extends PlayerCompletionStatus
+case object Neutral extends PlayerCompletionStatus
+case object ViceBum extends PlayerCompletionStatus
+case object Bum extends PlayerCompletionStatus
 
 case object Active extends PlayerStatus
 case object Complete extends PlayerStatus

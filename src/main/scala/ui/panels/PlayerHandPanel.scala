@@ -17,17 +17,19 @@ object PlayerHandPanel {
   val maxHandSpreadAngle = 180d
   val maxPossibleCardsInHand = 27
   val backgroundColor = new Color(4,6,84)
+  val fontName = "TimesRoman"
   val fontSize = 40
 }
 
-class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: BottomLayout, var hasPassedOnRound: Boolean = false) extends Panel {
+class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: BottomLayout,
+                      var hasPassedOnRound: Boolean = false,
+                      var isPlayerBum: Boolean = false) extends Panel {
 
   import PlayerHandPanel._
 
   background = backgroundColor
   preferredSize = new Dimension(width, height)
   minimumSize = new Dimension(width, height)
-//  border = Swing.LineBorder(Color.BLACK)
 
   var handToDisplay = GameUtilities.sortCards(player.hand.listOfCards)
   var numberOfCardsInHand = handToDisplay.size
@@ -59,7 +61,7 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
     super.paintComponent(g)
     if(handCardList.isEmpty) {
       g.setColor(Color.red)
-      g.setFont(Font("TimesRoman", Font.Bold, fontSize))
+      g.setFont(Font(fontName, Font.Bold, fontSize))
       g.drawString("OVER", width/2, height/2)
     }
     else handCardList.foreach(h => h.drawSprite(g))
@@ -70,6 +72,13 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
       g.setColor(Color.red)
       g.setFont(Font("TimesRoman", Font.Bold, fontSize*2/3))
       g.drawString("PASS", 25, fontSize)
+    }
+
+    // When player is bum, hand is never empty
+    if(isPlayerBum) {
+      g.setColor(Color.red)
+      g.setFont(Font("TimesRoman", Font.Bold, fontSize*2/3))
+      g.drawString("BUM", 25, fontSize)
     }
   }
 
@@ -134,6 +143,18 @@ class PlayerHandPanel(app: SimpleSwingApplication, var player: Player, parent: B
 
   def resetUserPassStatus: Unit = {
     this.hasPassedOnRound = false
+    revalidate()
+    repaint()
+  }
+
+  def setPlayerAvatarToBum: Unit = {
+    this.isPlayerBum = true
+    revalidate()
+    repaint()
+  }
+
+  def resetPlayerCompletionStatus: Unit = {
+    this.isPlayerBum = false
     revalidate()
     repaint()
   }

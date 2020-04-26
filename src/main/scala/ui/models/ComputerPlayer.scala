@@ -8,7 +8,7 @@ import ui.panels.ComputerPlayerAvatarPanel
 
 import scala.swing.{Font, Graphics2D, SimpleSwingApplication}
 
-case class ComputerPlayer(app: SimpleSwingApplication, var hasPassedOnRound: Boolean = false) {
+case class ComputerPlayer(app: SimpleSwingApplication, name: String, var hasPassedOnRound: Boolean = false) {
   import ComputerPlayer._
 
   var cardImage = new ImageIcon(app.resourceFromClassloader("/assets/player_assets/player_avatar_not_turn.png")).getImage
@@ -22,8 +22,10 @@ case class ComputerPlayer(app: SimpleSwingApplication, var hasPassedOnRound: Boo
 
   def drawSprite(g: Graphics2D) = {
     g.drawImage(cardImage, affineTransform, null)
+    g.setColor(Color.red)
+    g.setFont(Font(fontName, Font.Bold, fontSize-3))
+    g.drawString(name, ComputerPlayerAvatarPanel.width - 45, 20)
     if(hasPassedOnRound) {
-      g.setColor(Color.red)
       g.setFont(Font(fontName, Font.Bold, fontSize))
       g.drawString("PASS", 5, 20)
     }

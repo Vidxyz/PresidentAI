@@ -1,17 +1,38 @@
 package ui
 
-import game.{Move, Round}
+import game.{Card, Game, GameUtilities, Move, PlayerCompletionStatus, President, Round, VicePres}
 import player.Player
-import ui.layouts.{BottomLayout, MiddleLayout, TopLayout}
-import scala.swing.{GridBagPanel, SimpleSwingApplication}
+import ui.layouts.{BottomLayout, MiddleLayout, TopLayout, UserPromptDialogLayout}
+import ui.panels.GameOverPanel
 
-class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends GridBagPanel {
+import scala.swing.{Dialog, GridBagPanel, SimpleSwingApplication, Swing}
+import scala.swing.Dialog._
 
-  val topPanel = new TopLayout(app, if(players.size >= 3) players(2).hand.listOfCards else List.empty,
-    if(players.size >= 4) players(3).hand.listOfCards else List.empty,
-    if(players.size >= 5) players(4).hand.listOfCards else List.empty, null)
-  val middlePanel = new MiddleLayout(app, players(1).hand.listOfCards, if(players.size == 6) players.last.hand.listOfCards else List.empty, null)
-  val bottomPanel = new BottomLayout(app, players.head, null)
+class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
+
+  var gameThread: Thread = _
+  val playerNames = List(Game.realPlayerName, "Bob", "Mike", "Joe", "Kevin", "Andre")
+  var selectedPlayerNames = List(Game.realPlayerName, "Bob", "Mike", "Joe", "Kevin", "Andre")
+
+  var game: Game = Game(Move(List.empty), selectedPlayerNames, this)
+
+  var selectedCardsToGetRidOf: List[Card] = List.empty
+
+  val topPanel = new TopLayout(app,
+    if(game.players.size >= 3) game.players(2) else null,
+    if(game.players.size >= 4) game.players(3) else null,
+    if(game.players.size >= 5) game.players(4) else null, null)
+
+  val middlePanel = new MiddleLayout(app, game.players(1),
+    if(game.players.size == 6) game.players.last else null, null)
+
+  val bottomPanel = new BottomLayout(app, this, game.players.head, null)
+
+
+
+  println("The starting state is : " + game.startState)
+  println("\n")
+  beginGame
 
   val c: Constraints = new Constraints()
 
@@ -38,9 +59,10 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     bottomPanel.getUserInputMove()
   }
 
+  // Note - Top and Middle Panels only update hands, not names. Potential source of bug later
   def updatePlayerObjects(players: List[Player]) = {
-    topPanel.updatePlayers(players)
-    middlePanel.updatePlayers(players)
+    topPanel.updatePlayerHands(players)
+    middlePanel.updatePlayerHands(players)
     bottomPanel.updateRealPlayerObject(players.head)
     revalidate()
     repaint()
@@ -82,6 +104,124 @@ class MainLayout(app: SimpleSwingApplication, players: List[Player]) extends Gri
     bottomPanel.resetUserPassStatus
     revalidate()
     repaint()
+  }
+
+  def resetPlayerCompletionStatus = {
+    topPanel.resetPlayerCompletionStatus
+    middlePanel.resetPlayerCompletionStatus
+    bottomPanel.resetPlayerCompletionStatus
+    revalidate()
+    repaint()
+  }
+
+  def promptDialogForNewGame = {
+    game.isActive = false
+
+    val choices = List("2", "3", "4", "5", "6")
+    val userChoice = showInput(this, "Select total number of players in game", "Game Settings", Message.Plain, Swing.EmptyIcon, choices, choices.head)
+    val selectedChoice = userChoice.getOrElse(choices.head).toInt
+    selectedPlayerNames = playerNames.take(selectedChoice)
+
+    gameThread.join()
+    game = Game(Move(List.empty), selectedPlayerNames, this)
+
+    updatePlayerObjects(game.players.toList)
+    updateRoundObject(null)
+    resetPlayerCompletionStatus
+    resetUserPassStatus
+    revalidate()
+    repaint()
+
+    beginGame
+
+  }
+
+  // Difference between new game and re-dealing hands is that state is saved
+  // Saved state for redealing hands include startIndex (may or may not be 0, based on if one game has already competed)
+  // While the game initially starts with index 0, once one game ends, the winner of that game starts next
+  // startIndex could thus be not 0 in these situations
+  def reDealHandsForThisGame = {
+    game.isActive = false
+
+    gameThread.join()
+    game.players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames)
+                  .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
+
+    showUserPromptForGameCompletionStatus(game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses)
+    game.players = GameUtilities.exchangeHands(game.players, game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses, selectedCardsToGetRidOf)
+    selectedCardsToGetRidOf = List.empty
+
+    game.isActive = true
+
+    val freshRound = Round(game.startState, "", game.startingPlayerIndex, game.players.toList, Round.getPassStatusFalseForAll(game.players.toList))
+
+    updatePlayerObjects(game.players.toList)
+    updateRoundObject(freshRound)
+    resetPlayerCompletionStatus
+    resetUserPassStatus
+    updateActivePlayerAvatar
+    revalidate()
+    repaint()
+
+    beginGame
+  }
+
+  def beginGame = {
+    gameThread = new Thread {
+      override def run {
+        println("Starting a new game")
+        game.play()
+        println("Game thread is over!")
+      }
+    }
+    gameThread.start()
+  }
+
+  def updateLastRemainingPlayer(indexOfLastRemainingPlayer: Int) = {
+    topPanel.updateLastRemainingPlayer(indexOfLastRemainingPlayer)
+    middlePanel.updateLastRemainingPlayer(indexOfLastRemainingPlayer)
+    bottomPanel.updateLastRemainingPlayer(indexOfLastRemainingPlayer)
+  }
+
+  def isGameActive: Boolean = game.isActive
+
+  def printStats(playerCompletionOrder: List[String]) = {
+    val dialog = new Dialog()
+    dialog.contents = new GameOverPanel(playerCompletionOrder)
+    dialog.resizable = false
+    dialog.centerOnScreen()
+    dialog.open()
+    Thread.sleep(Game.sleepTimeBetweenGames)
+    dialog.close()
+  }
+
+  def showUserPromptForGameCompletionStatus(playerCompletionOrder: List[String], playerCompletionStatusOrder: List[PlayerCompletionStatus]): Unit = {
+    val playerPosition = playerCompletionOrder.zip(playerCompletionStatusOrder)
+      .filter(tuple => tuple._1 == game.players.filter(_.isRealPlayer).head.name)
+      .map(_._2).head
+    val completionMessage = Game.getPlayerCompletionMessage(playerPosition, playerCompletionOrder.size)
+    playerPosition match {
+      case President | VicePres => showUserDialogToPromptCardsToGetRidOf(playerPosition, completionMessage)
+      case _ =>  showMessage(this, completionMessage, playerPosition.toString)
+    }
+  }
+
+  def showUserDialogToPromptCardsToGetRidOf(playerPosition: PlayerCompletionStatus, completionMessage: String) = {
+    val dialog = new Dialog()
+    val currentHand = game.players.filter(_.isRealPlayer).head.hand
+    println(currentHand)
+    val userPromptDialogLayout = new UserPromptDialogLayout(app, currentHand, dialog, playerPosition, completionMessage)
+    dialog.contents = userPromptDialogLayout
+    dialog.resizable = false
+    dialog.centerOnScreen()
+    dialog.modal = true
+    dialog.open()
+    // This is to busy wait until user closes the dialog, which is done via mouse click listener
+    while(dialog.peer.isVisible) {
+      Thread.sleep(100)
+    }
+    selectedCardsToGetRidOf = userPromptDialogLayout.selectedCards
+    dialog.dispose()
   }
 
 }

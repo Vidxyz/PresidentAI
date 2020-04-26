@@ -22,7 +22,6 @@ class PlayerCardTilePanel(app: SimpleSwingApplication, var player: Player, paren
   import PlayerCardTilePanel._
 
   background = backgroundColor
-  //  border = Swing.LineBorder(Color.BLACK)
 
   preferredSize = new Dimension(width, height)
   minimumSize = new Dimension(width, height)
@@ -30,7 +29,7 @@ class PlayerCardTilePanel(app: SimpleSwingApplication, var player: Player, paren
 
   var totalCards = player.hand.size
   var handToDisplay = GameUtilities.sortCards(player.hand.listOfCards)
-  var cardTileList = handToDisplay.zipWithIndex.map({ case (c,i) => CardTile(app, c, i, totalCards)})
+  var cardTileList = handToDisplay.zipWithIndex.map({ case (c,i) => CardTile(app, c, maxRows, i, totalCards)})
 
   focusable = true
   listenTo(mouse.clicks)
@@ -85,7 +84,7 @@ class PlayerCardTilePanel(app: SimpleSwingApplication, var player: Player, paren
     this.player = realPlayer
     totalCards = player.hand.size
     handToDisplay = GameUtilities.sortCards(player.hand.listOfCards)
-    cardTileList = handToDisplay.zipWithIndex.map({ case (c,i) => CardTile(app, c, i, totalCards)})
+    cardTileList = handToDisplay.zipWithIndex.map({ case (c,i) => CardTile(app, c, maxRows, i, totalCards)})
     revalidate()
     repaint()
   }

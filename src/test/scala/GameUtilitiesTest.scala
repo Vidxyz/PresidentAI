@@ -1,10 +1,10 @@
-import game.{Card, GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, Moves, NormalCard, SpecialCard, WildCard}
+import game.{Bum, Card, GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, Moves, Neutral, NormalCard, President, SpecialCard, ViceBum, VicePres, WildCard}
 import org.scalatest.FunSpec
 import utils.Consants
 
 import scala.util.Random
 import game.FaceValue._
-import game.GameUtilities.IllegalMoveSuppliedException
+import game.GameUtilities.{IllegalCardSuppliedException, IllegalMoveSuppliedException}
 import game.Suits._
 import player.Player
 import utils.Consants._
@@ -1743,6 +1743,323 @@ class GameUtilitiesTest extends FunSpec {
         val expectedMove = Move(List(THREE_Diamond(7), THREE_Heart(7), THREE_Spade(7)))
         val gameState = Move(List(THREE_Club(7), SEVEN_Diamond, SEVEN_Club))
         assert(GameUtilities.fixWildCardAssumedValueInMove(rawMove, gameState) == expectedMove)
+      }
+    }
+
+  }
+
+  describe("Tests for dropAndReplaceCardsInHand") {
+
+    describe("When hand is empty") {
+      val hand = Hand(List.empty)
+      describe("When cards to drop is empty") {
+        val cardsToDrop = List.empty
+        val cardsToReplace = List(TWO_Diamond, Joker)
+        val expectedHand = Hand(cardsToReplace)
+        assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+      }
+
+      describe("When cards to replace is empty") {
+        val cardsToDrop = List(SIX_Spade, SEVEN_Club)
+        val cardsToReplace = List.empty
+        val expectedHand = Hand(cardsToReplace)
+        assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+      }
+
+      describe("When both cards to drop and cards to replace is non-empty") {
+        it("Should only add cards and not drop anything") {
+          val cardsToDrop = List(SIX_Spade, SEVEN_Club)
+          val cardsToReplace = List(TWO_Diamond, Joker)
+          val expectedHand = Hand(cardsToReplace)
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+
+        it("Should work fine when 2 jokers are to be added") {
+          val cardsToDrop = List(SIX_Spade, SEVEN_Club)
+          val cardsToReplace = List(Joker, Joker)
+          val expectedHand = Hand(cardsToReplace)
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+      }
+    }
+
+    describe("When hand is non-empty") {
+      val hand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker))
+
+      describe("When cards to drop is empty") {
+        it("Should drop no cards and replace as needed") {
+          val cardsToDrop = List.empty
+          val cardsToReplace = List(Joker, THREE_Club, Joker, EIGHT_Diamond)
+          val expectedHand = Hand(GameUtilities.sortCards(hand.listOfCards ++ cardsToReplace))
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+      }
+
+      describe("When cards to replace with is empty") {
+        it("Should only drop cards and not replace them with anything") {
+          val cardsToReplace = List.empty
+          val cardsToDrop = List(SIX_Club, SIX_Spade, THREE_Spade, TWO_Heart, TWO_Club, Joker)
+          val expectedHand = Hand(List(EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade))
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+      }
+
+      describe("When there are cards to drop and replace") {
+        it("Should only drop those cards that appear in the hand and add cardToReplace to hand even if there are duplicates") {
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, Joker, NINE_Spade)
+          val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade))
+          assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+
+        it("Should drop both jokers accurately and replace") {
+          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker, Joker))
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, Joker, NINE_Spade, Joker)
+          val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade))
+          assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+
+        it("Should drop only one joker accurately and replace") {
+          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker, Joker))
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, Joker, NINE_Spade)
+          val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade, Joker))
+          assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+
+        it("Should drop no jokers and replace as required") {
+          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker, Joker))
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, NINE_Spade)
+          val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade, Joker, Joker))
+          assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
+        }
+      }
+    }
+  }
+
+  describe("Tests for sortCardsToGiveAway") {
+
+    it("Should throw an exception when supplied with a Normal Card") {
+      val listOfCards = List(THREE_Spade, KING_Spade, TWO_Diamond, Joker)
+      assertThrows[IllegalCardSuppliedException](GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfCards))
+    }
+
+    it("Should return empty list when supplied list is empty") {
+      assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(List.empty) == List.empty)
+    }
+
+    describe("When only non-normal cards are supplied") {
+      it("Should return the same list of size 1") {
+        val listOfCards = List(TWO_Diamond)
+        assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfCards) == listOfCards)
+      }
+
+      it("Should sort the list of size 2 appropriately") {
+        val listOfCards = List(TWO_Diamond, THREE_Spade, Joker)
+        assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfCards) == List(Joker, THREE_Spade, TWO_Diamond))
+      }
+
+      it("Should sort the list of size 10 appropriately") {
+        val expectedListOfCards = List(TWO_Diamond, TWO_Club, THREE_Diamond, THREE_Club, THREE_Heart,
+                                      THREE_Spade, TWO_Heart, TWO_Spade, Joker, Joker).reverse
+        assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(Random.shuffle(expectedListOfCards)) == expectedListOfCards)
+      }
+    }
+  }
+
+  describe("Tests for exchangeHands") {
+
+    describe("When there is 3 players") {
+      val h1 = Hand(List(THREE_Spade, SEVEN_Spade, JACK_Club, TWO_Heart, Joker))
+      val h2 = Hand(List(THREE_Heart, SEVEN_Club, JACK_Spade, TWO_Spade, Joker))
+      val h3 = Hand(List(THREE_Club, SEVEN_Heart, JACK_Heart, TWO_Club, Joker))
+      val p1 = Player("p1", h1)
+      val p2 = Player("p2", h2)
+      val p3 = Player("p3", h3)
+      val players = List(p1, p2, p3).toBuffer
+
+      describe("When everyone is neutral") {
+        it("Should involve no exchanges") {
+          val playerCompletionOrder = List("p1", "p2", "p3")
+          val userSelectedCardToGetRidOf = List.empty
+          val playerCompletionStatuses = List(Neutral, Neutral, Neutral)
+          val newPlayers = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+          assert(newPlayers == players)
+        }
+      }
+
+      describe("When positions are filled ") {
+        val playerCompletionStatuses = List(President, Neutral, Bum)
+
+        describe("When there is a real player"){
+          val newPlayers = players.map(p => if(p.name == "p1") p.copy(isRealPlayer = true) else p)
+
+          describe("When real player is President") {
+            it("Should drop cards based on supplied parameter and not default to auto-drop") {
+              val playerCompletionOrder = List("p1", "p2", "p3")
+              val userSelectedCardToGetRidOf = List(JACK_Club)
+              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, TWO_Heart, Joker, Joker)))
+              assert(resultingPlayers(1).hand == h2)
+              assert(resultingPlayers.last.hand == Hand(List(THREE_Club, SEVEN_Heart, JACK_Club, JACK_Heart, TWO_Club)))
+            }
+          }
+
+          describe("When real player is Neutral") {
+            it("Should exchange cards for others but not the real player") {
+              val playerCompletionOrder = List("p2", "p1", "p3")
+              val userSelectedCardToGetRidOf = List(JACK_Club)
+              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              assert(resultingPlayers.head.hand == h1)
+              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, Joker, Joker)))
+              assert(resultingPlayers.last.hand == Hand(List(THREE_Club, SEVEN_Club, SEVEN_Heart, JACK_Heart, TWO_Club)))
+            }
+          }
+
+          describe("When real player is Bum") {
+            it("Should auto-exchange cards even for the real player") {
+              val playerCompletionOrder = List("p3", "p2", "p1")
+              val userSelectedCardToGetRidOf = List(JACK_Club)
+              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Heart, SEVEN_Spade, JACK_Club, TWO_Heart)))
+              assert(resultingPlayers(1).hand == h2)
+              assert(resultingPlayers.last.hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
+            }
+          }
+        }
+
+        describe("When all players are AI") {
+          it("Should auto-exchange cards for everyone") {
+            val playerCompletionOrder = List("p1", "p2", "p3")
+            val userSelectedCardToGetRidOf = List(JACK_Club)
+            val resultingPlayers = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+            assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, JACK_Club, TWO_Heart, Joker, Joker)))
+            assert(resultingPlayers(1).hand == h2)
+            assert(resultingPlayers.last.hand == Hand(List(THREE_Club, SEVEN_Heart, SEVEN_Spade, JACK_Heart, TWO_Club)))
+          }
+        }
+      }
+
+    }
+
+    describe("When there is 6 players") {
+      val h1 = Hand(List(THREE_Spade, SEVEN_Spade, JACK_Club, TWO_Heart, Joker))
+      val h2 = Hand(List(THREE_Heart, SEVEN_Club, JACK_Spade, TWO_Spade, Joker))
+      val h3 = Hand(List(THREE_Club, SEVEN_Heart, JACK_Heart, TWO_Club, Joker))
+      val h4 = Hand(List(THREE_Diamond, SEVEN_Diamond, JACK_Diamond, TWO_Diamond, Joker))
+      val h5 = Hand(List(FIVE_Club, SIX_Diamond, EIGHT_Heart, ACE_Club, Joker))
+      val h6 = Hand(List(FIVE_Diamond, SIX_Spade, EIGHT_Diamond, ACE_Diamond, Joker))
+
+      val p1 = Player("p1", h1)
+      val p2 = Player("p2", h2)
+      val p3 = Player("p3", h3)
+      val p4 = Player("p4", h4)
+      val p5 = Player("p5", h5)
+      val p6 = Player("p6", h6)
+      val players = List(p1, p2, p3, p4, p5, p6).toBuffer
+      val playerCompletionOrder = List("p1", "p2", "p3", "p4", "p5", "p6")
+
+      describe("When everyone is neutral") {
+        it("Should involve no exchanges") {
+          val userSelectedCardToGetRidOf = List.empty
+          val playerCompletionStatuses = List(Neutral, Neutral, Neutral, Neutral, Neutral, Neutral)
+          val newPlayers = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+          assert(newPlayers == players)
+        }
+      }
+
+      describe("When all positions are filled") {
+        val playerCompletionStatuses = List(President, VicePres, Neutral, Neutral, ViceBum, Bum)
+
+        describe("When there is a real player"){
+          val newPlayers = players.map(p => if(p.name == "p1") p.copy(isRealPlayer = true) else p)
+
+          describe("When real player is President") {
+            it("Should drop cards based on supplied parameter and not default to auto-drop") {
+              val playerCompletionOrder = List("p1", "p2", "p3", "p4", "p5", "p6")
+              val userSelectedCardToGetRidOf = List(JACK_Club, TWO_Heart)
+              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, ACE_Diamond, Joker, Joker)))
+              assert(resultingPlayers(1).hand ==  Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, Joker, Joker)))
+              assert(resultingPlayers(2).hand ==  h3)
+              assert(resultingPlayers(3).hand ==  h4)
+              assert(resultingPlayers(4).hand ==  Hand(List(FIVE_Club, SIX_Diamond, SEVEN_Club, EIGHT_Heart, ACE_Club)))
+              assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, EIGHT_Diamond, JACK_Club, TWO_Heart)))
+            }
+          }
+
+          describe("When real player is VicePresident") {
+            it("Should drop cards based on supplied parameter and not default to auto-drop") {
+              val playerCompletionOrder = List("p2", "p1", "p3", "p4", "p5", "p6")
+              val userSelectedCardToGetRidOf = List(JACK_Club)
+              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, TWO_Heart, Joker, Joker)))
+              assert(resultingPlayers(1).hand ==  Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, Joker, Joker)))
+              assert(resultingPlayers(2).hand ==  h3)
+              assert(resultingPlayers(3).hand ==  h4)
+              assert(resultingPlayers(4).hand ==  Hand(List(FIVE_Club, SIX_Diamond, EIGHT_Heart, JACK_Club, ACE_Club)))
+              assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Club, EIGHT_Diamond, JACK_Spade)))
+            }
+          }
+
+          describe("When real player is Neutral") {
+            it("Should auto-exchange cards for everyone") {
+              val playerCompletionOrder = List("p2", "p3", "p1", "p4", "p5", "p6")
+              val userSelectedCardToGetRidOf = List(JACK_Club)
+              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              assert(resultingPlayers.head.hand == h1)
+              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, Joker, Joker)))
+              assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
+              assert(resultingPlayers(3).hand == h4)
+              assert(resultingPlayers(4).hand == Hand(List(FIVE_Club, SIX_Diamond, SEVEN_Heart, EIGHT_Heart, ACE_Club)))
+              assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Club, EIGHT_Diamond, JACK_Spade)))
+            }
+          }
+
+          describe("When real player is ViceBum") {
+            it("Should auto-exchange cards for everyone") {
+              val playerCompletionOrder = List("p2", "p3", "p4", "p5", "p1", "p6")
+              val userSelectedCardToGetRidOf = List(JACK_Club)
+              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Heart, SEVEN_Spade, JACK_Club, TWO_Heart)))
+              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, Joker, Joker)))
+              assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
+              assert(resultingPlayers(3).hand == h4)
+              assert(resultingPlayers(4).hand == h5)
+              assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Club, EIGHT_Diamond, JACK_Spade)))
+            }
+          }
+
+          describe("When real player is Bum") {
+            it("Should auto-exchange cards for everyone") {
+              val playerCompletionOrder = List("p2", "p3", "p4", "p5", "p6", "p1")
+              val userSelectedCardToGetRidOf = List(JACK_Club)
+              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Club, SEVEN_Spade, JACK_Club, JACK_Spade)))
+              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, TWO_Heart, TWO_Spade, Joker, Joker)))
+              assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
+              assert(resultingPlayers(3).hand == h4)
+              assert(resultingPlayers(4).hand == h5)
+              assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Heart, EIGHT_Diamond, ACE_Diamond)))
+            }
+          }
+        }
+
+        describe("When all players are AI") {
+          it("Should auto-exchange cards for everyone") {
+            val playerCompletionOrder = List("p1", "p2", "p3", "p4", "p5", "p6")
+            val userSelectedCardToGetRidOf = List(JACK_Club)
+            val resultingPlayers = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+            assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, ACE_Diamond, TWO_Heart, Joker, Joker)))
+            assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, Joker, Joker)))
+            assert(resultingPlayers(2).hand == h3)
+            assert(resultingPlayers(3).hand == h4)
+            assert(resultingPlayers(4).hand == Hand(List(FIVE_Club, SIX_Diamond, SEVEN_Club, EIGHT_Heart, ACE_Club)))
+            assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Spade, EIGHT_Diamond, JACK_Club)))
+          }
+        }
       }
     }
 

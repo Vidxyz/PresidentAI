@@ -181,7 +181,88 @@ class PlayerTest extends FunSpec{
       }
     }
 
+    describe("Tests for getWorstCards") {
+      val hand = Hand(List(THREE_Club, THREE_Spade, FOUR_Heart, SIX_Diamond, TEN_Heart, KING_Club, ACE_Heart, TWO_Spade, Joker))
+      val player = Player("Test", hand)
+
+      describe("When hand is empty") {
+        it("Should return empty list") {
+          val h = Hand(List.empty)
+          val p = Player("t", h)
+          assert(p.getWorstCards(0) == List.empty)
+          assert(p.getWorstCards(1) == List.empty)
+          assert(p.getWorstCards(2) == List.empty)
+        }
+      }
+
+      it("Should return empty list when parameter is 0") {
+        assert(player.getWorstCards(0) == List.empty)
+      }
+
+      it("Should return expected list of normalcards size 1 when parameter is 1") {
+        assert(player.getWorstCards(1) == List(FOUR_Heart))
+      }
+
+      it("Should return expected list of normalcards size 2 when parameter is 2") {
+        assert(player.getWorstCards(2) == List(FOUR_Heart, SIX_Diamond))
+      }
+
+      describe("When there are no normal cards to return") {
+        it("Should return worst non-normal cards as they would be in a sorted hand meant to be given away") {
+          val newHand = Hand(List(THREE_Club, THREE_Spade, TWO_Club, TWO_Spade, Joker, Joker))
+          val newPlayer = Player("Test", newHand)
+          assert(newPlayer.getWorstCards(3) == List(TWO_Club, THREE_Club, THREE_Spade))
+          assert(newPlayer.getWorstCards(6) == List(TWO_Club, THREE_Club, THREE_Spade, TWO_Spade, Joker, Joker))
+        }
+      }
+    }
+
+    describe("Tests for getBestCards") {
+      val hand = Hand(List(THREE_Club, THREE_Spade, FOUR_Heart, SIX_Diamond, TEN_Heart, KING_Club, ACE_Heart, TWO_Diamond, TWO_Spade, Joker))
+      val player = Player("Test", hand)
+
+      describe("When hand is empty") {
+        it("Should return empty list") {
+          val h = Hand(List.empty)
+          val p = Player("t", h)
+          assert(p.getBestCards(0) == List.empty)
+          assert(p.getBestCards(1) == List.empty)
+          assert(p.getBestCards(2) == List.empty)
+        }
+      }
+
+      it("Should return empty list when parameter is 0") {
+        assert(player.getBestCards(0) == List.empty)
+      }
+
+      it("Should return expected list of normalcards size 1 when parameter is 1") {
+        assert(player.getBestCards(1) == List(Joker))
+      }
+
+      it("Should return expected list of normalcards size 2 when parameter is 2") {
+        assert(player.getBestCards(2) == List(TWO_Spade, Joker))
+      }
+
+      it("Should return expected list of normalcards size 4 when parameter is 4") {
+        assert(player.getBestCards(4) == List(THREE_Club, THREE_Spade, TWO_Spade, Joker))
+      }
+
+      it("Should return expected list of normalcards size 5 when parameter is 5") {
+        assert(player.getBestCards(5) == List( TWO_Diamond, THREE_Club, THREE_Spade, TWO_Spade, Joker))
+      }
+
+      describe("When there are no special cards to return") {
+        it("Should return best normal cards as they would be in a sorted hand meant to be given away") {
+          val newHand = Hand(List(SEVEN_Heart, EIGHT_Diamond, EIGHT_Heart, KING_Club, KING_Heart, KING_Spade, ACE_Club))
+          val newPlayer = Player("Test", newHand)
+          assert(newPlayer.getBestCards(3) == List(KING_Heart, KING_Spade, ACE_Club))
+          assert(newPlayer.getBestCards(7) == List(SEVEN_Heart, EIGHT_Diamond, EIGHT_Heart, KING_Club, KING_Heart, KING_Spade, ACE_Club))
+        }
+      }
+    }
   }
+
+
 
 
   describe("Tests for methods in PlayerIndicator object") {

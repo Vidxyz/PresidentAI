@@ -6,13 +6,15 @@ import ui.panels.{ComputerPlayerAvatarPanel, CurrentRoundPanel, EmptyFillerPanel
 
 import scala.swing.{GridBagPanel, SimpleSwingApplication}
 
-class MiddleLayout(app: SimpleSwingApplication, player2Hand: List[Card], player6Hand: List[Card], var round: Round) extends GridBagPanel {
+class MiddleLayout(app: SimpleSwingApplication, player2: Player, player6: Player, var round: Round) extends GridBagPanel {
 
   val filler1 = new EmptyFillerPanel
-  val player2AvatarPanel = new ComputerPlayerAvatarPanel(app, player2Hand)
+  val player2AvatarPanel = new ComputerPlayerAvatarPanel(app, if(player2 == null) "" else player2.name,
+    if(player2 == null) List.empty else player2.hand.listOfCards)
   val currentRoundPanel = new CurrentRoundPanel(app, round)
   val filler2 = new EmptyFillerPanel
-  val player6AvatarPanel = new ComputerPlayerAvatarPanel(app, player6Hand)
+  val player6AvatarPanel = new ComputerPlayerAvatarPanel(app, if(player6 == null) "" else  player6.name,
+    if(player6 == null) List.empty else player6.hand.listOfCards)
 
   val c: Constraints = new Constraints()
 
@@ -107,9 +109,26 @@ class MiddleLayout(app: SimpleSwingApplication, player2Hand: List[Card], player6
     repaint()
   }
 
-  def updatePlayers(players: List[Player]) = {
-    if(players.size >= 2) player2AvatarPanel.updatePlayerObject(players(1))
-    if(players.size >= 6) player6AvatarPanel.updatePlayerObject(players(5))
+  def updatePlayerHands(players: List[Player]) = {
+    if(players.size >= 2) player2AvatarPanel.updatePlayerHand(players(1).hand.listOfCards) else player2AvatarPanel.updatePlayerHand(List.empty)
+    if(players.size >= 6) player6AvatarPanel.updatePlayerHand(players(5).hand.listOfCards) else player6AvatarPanel.updatePlayerHand(List.empty)
+  }
+
+  def updateLastRemainingPlayer(indexOfLastPlayer: Int) = {
+    indexOfLastPlayer match {
+      case 1 => player2AvatarPanel.setPlayerAvatarToBum
+      case 5 => player6AvatarPanel.setPlayerAvatarToBum
+      case _ =>
+    }
+    revalidate()
+    repaint()
+  }
+
+  def resetPlayerCompletionStatus: Unit = {
+    player2AvatarPanel.resetUserCompletionStatus
+    player6AvatarPanel.resetUserCompletionStatus
+    revalidate()
+    repaint()
   }
 
 }

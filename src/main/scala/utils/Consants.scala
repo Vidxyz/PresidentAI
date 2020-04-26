@@ -13,6 +13,18 @@ object Consants {
 
   val maxMoveSize = 4
 
+  val cardGiveAwayPreference: Map[Card, Int] = Map (
+    Joker -> 1,
+    TWO_Spade -> 2,
+    TWO_Heart -> 3,
+    THREE_Spade -> 4,
+    THREE_Heart -> 5,
+    THREE_Club -> 6,
+    THREE_Diamond -> 7,
+    TWO_Club -> 8,
+    TWO_Diamond -> 9
+  )
+
   val numberToCardMap: Map[Int, Card] = Map(
     0 -> WildCard(THREE, Diamond),
     1 -> WildCard(THREE, Club),
