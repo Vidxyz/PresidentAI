@@ -1,7 +1,5 @@
 package game
 
-import game.FaceValue.THREE
-import game.Suits.Diamond
 import player.PlayerIndicators
 import utils.Consants
 
