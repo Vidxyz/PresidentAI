@@ -148,7 +148,7 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
                   .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
 
     showUserPromptForGameCompletionStatus(game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses)
-    game.players = game.exchangeHands(game.players, game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses)
+    game.players = GameUtilities.exchangeHands(game.players, game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses, selectedCardsToGetRidOf)
     selectedCardsToGetRidOf = List.empty
 
     game.isActive = true

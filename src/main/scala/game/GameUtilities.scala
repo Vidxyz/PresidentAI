@@ -2,11 +2,12 @@ package game
 
 import game.FaceValue._
 import game.Suits._
-import player.{Player}
+import player.Player
 import utils.Consants
 import utils.Consants._
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.util.Random
 
 case object GameUtilities {
@@ -494,6 +495,50 @@ case object GameUtilities {
         else true
       }
     }) ++ cardsToReplce))
+  }
+
+
+  /*
+  Exchanges hands with president-bum, vp-vb
+  Neutral hand is untouched
+  Assumes playerCompletionOrder.size == playerCompletionStatusOrder.size
+  Assumes newPlayers.names == player names in completion order
+   */
+  def exchangeHands(newPlayers: mutable.Buffer[Player],
+                    playerCompletionOrder: List[String],
+                    playerCompletionStatuses: List[PlayerCompletionStatus],
+                    userSelectedCardToGetRidOf: List[Card]): mutable.Buffer[Player] = {
+    val totalCardsToDrop = if(newPlayers.size >= 4) 2 else 1
+    val droppedCards: mutable.Map[PlayerCompletionStatus, List[Card]] = collection.mutable.Map.empty
+    val completionMap: Map[String, PlayerCompletionStatus] =  playerCompletionOrder.zip(playerCompletionStatuses).toMap
+
+    newPlayers
+      .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
+      .foreach({
+        case (player, President) => if(player.isRealPlayer) droppedCards(President) = userSelectedCardToGetRidOf
+                                    else droppedCards(President) = player.getWorstCards(totalCardsToDrop)
+        case (player, VicePres) => if(player.isRealPlayer) droppedCards(VicePres) = userSelectedCardToGetRidOf
+                                    else  droppedCards(VicePres) = player.getWorstCards(1)
+        case (player, ViceBum) => droppedCards(ViceBum) = player.getBestCards(1)
+        case (player, Bum) => droppedCards(Bum) = player.getBestCards(totalCardsToDrop)
+        case (_, Neutral) =>
+      })
+
+    newPlayers
+      .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
+      .map({
+        case (player, President) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
+                                    droppedCards.getOrElse(President, List.empty), droppedCards.getOrElse(Bum, List.empty)))
+        case (player, VicePres) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
+                                    droppedCards.getOrElse(VicePres, List.empty), droppedCards.getOrElse(ViceBum, List.empty)))
+        case (player, ViceBum) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
+                                    droppedCards.getOrElse(ViceBum, List.empty), droppedCards.getOrElse(VicePres, List.empty)))
+        case (player, Bum) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
+                                    droppedCards.getOrElse(Bum, List.empty), droppedCards.getOrElse(President, List.empty)))
+        case (player, Neutral) => player
+      })
+      .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player)
+
   }
 
   /* Removes first occurrence of element in list that satisfies predicate function */

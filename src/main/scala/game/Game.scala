@@ -87,54 +87,12 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
         updateUI(players)
         // This blocks passage until user dismisses dialog
         mainLayout.showUserPromptForGameCompletionStatus(previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses)
-        players = exchangeHands(players, previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses)
+        players = GameUtilities.exchangeHands(players, previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses, mainLayout.selectedCardsToGetRidOf)
         mainLayout.selectedCardsToGetRidOf = List.empty
         updateUI(players)
       }
       else return
     }
-
-  }
-
-  /*
-  Exchanges hands with president-bum, vp-vb
-  Neutral hand is untouched
-  Assumes playerCompletionOrder.size == playerCompletionStatusOrder.size
-  Assumes newPlayers.names == player names in completion order
-  // todo - test this code and write tests
-   */
-  def exchangeHands(newPlayers: mutable.Buffer[Player], playerCompletionOrder: List[String],
-                    playerCompletionStatuses: List[PlayerCompletionStatus]): mutable.Buffer[Player] = {
-    val totalCardsToDrop = if(newPlayers.size >= 4) 2 else 1
-    val droppedCards: mutable.Map[PlayerCompletionStatus, List[Card]] = collection.mutable.Map.empty
-    val completionMap: Map[String, PlayerCompletionStatus] =  playerCompletionOrder.zip(playerCompletionStatuses).toMap
-
-    newPlayers
-      .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
-      .foreach({
-        case (player, President) => if(player.isRealPlayer) droppedCards(President) = mainLayout.selectedCardsToGetRidOf
-                                    else droppedCards(President) = player.getWorstCards(totalCardsToDrop)
-        case (player, VicePres) => if(player.isRealPlayer) droppedCards(VicePres) = mainLayout.selectedCardsToGetRidOf
-                                    else  droppedCards(VicePres) = player.getWorstCards(1)
-        case (player, ViceBum) => droppedCards(ViceBum) = player.getBestCards(1)
-        case (player, Bum) => droppedCards(Bum) = player.getBestCards(totalCardsToDrop)
-        case (player, Neutral) =>
-      })
-
-    newPlayers
-      .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
-      .map({
-        case (player, President) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
-                    droppedCards.getOrElse(President, List.empty), droppedCards.getOrElse(Bum, List.empty)))
-        case (player, VicePres) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
-          droppedCards.getOrElse(VicePres, List.empty), droppedCards.getOrElse(ViceBum, List.empty)))
-        case (player, ViceBum) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
-          droppedCards.getOrElse(ViceBum, List.empty), droppedCards.getOrElse(VicePres, List.empty)))
-        case (player, Bum) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
-          droppedCards.getOrElse(Bum, List.empty), droppedCards.getOrElse(President, List.empty)))
-        case (player, Neutral) => player
-        })
-      .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player)
 
   }
 
