@@ -3,8 +3,8 @@ package game
 import game.FaceValue._
 import game.Suits._
 import player.Player
-import utils.Consants
-import utils.Consants._
+import utils.Constants
+import utils.Constants._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -66,9 +66,9 @@ case object GameUtilities {
     val random = if(seed > 0) new Random(seed) else new Random()
     @tailrec
     def dealHandsHelper(currentPlayer: Int, playerHands: List[Hand], seenSoFar: List[Int]): List[Hand] = {
-      if(seenSoFar.size == Consants.totalNumberOfCards) return playerHands
+      if(seenSoFar.size == Constants.totalNumberOfCards) return playerHands
 
-      val nextCardNum = random.nextInt(Consants.totalNumberOfCards)
+      val nextCardNum = random.nextInt(Constants.totalNumberOfCards)
 
       if(seenSoFar.contains(nextCardNum)) dealHandsHelper(currentPlayer, playerHands, seenSoFar)
       else {

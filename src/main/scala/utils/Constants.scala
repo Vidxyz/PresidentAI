@@ -7,7 +7,7 @@ import javax.swing.ImageIcon
 
 import scala.swing.SimpleSwingApplication
 
-object Consants {
+object Constants {
 
   val totalNumberOfCards = 54
 
@@ -16,7 +16,9 @@ object Consants {
   val nemesisMap: Map[PlayerCompletionStatus, PlayerCompletionStatus] = Map (
     President -> Bum,
     VicePres -> ViceBum,
-    Neutral -> Neutral
+    Neutral -> Neutral,
+    ViceBum -> VicePres,
+    Bum -> President
   )
 
   val cardGiveAwayPreference: Map[Card, Int] = Map (

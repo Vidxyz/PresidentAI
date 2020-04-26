@@ -1,13 +1,13 @@
 import game.{Bum, Card, GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, Moves, Neutral, NormalCard, President, SpecialCard, ViceBum, VicePres, WildCard}
 import org.scalatest.FunSpec
-import utils.Consants
+import utils.Constants
 
 import scala.util.Random
 import game.FaceValue._
 import game.GameUtilities.{IllegalCardSuppliedException, IllegalMoveSuppliedException}
 import game.Suits._
 import player.Player
-import utils.Consants._
+import utils.Constants._
 
 class GameUtilitiesTest extends FunSpec {
 
@@ -29,7 +29,7 @@ class GameUtilitiesTest extends FunSpec {
       it("Should return a List[Player] of size 1 with hand comprising of all unique 54 cards") {
         val result = GameUtilities.generatePlayersAndDealHands(List("Player1"))
         assert(result.size == 1)
-        assert(result.head.hand.size == Consants.totalNumberOfCards)
+        assert(result.head.hand.size == Constants.totalNumberOfCards)
         assert(result.head.name == "Player1")
         assert(!result.head.hand.listOfCards.containsDuplicatesExcludingJokers)
       }
@@ -49,7 +49,7 @@ class GameUtilitiesTest extends FunSpec {
         // Check all hands are unqiue, excluding jokers
         assert(result.map(p => p.hand).map(h => !h.listOfCards.containsDuplicatesExcludingJokers).forall(x => x))
         // Check all hands cards add up to total
-        assert(result.map(p => p.hand).flatMap(h => h.listOfCards).size == Consants.totalNumberOfCards)
+        assert(result.map(p => p.hand).flatMap(h => h.listOfCards).size == Constants.totalNumberOfCards)
       }
     }
   }
@@ -170,8 +170,8 @@ class GameUtilitiesTest extends FunSpec {
 
     describe("When list of card consists only of full deck (54 cards)"){
       it("should return a sorted list ") {
-        assert(GameUtilities.sortCards(Random.shuffle(Consants.sortedHandWithAllCards.listOfCards))
-          == Consants.sortedHandWithAllCards.listOfCards)
+        assert(GameUtilities.sortCards(Random.shuffle(Constants.sortedHandWithAllCards.listOfCards))
+          == Constants.sortedHandWithAllCards.listOfCards)
       }
     }
 
@@ -262,7 +262,7 @@ class GameUtilitiesTest extends FunSpec {
           List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade)),
           List(Joker, Joker),
         )
-        assert(GameUtilities.getListsOfSimilarCards(Consants.sortedHandWithAllCards) == expectedResult)
+        assert(GameUtilities.getListsOfSimilarCards(Constants.sortedHandWithAllCards) == expectedResult)
       }
     }
 

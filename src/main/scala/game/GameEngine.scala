@@ -1,7 +1,7 @@
 package game
 
 import player.PlayerIndicators
-import utils.Consants
+import utils.Constants
 
 import scala.util.Random
 
@@ -85,8 +85,8 @@ case object GameEngine {
     if(validMove.cards.forall(card => card match {case n: NormalCard => true; case _ => false})) 0
     else {
       val d1: Double = 1 - applyCardFaceValueStepFunction(validMove.moveFaceValue)
-      val d2: Double =  1 - ((validMove.parity * 1.0d)/(Consants.maxMoveSize + 1))
-      val d3: Double = Consants.maxMoveSize - GameUtilities.getNumberOfWildCardsInMove(validMove) + 1
+      val d2: Double =  1 - ((validMove.parity * 1.0d)/(Constants.maxMoveSize + 1))
+      val d3: Double = Constants.maxMoveSize - GameUtilities.getNumberOfWildCardsInMove(validMove) + 1
       wildCardPenaltyModifier *
           ((0.5d * d1)
          + (0.4d * d2)
@@ -113,7 +113,7 @@ case object GameEngine {
   Using base as 3-intValue here because it is the lowest possible to play
    */
   def applyNormalCardHeuristicWithMoveSizeModifier(validMove: Move): Double = {
-    (0.8d * (1d/(validMove.moveFaceValue)) + (0.2d * validMove.parity/Consants.maxMoveSize))
+    (0.8d * (1d/(validMove.moveFaceValue)) + (0.2d * validMove.parity/Constants.maxMoveSize))
   }
 
   /*

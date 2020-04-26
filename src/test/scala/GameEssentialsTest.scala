@@ -2,7 +2,7 @@ import game.{Hand, Joker, Move, NormalCard, WildCard}
 import org.scalatest.FunSpec
 import game.FaceValue._
 import game.Suits._
-import utils.Consants._
+import utils.Constants._
 
 class GameEssentialsTest extends FunSpec {
 
