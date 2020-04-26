@@ -13,7 +13,7 @@ case object Game {
 
   val realPlayerName = "YOU"
   val sleepTimeBetweenGames = 5000
-  val sleepTime = 200
+  val sleepTime = 50
 
   val totalPlayerSizeMap: Map[Int, List[PlayerCompletionStatus]] = Map(
     2 -> List(President, Bum),
@@ -23,30 +23,19 @@ case object Game {
     6 -> List(President, VicePres, Neutral, Neutral, ViceBum, Bum)
   )
 
-  // Todo - ensure correct number of cards are shown on text - sometimes you lose/gain 2 cards, and other times, just the 1
-  val playerCompletionMessages: Map[PlayerCompletionStatus, String] = Map(
-    President -> "Congratulations! You are the new President! As a reward, two of your worst cards will be replaced with the Bum's best cards. \n You also get to start the next game!",
-    VicePres -> "Congratulations, You are the new VicePresident! As a rewards, your worst card will be replaced with the ViceBum's bext card.",
-    Neutral -> "Congratulations, You are Neutral. You will not be involved in any exchange of cards.",
-    ViceBum -> "Sorry, you are the ViceBum. You will be forced to give up your best card in exchange for the VicePresident's worst.",
-    Bum -> "Sorry, you are the Bum. You will be forced to give up two of your best cards in exchange for 2 of the President's worst cards."
-  )
-
-
   def getPlayerCompletionMessage(status: PlayerCompletionStatus, totalNumberOfPlayers: Int): String = {
     val numberOfCards = if(totalNumberOfPlayers >= 4) 2 else 1
     status match {
       case President => {
-        if(numberOfCards == 1) "Congratulations! You are the new President! As a reward, your worst card will be replaced with the Bum's best card. \n You also get to start the next game!"
-        else "Congratulations! You are the new President! As a reward, two of your worst cards will be replaced with the Bum's best cards. \n You also get to start the next game!"
+        if(numberOfCards == 1) "Congratulations! You are the new President!\nAs a reward, your worst card will be replaced with the Bum's best card.\nYou also get to start the next game!"
+        else "Congratulations! You are the new President!\nAs a reward, two of your worst cards will be replaced with the Bum's best cards.\nYou also get to start the next game!"
       }
-      case VicePres => "Congratulations, You are the new VicePresident! As a rewards, your worst card will be replaced with the ViceBum's bext card."
-      case Neutral =>  "Congratulations, You are Neutral. You will not be involved in any exchange of cards."
-      case ViceBum => "Sorry, you are the ViceBum. You will be forced to give up your best card in exchange for the VicePresident's worst."
+      case VicePres => "Congratulations, You are the new VicePresident!\nAs a reward, your worst card will be replaced with the ViceBum's bext card."
+      case Neutral =>  "Good Job, You are Neutral!\nYou will not be involved in any exchange of cards."
+      case ViceBum => "Sorry, you are the ViceBum.\nYou will be forced to give up your best card in exchange for the VicePresident's worst."
       case Bum => {
-        if(numberOfCards == 1) "Sorry, you are the Bum. You will be forced to give up your best card in exchange for the President's worst card."
-        else "Sorry, you are the Bum. You will be forced to give up your 2 best cards in exchange for the President's 2 worst cards."
-
+        if(numberOfCards == 1) "Sorry, you are the Bum.\nYou will be forced to give up your best card in exchange for the President's worst card."
+        else "Sorry, you are the Bum.\nYou will be forced to give up your 2 best cards in exchange for the President's 2 worst cards."
       }
     }
   }
@@ -94,6 +83,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
         // This blocks passage until user dismisses dialog
         mainLayout.showUserPromptForGameCompletionStatus(playerCompletionOrder.toList, playerCompletionStatusOrder)
         players = exchangeHands(players, playerCompletionOrder.toList)
+        mainLayout.selectedCardsToGetRidOf = List.empty
         updateUI(players)
       }
       else return
@@ -116,8 +106,10 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
     newPlayers
       .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
       .foreach({
-        case (player, President) => droppedCards(President) = player.getWorstCards(totalCardsToDrop)
-        case (player, VicePres) => droppedCards(VicePres) = player.getWorstCards(1)
+        case (player, President) => if(player.isRealPlayer)  droppedCards(President) = mainLayout.selectedCardsToGetRidOf
+                                    else droppedCards(President) = player.getWorstCards(totalCardsToDrop)
+        case (player, VicePres) => if(player.isRealPlayer) droppedCards(VicePres) = mainLayout.selectedCardsToGetRidOf
+                                    else  droppedCards(VicePres) = player.getWorstCards(1)
         case (player, ViceBum) => droppedCards(ViceBum) = player.getBestCards(1)
         case (player, Bum) => droppedCards(Bum) = player.getBestCards(totalCardsToDrop)
         case (player, Neutral) =>

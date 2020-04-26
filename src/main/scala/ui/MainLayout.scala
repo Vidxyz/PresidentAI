@@ -1,8 +1,8 @@
 package ui
 
-import game.{Game, GameUtilities, Move, PlayerCompletionStatus, Round}
+import game.{Card, Game, GameUtilities, Move, PlayerCompletionStatus, President, Round, VicePres}
 import player.Player
-import ui.layouts.{BottomLayout, MiddleLayout, TopLayout}
+import ui.layouts.{BottomLayout, MiddleLayout, TopLayout, UserPromptDialogLayout}
 import ui.panels.GameOverPanel
 
 import scala.swing.{Dialog, GridBagPanel, SimpleSwingApplication, Swing}
@@ -15,6 +15,8 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
   var selectedPlayerNames = List(Game.realPlayerName, "Bob", "Mike", "Joe", "Kevin", "Andre")
 
   var game: Game = Game(Move(List.empty), selectedPlayerNames, this)
+
+  var selectedCardsToGetRidOf: List[Card] = List.empty
 
   val topPanel = new TopLayout(app,
     if(game.players.size >= 3) game.players(2) else null,
@@ -193,7 +195,26 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
       .filter(tuple => tuple._1 == game.players.filter(_.isRealPlayer).head.name)
       .map(_._2).head
     val completionMessage = Game.getPlayerCompletionMessage(playerPosition, playerCompletionOrder.size)
-    showMessage(this, completionMessage, playerPosition.toString)
+
+    playerPosition match {
+      case President | VicePres => showUserDialogToPromptCardsToGetRidOf(playerPosition, completionMessage)
+      case _ =>  showMessage(this, completionMessage, playerPosition.toString)
+    }
+  }
+
+  def showUserDialogToPromptCardsToGetRidOf(playerPosition: PlayerCompletionStatus, completionMessage: String) = {
+    val dialog = new Dialog()
+    val currentHand = game.players.filter(_.isRealPlayer).head.hand
+    val userPromptDialogLayout = new UserPromptDialogLayout(app, currentHand, dialog, playerPosition, completionMessage)
+    dialog.contents = userPromptDialogLayout
+    dialog.resizable = false
+    dialog.centerOnScreen()
+    dialog.open()
+    // This is to busy wait until user closes the dialog, which is done via mouse click listener
+    while(dialog.peer.isVisible) {
+      Thread.sleep(100)
+    }
+    selectedCardsToGetRidOf = userPromptDialogLayout.selectedCards
   }
 
 }

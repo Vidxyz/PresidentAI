@@ -12,6 +12,7 @@ object Main extends SimpleSwingApplication {
     menuBar = new MenuBarLayout(mainLayout)
     contents = mainLayout
     resizable = true
+    centerOnScreen()
   }
 
 }

@@ -477,7 +477,7 @@ case object GameUtilities {
   /*
   Drops cards, and replaces them with cards, and returns a sorted hand
   Must handle dual joker situations carefully due to card comparision edge cases
-  // todo - test this and write tests for it
+  // todo - test this and write tests for it - carefully cover 2jokers case
    */
   def dropAndReplaceCardsInHand(hand: Hand, cardsToDrop: List[Card], cardsToReplce: List[Card]): Hand = {
     var jokersToRemove = cardsToDrop.count(c => c == Joker)

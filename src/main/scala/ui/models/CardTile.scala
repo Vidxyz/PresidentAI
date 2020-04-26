@@ -1,6 +1,5 @@
 package ui.models
 
-import java.awt.Color
 import java.awt.geom.{AffineTransform, Point2D}
 
 import game.Card
@@ -10,11 +9,11 @@ import utils.Consants._
 
 import scala.swing.{Graphics2D, Rectangle, SimpleSwingApplication}
 
-case class CardTile(app: SimpleSwingApplication, card: Card, cardIndex: Int, totalNumberOfCards: Int, isSelected: Boolean = false) {
+case class CardTile(app: SimpleSwingApplication, card: Card, maxRows: Int, cardIndex: Int, totalNumberOfCards: Int, isSelected: Boolean = false) {
 import CardTile._
 
   val cardImage = getImageResourceForCardTile(card, app, isSelected).getImage
-  val transformedCoordinates = getTransformedCoordinatesForCardInTileView(cardIndex, totalNumberOfCards)
+  val transformedCoordinates = getTransformedCoordinatesForCardInTileView(cardIndex, totalNumberOfCards, maxRows)
   val cardBeginningXCoordinate =  transformedCoordinates._1
   val cardBeginningYCoordinate = transformedCoordinates._2
 
@@ -41,8 +40,7 @@ case object CardTile {
   val width = 53
   val height = 70
 
-  def getTransformedCoordinatesForCardInTileView(cardIndex: Int, totalCards: Int): (Int, Int) = {
-    val maxRows = PlayerCardTilePanel.maxRows
+  def getTransformedCoordinatesForCardInTileView(cardIndex: Int, totalCards: Int, maxRows: Int): (Int, Int) = {
     val maxColsPerRow = scala.math.ceil(Consants.totalNumberOfCards.toDouble/2/maxRows).toInt
     val rowLimit = scala.math.ceil(totalCards/maxColsPerRow.toDouble).toInt
     val xIndex = cardIndex % maxColsPerRow
