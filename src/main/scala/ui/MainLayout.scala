@@ -233,6 +233,7 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
 
   def highlightNewlyReceivedCard(received: List[Card]) = {
     bottomPanel.highlightNewlyReceivedCard(received)
+    Thread.sleep(Game.newCardReceivedTime)
   }
 
 }
