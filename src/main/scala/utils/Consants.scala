@@ -2,7 +2,7 @@ package utils
 
 import game.FaceValue._
 import game.Suits._
-import game.{Card, Hand, Joker, NormalCard, SpecialCard, Value, WildCard}
+import game.{Bum, Card, Hand, Joker, Neutral, NormalCard, PlayerCompletionStatus, President, SpecialCard, Value, ViceBum, VicePres, WildCard}
 import javax.swing.ImageIcon
 
 import scala.swing.SimpleSwingApplication
@@ -12,6 +12,12 @@ object Consants {
   val totalNumberOfCards = 54
 
   val maxMoveSize = 4
+
+  val nemesisMap: Map[PlayerCompletionStatus, PlayerCompletionStatus] = Map (
+    President -> Bum,
+    VicePres -> ViceBum,
+    Neutral -> Neutral
+  )
 
   val cardGiveAwayPreference: Map[Card, Int] = Map (
     Joker -> 1,

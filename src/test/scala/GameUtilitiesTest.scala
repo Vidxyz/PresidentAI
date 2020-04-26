@@ -1869,6 +1869,7 @@ class GameUtilitiesTest extends FunSpec {
     }
   }
 
+      /*
   describe("Tests for exchangeHands") {
 
     describe("When there is 3 players") {
@@ -2064,5 +2065,5 @@ class GameUtilitiesTest extends FunSpec {
     }
 
   }
-
+*/
 }

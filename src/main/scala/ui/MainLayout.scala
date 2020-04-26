@@ -146,24 +146,31 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     gameThread.join()
     game.players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames)
                   .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
+    updateUI()
 
     showUserPromptForGameCompletionStatus(game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses)
-    game.players = GameUtilities.exchangeHands(game.players, game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses, selectedCardsToGetRidOf)
+    val (newPlayers, realPlayerCardsReceived) = GameUtilities.exchangeHands(game.players, game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses, selectedCardsToGetRidOf)
+    game.players = newPlayers
     selectedCardsToGetRidOf = List.empty
-
     game.isActive = true
 
-    val freshRound = Round(game.startState, "", game.startingPlayerIndex, game.players.toList, Round.getPassStatusFalseForAll(game.players.toList))
-
-    updatePlayerObjects(game.players.toList)
-    updateRoundObject(freshRound)
-    resetPlayerCompletionStatus
-    resetUserPassStatus
+    updateUI()
     updateActivePlayerAvatar
+    highlightNewlyReceivedCard(realPlayerCardsReceived)
     revalidate()
     repaint()
 
     beginGame
+  }
+
+  def updateUI() = {
+    val freshRound = Round(game.startState, "", game.startingPlayerIndex, game.players.toList, Round.getPassStatusFalseForAll(game.players.toList))
+    updatePlayerObjects(game.players.toList)
+    updateRoundObject(freshRound)
+    resetPlayerCompletionStatus
+    resetUserPassStatus
+    revalidate()
+    repaint()
   }
 
   def beginGame = {
@@ -222,6 +229,10 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     }
     selectedCardsToGetRidOf = userPromptDialogLayout.selectedCards
     dialog.dispose()
+  }
+
+  def highlightNewlyReceivedCard(received: List[Card]) = {
+    bottomPanel.highlightNewlyReceivedCard(received)
   }
 
 }

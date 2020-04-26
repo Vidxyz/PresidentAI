@@ -1,6 +1,7 @@
 package ui.layouts
 
-import game.{GameUtilities, Move, Round}
+import scala.swing.Dialog._
+import game.{Card, GameUtilities, Move, Round}
 import player.Player
 import ui.MainLayout
 import ui.models.{CardTile, HandCard}
@@ -89,6 +90,11 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
     }
   }
 
+  def highlightNewlyReceivedCard(received: List[Card]) = {
+    playerHandPanel.setCardsAsSelected(Move(received))
+    playerCardTilePanel.setCardsAsSelected(Move(received))
+  }
+
   def updateInternalMoveAsUserPass = {
     isMoveSelected = true
     selectedMove = None
@@ -96,7 +102,6 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
 
   //  cannot accept this when no cards are selected, or when invalid move is selected
   def updateInternalMoveUsingSelectedCards: Unit = {
-    import scala.swing.Dialog._
     if(!playerCardTilePanel.cardTileList.exists(tile => tile.isSelected)) {
       showMessage(parent, "Please select a card(s) to play", "No Cards Selected")
       return

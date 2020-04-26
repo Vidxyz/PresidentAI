@@ -507,7 +507,7 @@ case object GameUtilities {
   def exchangeHands(newPlayers: mutable.Buffer[Player],
                     playerCompletionOrder: List[String],
                     playerCompletionStatuses: List[PlayerCompletionStatus],
-                    userSelectedCardToGetRidOf: List[Card]): mutable.Buffer[Player] = {
+                    userSelectedCardToGetRidOf: List[Card]): (mutable.Buffer[Player], List[Card]) = {
     val totalCardsToDrop = if(newPlayers.size >= 4) 2 else 1
     val droppedCards: mutable.Map[PlayerCompletionStatus, List[Card]] = collection.mutable.Map.empty
     val completionMap: Map[String, PlayerCompletionStatus] =  playerCompletionOrder.zip(playerCompletionStatuses).toMap
@@ -524,7 +524,7 @@ case object GameUtilities {
         case (_, Neutral) =>
       })
 
-    newPlayers
+    (newPlayers
       .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
       .map({
         case (player, President) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
@@ -537,8 +537,8 @@ case object GameUtilities {
                                     droppedCards.getOrElse(Bum, List.empty), droppedCards.getOrElse(President, List.empty)))
         case (player, Neutral) => player
       })
-      .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player)
-
+      .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player),
+      droppedCards.getOrElse(nemesisMap.getOrElse(completionMap.getOrElse(newPlayers.filter(_.isRealPlayer).head.name, Neutral), Neutral), List.empty))
   }
 
   /* Removes first occurrence of element in list that satisfies predicate function */

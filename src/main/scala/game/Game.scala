@@ -87,9 +87,11 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
         updateUI(players)
         // This blocks passage until user dismisses dialog
         mainLayout.showUserPromptForGameCompletionStatus(previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses)
-        players = GameUtilities.exchangeHands(players, previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses, mainLayout.selectedCardsToGetRidOf)
+        val (newPlayers, realPlayerCardsReceived) = GameUtilities.exchangeHands(players, previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses, mainLayout.selectedCardsToGetRidOf)
+        players = newPlayers
         mainLayout.selectedCardsToGetRidOf = List.empty
         updateUI(players)
+        mainLayout.highlightNewlyReceivedCard(realPlayerCardsReceived)
       }
       else return
     }
