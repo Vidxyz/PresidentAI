@@ -503,6 +503,7 @@ case object GameUtilities {
   Neutral hand is untouched
   Assumes playerCompletionOrder.size == playerCompletionStatusOrder.size
   Assumes newPlayers.names == player names in completion order
+  Returns a tuple comprising of newPlayers, and the cards that were received by the REAL player
    */
   def exchangeHands(newPlayers: mutable.Buffer[Player],
                     playerCompletionOrder: List[String],
@@ -524,6 +525,10 @@ case object GameUtilities {
         case (_, Neutral) =>
       })
 
+    val realPlayerName = if(!newPlayers.exists(_.isRealPlayer)) "" else newPlayers.filter(_.isRealPlayer).head.name
+    // This value is empty if neutral, or empty if only AI players in game
+    val cardsReceivedByRealPlayer = droppedCards.getOrElse(nemesisMap.getOrElse(completionMap.getOrElse(realPlayerName, Neutral), Neutral), List.empty)
+
     (newPlayers
       .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
       .map({
@@ -538,7 +543,7 @@ case object GameUtilities {
         case (player, Neutral) => player
       })
       .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player),
-      droppedCards.getOrElse(nemesisMap.getOrElse(completionMap.getOrElse(newPlayers.filter(_.isRealPlayer).head.name, Neutral), Neutral), List.empty))
+      cardsReceivedByRealPlayer)
   }
 
   /* Removes first occurrence of element in list that satisfies predicate function */

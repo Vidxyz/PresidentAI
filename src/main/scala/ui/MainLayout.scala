@@ -233,7 +233,6 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
   }
 
   // todo - BUG, when re-dealt, things are not being highlighted
-  // todo - fix tests
   def highlightNewlyReceivedCard(received: List[Card]) = {
     bottomPanel.highlightNewlyReceivedCard(received)
     Thread.sleep(Game.newCardReceivedTime)
