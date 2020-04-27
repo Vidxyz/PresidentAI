@@ -17,7 +17,7 @@ object UserPromptDialogLayout {
 }
 
 class UserPromptDialogLayout(app: SimpleSwingApplication, hand: Hand, parent: Dialog,
-                             status: PlayerCompletionStatus, message: String) extends GridBagPanel {
+                             status: PlayerCompletionStatus, message: String, numberOfPlayers: Int) extends GridBagPanel {
   import UserPromptDialogLayout._
 
   preferredSize = new Dimension(width, height)
@@ -42,7 +42,7 @@ class UserPromptDialogLayout(app: SimpleSwingApplication, hand: Hand, parent: Di
   c.gridy = 1
   c.insets = new Insets(0, 50, 0, 50)
   // Keeping the match explicit here since we do not expect this for Neutral and Below (cards are auto selected)
-  val userPromptCardTilePanel = new UserPromptCardTilePanel(app, hand.listOfCards, status match {case President => 2; case VicePres => 1})
+  val userPromptCardTilePanel = new UserPromptCardTilePanel(app, hand.listOfCards, status match {case President => if(numberOfPlayers >= 4) 2 else 1; case VicePres => 1})
   layout(userPromptCardTilePanel) = c
 
   c.fill = GridBagPanel.Fill.Vertical

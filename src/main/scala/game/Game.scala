@@ -13,7 +13,7 @@ case object Game {
 
   val realPlayerName = "YOU"
   val sleepTimeBetweenGames = 5000
-  val newCardReceivedTime = 1000
+  val newCardReceivedTime = 1500
   val sleepTime = 50
 
   val totalPlayerSizeMap: Map[Int, List[PlayerCompletionStatus]] = Map(
