@@ -5,8 +5,8 @@ import game.Suits._
 import org.scalactic.{Equality, TolerantNumerics}
 import org.scalatest.FunSpec
 import player.PlayerIndicators
-import utils.Consants
-import utils.Consants._
+import utils.Constants
+import utils.Constants._
 
 class GameEngineTest extends FunSpec {
 
@@ -171,7 +171,7 @@ class GameEngineTest extends FunSpec {
 
       describe("When special moves are available") {
         val gameState = Move(List.empty)
-        val randomHand = Hand(GameUtilities.dealNewHand(4, Consants.totalNumberOfCards).listOfCards.slice(0, 6))
+        val randomHand = Hand(GameUtilities.dealNewHand(4, Constants.totalNumberOfCards).listOfCards.slice(0, 6))
         val playerInd = PlayerIndicators(randomHand)
         val joker = Move(List(Joker))
         val single2 = Move(List(TWO_Diamond))
@@ -396,7 +396,7 @@ class GameEngineTest extends FunSpec {
 
       describe("When specialMoves are available") {
         val gameState = Move(List(ACE_Spade))
-        val randomHand = Hand(GameUtilities.dealNewHand(4, Consants.totalNumberOfCards).listOfCards.slice(0, 6))
+        val randomHand = Hand(GameUtilities.dealNewHand(4, Constants.totalNumberOfCards).listOfCards.slice(0, 6))
         val playerInd = PlayerIndicators(randomHand)
         val joker = Move(List(Joker))
         val single2 = Move(List(TWO_Diamond))
@@ -515,7 +515,7 @@ class GameEngineTest extends FunSpec {
       val betterTwoGameState2 = Move(List(TWO_Spade))
       val two2GameState = Move(List(TWO_Diamond, TWO_Club))
       val betterTwo2GameState = Move(List(TWO_Heart, TWO_Spade))
-      val randomHand = Hand(GameUtilities.dealNewHand(4, Consants.totalNumberOfCards).listOfCards.slice(0, 6))
+      val randomHand = Hand(GameUtilities.dealNewHand(4, Constants.totalNumberOfCards).listOfCards.slice(0, 6))
       val playerInd = PlayerIndicators(randomHand)
 
       it("Should play a 2, if its suit is one-greater-than that of the gameState 2") {
@@ -560,7 +560,7 @@ class GameEngineTest extends FunSpec {
 
     describe("When only special moves are available") {
       it("Should return either None or a move involving special card") {
-        val randomHand = Hand(GameUtilities.dealNewHand(4, Consants.totalNumberOfCards).listOfCards.slice(0, 6))
+        val randomHand = Hand(GameUtilities.dealNewHand(4, Constants.totalNumberOfCards).listOfCards.slice(0, 6))
         val playerInd = PlayerIndicators(randomHand)
         val validMoves = Moves(List(
           Move(List(TWO_Diamond)),

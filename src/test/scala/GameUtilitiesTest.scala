@@ -1,13 +1,13 @@
 import game.{Bum, Card, GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, Moves, Neutral, NormalCard, President, SpecialCard, ViceBum, VicePres, WildCard}
 import org.scalatest.FunSpec
-import utils.Consants
+import utils.Constants
 
 import scala.util.Random
 import game.FaceValue._
 import game.GameUtilities.{IllegalCardSuppliedException, IllegalMoveSuppliedException}
 import game.Suits._
 import player.Player
-import utils.Consants._
+import utils.Constants._
 
 class GameUtilitiesTest extends FunSpec {
 
@@ -29,7 +29,7 @@ class GameUtilitiesTest extends FunSpec {
       it("Should return a List[Player] of size 1 with hand comprising of all unique 54 cards") {
         val result = GameUtilities.generatePlayersAndDealHands(List("Player1"))
         assert(result.size == 1)
-        assert(result.head.hand.size == Consants.totalNumberOfCards)
+        assert(result.head.hand.size == Constants.totalNumberOfCards)
         assert(result.head.name == "Player1")
         assert(!result.head.hand.listOfCards.containsDuplicatesExcludingJokers)
       }
@@ -49,7 +49,7 @@ class GameUtilitiesTest extends FunSpec {
         // Check all hands are unqiue, excluding jokers
         assert(result.map(p => p.hand).map(h => !h.listOfCards.containsDuplicatesExcludingJokers).forall(x => x))
         // Check all hands cards add up to total
-        assert(result.map(p => p.hand).flatMap(h => h.listOfCards).size == Consants.totalNumberOfCards)
+        assert(result.map(p => p.hand).flatMap(h => h.listOfCards).size == Constants.totalNumberOfCards)
       }
     }
   }
@@ -170,8 +170,8 @@ class GameUtilitiesTest extends FunSpec {
 
     describe("When list of card consists only of full deck (54 cards)"){
       it("should return a sorted list ") {
-        assert(GameUtilities.sortCards(Random.shuffle(Consants.sortedHandWithAllCards.listOfCards))
-          == Consants.sortedHandWithAllCards.listOfCards)
+        assert(GameUtilities.sortCards(Random.shuffle(Constants.sortedHandWithAllCards.listOfCards))
+          == Constants.sortedHandWithAllCards.listOfCards)
       }
     }
 
@@ -262,7 +262,7 @@ class GameUtilitiesTest extends FunSpec {
           List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade)),
           List(Joker, Joker),
         )
-        assert(GameUtilities.getListsOfSimilarCards(Consants.sortedHandWithAllCards) == expectedResult)
+        assert(GameUtilities.getListsOfSimilarCards(Constants.sortedHandWithAllCards) == expectedResult)
       }
     }
 
@@ -1885,7 +1885,7 @@ class GameUtilitiesTest extends FunSpec {
           val playerCompletionOrder = List("p1", "p2", "p3")
           val userSelectedCardToGetRidOf = List.empty
           val playerCompletionStatuses = List(Neutral, Neutral, Neutral)
-          val newPlayers = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+          val (newPlayers, receivedCards)  = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
           assert(newPlayers == players)
         }
       }
@@ -1900,10 +1900,11 @@ class GameUtilitiesTest extends FunSpec {
             it("Should drop cards based on supplied parameter and not default to auto-drop") {
               val playerCompletionOrder = List("p1", "p2", "p3")
               val userSelectedCardToGetRidOf = List(JACK_Club)
-              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, TWO_Heart, Joker, Joker)))
               assert(resultingPlayers(1).hand == h2)
               assert(resultingPlayers.last.hand == Hand(List(THREE_Club, SEVEN_Heart, JACK_Club, JACK_Heart, TWO_Club)))
+              assert(receivedCards == List(Joker))
             }
           }
 
@@ -1911,10 +1912,11 @@ class GameUtilitiesTest extends FunSpec {
             it("Should exchange cards for others but not the real player") {
               val playerCompletionOrder = List("p2", "p1", "p3")
               val userSelectedCardToGetRidOf = List(JACK_Club)
-              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == h1)
               assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, Joker, Joker)))
               assert(resultingPlayers.last.hand == Hand(List(THREE_Club, SEVEN_Club, SEVEN_Heart, JACK_Heart, TWO_Club)))
+              assert(receivedCards == List.empty)
             }
           }
 
@@ -1922,10 +1924,11 @@ class GameUtilitiesTest extends FunSpec {
             it("Should auto-exchange cards even for the real player") {
               val playerCompletionOrder = List("p3", "p2", "p1")
               val userSelectedCardToGetRidOf = List(JACK_Club)
-              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Heart, SEVEN_Spade, JACK_Club, TWO_Heart)))
               assert(resultingPlayers(1).hand == h2)
               assert(resultingPlayers.last.hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
+              assert(receivedCards == List(SEVEN_Heart))
             }
           }
         }
@@ -1934,10 +1937,11 @@ class GameUtilitiesTest extends FunSpec {
           it("Should auto-exchange cards for everyone") {
             val playerCompletionOrder = List("p1", "p2", "p3")
             val userSelectedCardToGetRidOf = List(JACK_Club)
-            val resultingPlayers = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+            val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
             assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, JACK_Club, TWO_Heart, Joker, Joker)))
             assert(resultingPlayers(1).hand == h2)
             assert(resultingPlayers.last.hand == Hand(List(THREE_Club, SEVEN_Heart, SEVEN_Spade, JACK_Heart, TWO_Club)))
+            assert(receivedCards == List.empty)
           }
         }
       }
@@ -1965,8 +1969,9 @@ class GameUtilitiesTest extends FunSpec {
         it("Should involve no exchanges") {
           val userSelectedCardToGetRidOf = List.empty
           val playerCompletionStatuses = List(Neutral, Neutral, Neutral, Neutral, Neutral, Neutral)
-          val newPlayers = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+          val (newPlayers, receivedCards) = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
           assert(newPlayers == players)
+          assert(receivedCards == List.empty)
         }
       }
 
@@ -1980,13 +1985,14 @@ class GameUtilitiesTest extends FunSpec {
             it("Should drop cards based on supplied parameter and not default to auto-drop") {
               val playerCompletionOrder = List("p1", "p2", "p3", "p4", "p5", "p6")
               val userSelectedCardToGetRidOf = List(JACK_Club, TWO_Heart)
-              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, ACE_Diamond, Joker, Joker)))
               assert(resultingPlayers(1).hand ==  Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, Joker, Joker)))
               assert(resultingPlayers(2).hand ==  h3)
               assert(resultingPlayers(3).hand ==  h4)
               assert(resultingPlayers(4).hand ==  Hand(List(FIVE_Club, SIX_Diamond, SEVEN_Club, EIGHT_Heart, ACE_Club)))
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, EIGHT_Diamond, JACK_Club, TWO_Heart)))
+              assert(receivedCards == List(ACE_Diamond, Joker))
             }
           }
 
@@ -1994,13 +2000,14 @@ class GameUtilitiesTest extends FunSpec {
             it("Should drop cards based on supplied parameter and not default to auto-drop") {
               val playerCompletionOrder = List("p2", "p1", "p3", "p4", "p5", "p6")
               val userSelectedCardToGetRidOf = List(JACK_Club)
-              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, TWO_Heart, Joker, Joker)))
               assert(resultingPlayers(1).hand ==  Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, Joker, Joker)))
               assert(resultingPlayers(2).hand ==  h3)
               assert(resultingPlayers(3).hand ==  h4)
               assert(resultingPlayers(4).hand ==  Hand(List(FIVE_Club, SIX_Diamond, EIGHT_Heart, JACK_Club, ACE_Club)))
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Club, EIGHT_Diamond, JACK_Spade)))
+              assert(receivedCards == List(Joker))
             }
           }
 
@@ -2008,13 +2015,14 @@ class GameUtilitiesTest extends FunSpec {
             it("Should auto-exchange cards for everyone") {
               val playerCompletionOrder = List("p2", "p3", "p1", "p4", "p5", "p6")
               val userSelectedCardToGetRidOf = List(JACK_Club)
-              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == h1)
               assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, Joker, Joker)))
               assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
               assert(resultingPlayers(3).hand == h4)
               assert(resultingPlayers(4).hand == Hand(List(FIVE_Club, SIX_Diamond, SEVEN_Heart, EIGHT_Heart, ACE_Club)))
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Club, EIGHT_Diamond, JACK_Spade)))
+              assert(receivedCards == List.empty)
             }
           }
 
@@ -2022,13 +2030,14 @@ class GameUtilitiesTest extends FunSpec {
             it("Should auto-exchange cards for everyone") {
               val playerCompletionOrder = List("p2", "p3", "p4", "p5", "p1", "p6")
               val userSelectedCardToGetRidOf = List(JACK_Club)
-              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Heart, SEVEN_Spade, JACK_Club, TWO_Heart)))
               assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, Joker, Joker)))
               assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
               assert(resultingPlayers(3).hand == h4)
               assert(resultingPlayers(4).hand == h5)
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Club, EIGHT_Diamond, JACK_Spade)))
+              assert(receivedCards == List(SEVEN_Heart))
             }
           }
 
@@ -2036,13 +2045,14 @@ class GameUtilitiesTest extends FunSpec {
             it("Should auto-exchange cards for everyone") {
               val playerCompletionOrder = List("p2", "p3", "p4", "p5", "p6", "p1")
               val userSelectedCardToGetRidOf = List(JACK_Club)
-              val resultingPlayers = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+              val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Club, SEVEN_Spade, JACK_Club, JACK_Spade)))
               assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, TWO_Heart, TWO_Spade, Joker, Joker)))
               assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
               assert(resultingPlayers(3).hand == h4)
               assert(resultingPlayers(4).hand == h5)
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Heart, EIGHT_Diamond, ACE_Diamond)))
+              assert(receivedCards == List(SEVEN_Club, JACK_Spade))
             }
           }
         }
@@ -2051,13 +2061,14 @@ class GameUtilitiesTest extends FunSpec {
           it("Should auto-exchange cards for everyone") {
             val playerCompletionOrder = List("p1", "p2", "p3", "p4", "p5", "p6")
             val userSelectedCardToGetRidOf = List(JACK_Club)
-            val resultingPlayers = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
+            val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
             assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, ACE_Diamond, TWO_Heart, Joker, Joker)))
             assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, Joker, Joker)))
             assert(resultingPlayers(2).hand == h3)
             assert(resultingPlayers(3).hand == h4)
             assert(resultingPlayers(4).hand == Hand(List(FIVE_Club, SIX_Diamond, SEVEN_Club, EIGHT_Heart, ACE_Club)))
             assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Spade, EIGHT_Diamond, JACK_Club)))
+            assert(receivedCards == List.empty)
           }
         }
       }

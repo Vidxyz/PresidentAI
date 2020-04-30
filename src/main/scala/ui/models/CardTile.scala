@@ -4,8 +4,8 @@ import java.awt.geom.{AffineTransform, Point2D}
 
 import game.Card
 import ui.panels.PlayerCardTilePanel
-import utils.Consants
-import utils.Consants._
+import utils.Constants
+import utils.Constants._
 
 import scala.swing.{Graphics2D, Rectangle, SimpleSwingApplication}
 
@@ -41,7 +41,7 @@ case object CardTile {
   val height = 70
 
   def getTransformedCoordinatesForCardInTileView(cardIndex: Int, totalCards: Int, maxRows: Int): (Int, Int) = {
-    val maxColsPerRow = scala.math.ceil(Consants.totalNumberOfCards.toDouble/2/maxRows).toInt
+    val maxColsPerRow = scala.math.ceil(Constants.totalNumberOfCards.toDouble/2/maxRows).toInt
     val rowLimit = scala.math.ceil(totalCards/maxColsPerRow.toDouble).toInt
     val xIndex = cardIndex % maxColsPerRow
     val yIndex = cardIndex / maxColsPerRow

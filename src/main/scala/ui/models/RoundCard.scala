@@ -4,7 +4,7 @@ import java.awt.geom.AffineTransform
 
 import game.Card
 import ui.panels.CurrentRoundPanel
-import utils.Consants._
+import utils.Constants._
 
 import scala.swing.{Graphics2D, SimpleSwingApplication}
 

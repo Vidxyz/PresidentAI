@@ -4,7 +4,7 @@ import game.GameUtilities.IllegalMoveSuppliedException
 import game.{GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, NormalCard, SpecialCard}
 import org.scalatest.FunSpec
 import player.{Player, PlayerIndicators}
-import utils.Consants._
+import utils.Constants._
 import org.scalactic.{Equality, TolerantNumerics}
 
 class PlayerTest extends FunSpec{

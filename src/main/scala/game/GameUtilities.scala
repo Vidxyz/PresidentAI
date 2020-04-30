@@ -3,8 +3,8 @@ package game
 import game.FaceValue._
 import game.Suits._
 import player.Player
-import utils.Consants
-import utils.Consants._
+import utils.Constants
+import utils.Constants._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -66,9 +66,9 @@ case object GameUtilities {
     val random = if(seed > 0) new Random(seed) else new Random()
     @tailrec
     def dealHandsHelper(currentPlayer: Int, playerHands: List[Hand], seenSoFar: List[Int]): List[Hand] = {
-      if(seenSoFar.size == Consants.totalNumberOfCards) return playerHands
+      if(seenSoFar.size == Constants.totalNumberOfCards) return playerHands
 
-      val nextCardNum = random.nextInt(Consants.totalNumberOfCards)
+      val nextCardNum = random.nextInt(Constants.totalNumberOfCards)
 
       if(seenSoFar.contains(nextCardNum)) dealHandsHelper(currentPlayer, playerHands, seenSoFar)
       else {
@@ -503,11 +503,12 @@ case object GameUtilities {
   Neutral hand is untouched
   Assumes playerCompletionOrder.size == playerCompletionStatusOrder.size
   Assumes newPlayers.names == player names in completion order
+  Returns a tuple comprising of newPlayers, and the cards that were received by the REAL player
    */
   def exchangeHands(newPlayers: mutable.Buffer[Player],
                     playerCompletionOrder: List[String],
                     playerCompletionStatuses: List[PlayerCompletionStatus],
-                    userSelectedCardToGetRidOf: List[Card]): mutable.Buffer[Player] = {
+                    userSelectedCardToGetRidOf: List[Card]): (mutable.Buffer[Player], List[Card]) = {
     val totalCardsToDrop = if(newPlayers.size >= 4) 2 else 1
     val droppedCards: mutable.Map[PlayerCompletionStatus, List[Card]] = collection.mutable.Map.empty
     val completionMap: Map[String, PlayerCompletionStatus] =  playerCompletionOrder.zip(playerCompletionStatuses).toMap
@@ -524,7 +525,11 @@ case object GameUtilities {
         case (_, Neutral) =>
       })
 
-    newPlayers
+    val realPlayerName = if(!newPlayers.exists(_.isRealPlayer)) "" else newPlayers.filter(_.isRealPlayer).head.name
+    // This value is empty if neutral, or empty if only AI players in game
+    val cardsReceivedByRealPlayer = droppedCards.getOrElse(nemesisMap.getOrElse(completionMap.getOrElse(realPlayerName, Neutral), Neutral), List.empty)
+
+    (newPlayers
       .map(p => (p, completionMap.getOrElse(p.name, Neutral)))
       .map({
         case (player, President) => player.copy(hand = GameUtilities.dropAndReplaceCardsInHand(player.hand,
@@ -537,8 +542,8 @@ case object GameUtilities {
                                     droppedCards.getOrElse(Bum, List.empty), droppedCards.getOrElse(President, List.empty)))
         case (player, Neutral) => player
       })
-      .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player)
-
+      .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player),
+      cardsReceivedByRealPlayer)
   }
 
   /* Removes first occurrence of element in list that satisfies predicate function */

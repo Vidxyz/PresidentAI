@@ -1,6 +1,7 @@
 package ui.layouts
 
-import game.{GameUtilities, Move, Round}
+import scala.swing.Dialog._
+import game.{Card, GameUtilities, Move, Round}
 import player.Player
 import ui.MainLayout
 import ui.models.{CardTile, HandCard}
@@ -78,12 +79,20 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
   }
 
   def highlightPossibleCards = {
+    // This is a bit of a hack - to clear all cards being selected, we can achieve the same by supplying an empty move
+    playerHandPanel.setCardsAsSelected(Move(List.empty))
+    playerCardTilePanel.setCardsAsSelected(Move(List.empty))
     val p = realPlayer.copy(isRealPlayer = false)
     val nextMove = p.playNextMove(p.hand, round.gameState)
     if(nextMove.isDefined) {
       playerHandPanel.setCardsAsSelected(nextMove.get)
       playerCardTilePanel.setCardsAsSelected(nextMove.get)
     }
+  }
+
+  def highlightNewlyReceivedCard(received: List[Card]) = {
+    playerHandPanel.setCardsAsSelected(Move(received))
+    playerCardTilePanel.setCardsAsSelected(Move(received))
   }
 
   def updateInternalMoveAsUserPass = {
@@ -93,7 +102,6 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
 
   //  cannot accept this when no cards are selected, or when invalid move is selected
   def updateInternalMoveUsingSelectedCards: Unit = {
-    import scala.swing.Dialog._
     if(!playerCardTilePanel.cardTileList.exists(tile => tile.isSelected)) {
       showMessage(parent, "Please select a card(s) to play", "No Cards Selected")
       return

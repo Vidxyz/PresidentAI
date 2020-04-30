@@ -1,7 +1,7 @@
 import game.FaceValue._
 import game.Suits._
 import game._
-import utils.Consants._
+import utils.Constants._
 import org.scalatest.FunSpec
 import player.PlayerIndicators
 

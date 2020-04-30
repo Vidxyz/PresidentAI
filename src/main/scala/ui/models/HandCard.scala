@@ -4,8 +4,8 @@ import java.awt.geom.{AffineTransform, Point2D}
 
 import game.Card
 import ui.panels.PlayerHandPanel
-import utils.Consants
-import utils.Consants._
+import utils.Constants
+import utils.Constants._
 
 import scala.swing.{Graphics2D, Rectangle, SimpleSwingApplication}
 
@@ -35,8 +35,8 @@ case object HandCard {
   private val cardBaseYCoordinate = 10
 
   def getTransformedCoordinatesForCardInHandView(baseX: Int, baseY: Int, cardIndexNumber: Int, numberOfCardsInHand: Int): (Double, Double) = {
-    val radius = 50 * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
-    val maxAngle = PlayerHandPanel.maxHandSpreadAngle * numberOfCardsInHand/(Consants.sortedHandWithAllCards.size/2)
+    val radius = 50 * numberOfCardsInHand/(Constants.sortedHandWithAllCards.size/2)
+    val maxAngle = PlayerHandPanel.maxHandSpreadAngle * numberOfCardsInHand/(Constants.sortedHandWithAllCards.size/2)
     val minimumAngle = maxAngle/numberOfCardsInHand
     val currentAngle = (cardIndexNumber * minimumAngle) - maxAngle
     (radius * math.sin(scala.math.toRadians(currentAngle)) + baseX, radius * -scala.math.cos(scala.math.toRadians(currentAngle)) + baseY*2 - radius + 50)

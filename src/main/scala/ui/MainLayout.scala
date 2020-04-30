@@ -1,6 +1,7 @@
 package ui
 
 import game.{Card, Game, GameUtilities, Move, PlayerCompletionStatus, President, Round, VicePres}
+import javax.swing.SwingUtilities
 import player.Player
 import ui.layouts.{BottomLayout, MiddleLayout, TopLayout, UserPromptDialogLayout}
 import ui.panels.GameOverPanel
@@ -146,24 +147,31 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     gameThread.join()
     game.players = GameUtilities.generatePlayersAndDealHands(selectedPlayerNames)
                   .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
+    updateUI()
 
     showUserPromptForGameCompletionStatus(game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses)
-    game.players = GameUtilities.exchangeHands(game.players, game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses, selectedCardsToGetRidOf)
+    val (newPlayers, realPlayerCardsReceived) = GameUtilities.exchangeHands(game.players, game.previousRoundPlayerCompletionOrder, game.previousRoundPlayerCompletionStatuses, selectedCardsToGetRidOf)
+    game.players = newPlayers
     selectedCardsToGetRidOf = List.empty
-
     game.isActive = true
 
-    val freshRound = Round(game.startState, "", game.startingPlayerIndex, game.players.toList, Round.getPassStatusFalseForAll(game.players.toList))
-
-    updatePlayerObjects(game.players.toList)
-    updateRoundObject(freshRound)
-    resetPlayerCompletionStatus
-    resetUserPassStatus
+    updateUI()
     updateActivePlayerAvatar
+    highlightNewlyReceivedCard(realPlayerCardsReceived)
     revalidate()
     repaint()
 
     beginGame
+  }
+
+  def updateUI() = {
+    val freshRound = Round(game.startState, "", game.startingPlayerIndex, game.players.toList, Round.getPassStatusFalseForAll(game.players.toList))
+    updatePlayerObjects(game.players.toList)
+    updateRoundObject(freshRound)
+    resetPlayerCompletionStatus
+    resetUserPassStatus
+    revalidate()
+    repaint()
   }
 
   def beginGame = {
@@ -201,16 +209,16 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
       .map(_._2).head
     val completionMessage = Game.getPlayerCompletionMessage(playerPosition, playerCompletionOrder.size)
     playerPosition match {
-      case President | VicePres => showUserDialogToPromptCardsToGetRidOf(playerPosition, completionMessage)
+      case President | VicePres => showUserDialogToPromptCardsToGetRidOf(playerPosition, completionMessage, playerCompletionOrder.size)
       case _ =>  showMessage(this, completionMessage, playerPosition.toString)
     }
   }
 
-  def showUserDialogToPromptCardsToGetRidOf(playerPosition: PlayerCompletionStatus, completionMessage: String) = {
+  def showUserDialogToPromptCardsToGetRidOf(playerPosition: PlayerCompletionStatus, completionMessage: String, numberOfPlayers: Int) = {
     val dialog = new Dialog()
     val currentHand = game.players.filter(_.isRealPlayer).head.hand
     println(currentHand)
-    val userPromptDialogLayout = new UserPromptDialogLayout(app, currentHand, dialog, playerPosition, completionMessage)
+    val userPromptDialogLayout = new UserPromptDialogLayout(app, currentHand, dialog, playerPosition, completionMessage, numberOfPlayers)
     dialog.contents = userPromptDialogLayout
     dialog.resizable = false
     dialog.centerOnScreen()
@@ -222,6 +230,14 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     }
     selectedCardsToGetRidOf = userPromptDialogLayout.selectedCards
     dialog.dispose()
+  }
+
+  // todo - BUG, when re-dealt, things are not being highlighted
+  def highlightNewlyReceivedCard(received: List[Card]) = {
+    bottomPanel.highlightNewlyReceivedCard(received)
+    Thread.sleep(Game.newCardReceivedTime)
+    // Hacky way of getting to reset card selection
+    bottomPanel.highlightNewlyReceivedCard(List.empty)
   }
 
 }
