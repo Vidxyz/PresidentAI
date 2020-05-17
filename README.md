@@ -13,8 +13,9 @@ This game allows you to choose between 2-6 players to play the game
 
 ## Prerequisites
 - Scala 2.13
-- Jacoco (test coverage)
 - Scala Swing
+- SBT
+- Jacoco (test coverage)
 
 
 ## Testing the project
