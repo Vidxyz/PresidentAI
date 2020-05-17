@@ -1,7 +1,7 @@
 import java.io.ByteArrayInputStream
 
 import game.GameUtilities.IllegalMoveSuppliedException
-import game.{GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, NormalCard, SpecialCard}
+import game.{BlackJoker, GameUtilities, Hand, IllegalAssumedValueException, Move, NormalCard, RedJoker, SpecialCard}
 import org.scalatest.FunSpec
 import player.{Player, PlayerIndicators}
 import utils.Constants._
@@ -26,7 +26,7 @@ class PlayerTest extends FunSpec{
     describe("Tests for promptForNextMove") {
       val hand = Hand(List(
         THREE_Club, FOUR_Heart, SIX_Heart, SIX_Spade, SEVEN_Heart, SEVEN_Spade, TEN_Diamond, JACK_Diamond,
-        JACK_Club, ACE_Spade, TWO_Club, TWO_Heart, TWO_Spade, Joker
+        JACK_Club, ACE_Spade, TWO_Club, TWO_Heart, TWO_Spade, BlackJoker
       ))
       val player = Player("Test", hand)
 
@@ -90,7 +90,7 @@ class PlayerTest extends FunSpec{
     describe("Tests for parseUserLine") {
       val hand = Hand(List(
         THREE_Club, FOUR_Heart, SEVEN_Club, TEN_Diamond, JACK_Diamond,
-        JACK_Club, ACE_Spade, TWO_Club, TWO_Heart, TWO_Spade, Joker
+        JACK_Club, ACE_Spade, TWO_Club, TWO_Heart, TWO_Spade, BlackJoker
       ))
       val player = Player("Test", hand)
 
@@ -173,16 +173,22 @@ class PlayerTest extends FunSpec{
       }
 
       describe("When it is a Joker") {
-        it("Should return the right move") {
-          val expectedMove = Move(List(Joker))
-          val move = player.parseUserLine("<JokER>")
+        it("Should return the BlackJoker as the right move") {
+          val expectedMove = Move(List(BlackJoker))
+          val move = player.parseUserLine("<black_JokER>")
+          assert(expectedMove == move.get)
+        }
+
+        it("Should return the RedJoker as the right move") {
+          val expectedMove = Move(List(RedJoker))
+          val move = player.parseUserLine("<ReD_JokER>")
           assert(expectedMove == move.get)
         }
       }
     }
 
     describe("Tests for getWorstCards") {
-      val hand = Hand(List(THREE_Club, THREE_Spade, FOUR_Heart, SIX_Diamond, TEN_Heart, KING_Club, ACE_Heart, TWO_Spade, Joker))
+      val hand = Hand(List(THREE_Club, THREE_Spade, FOUR_Heart, SIX_Diamond, TEN_Heart, KING_Club, ACE_Heart, TWO_Spade, BlackJoker))
       val player = Player("Test", hand)
 
       describe("When hand is empty") {
@@ -209,16 +215,16 @@ class PlayerTest extends FunSpec{
 
       describe("When there are no normal cards to return") {
         it("Should return worst non-normal cards as they would be in a sorted hand meant to be given away") {
-          val newHand = Hand(List(THREE_Club, THREE_Spade, TWO_Club, TWO_Spade, Joker, Joker))
+          val newHand = Hand(List(THREE_Club, THREE_Spade, TWO_Club, TWO_Spade, RedJoker, BlackJoker))
           val newPlayer = Player("Test", newHand)
           assert(newPlayer.getWorstCards(3) == List(TWO_Club, THREE_Club, THREE_Spade))
-          assert(newPlayer.getWorstCards(6) == List(TWO_Club, THREE_Club, THREE_Spade, TWO_Spade, Joker, Joker))
+          assert(newPlayer.getWorstCards(6) == List(TWO_Club, THREE_Club, THREE_Spade, TWO_Spade, RedJoker, BlackJoker))
         }
       }
     }
 
     describe("Tests for getBestCards") {
-      val hand = Hand(List(THREE_Club, THREE_Spade, FOUR_Heart, SIX_Diamond, TEN_Heart, KING_Club, ACE_Heart, TWO_Diamond, TWO_Spade, Joker))
+      val hand = Hand(List(THREE_Club, THREE_Spade, FOUR_Heart, SIX_Diamond, TEN_Heart, KING_Club, ACE_Heart, TWO_Diamond, TWO_Spade, BlackJoker))
       val player = Player("Test", hand)
 
       describe("When hand is empty") {
@@ -236,19 +242,19 @@ class PlayerTest extends FunSpec{
       }
 
       it("Should return expected list of normalcards size 1 when parameter is 1") {
-        assert(player.getBestCards(1) == List(Joker))
+        assert(player.getBestCards(1) == List(BlackJoker))
       }
 
       it("Should return expected list of normalcards size 2 when parameter is 2") {
-        assert(player.getBestCards(2) == List(TWO_Spade, Joker))
+        assert(player.getBestCards(2) == List(TWO_Spade, BlackJoker))
       }
 
       it("Should return expected list of normalcards size 4 when parameter is 4") {
-        assert(player.getBestCards(4) == List(THREE_Club, THREE_Spade, TWO_Spade, Joker))
+        assert(player.getBestCards(4) == List(THREE_Club, THREE_Spade, TWO_Spade, BlackJoker))
       }
 
       it("Should return expected list of normalcards size 5 when parameter is 5") {
-        assert(player.getBestCards(5) == List( TWO_Diamond, THREE_Club, THREE_Spade, TWO_Spade, Joker))
+        assert(player.getBestCards(5) == List( TWO_Diamond, THREE_Club, THREE_Spade, TWO_Spade, BlackJoker))
       }
 
       describe("When there are no special cards to return") {

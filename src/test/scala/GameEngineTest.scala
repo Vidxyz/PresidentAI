@@ -1,6 +1,6 @@
 import game.FaceValue._
 import game.GameEngine.IllegalHeuristicFunctionException
-import game.{Card, GameEngine, GameUtilities, Hand, Joker, Move, Moves, NormalCard, SpecialCard, WildCard}
+import game.{Card, GameEngine, GameUtilities, Hand, BlackJoker, Move, Moves, NormalCard, SpecialCard, WildCard}
 import game.Suits._
 import org.scalactic.{Equality, TolerantNumerics}
 import org.scalatest.FunSpec
@@ -173,7 +173,7 @@ class GameEngineTest extends FunSpec {
         val gameState = Move(List.empty)
         val randomHand = Hand(GameUtilities.dealNewHand(4, Constants.totalNumberOfCards).listOfCards.slice(0, 6))
         val playerInd = PlayerIndicators(randomHand)
-        val joker = Move(List(Joker))
+        val joker = Move(List(BlackJoker))
         val single2 = Move(List(TWO_Diamond))
         val double2 = Move(List(TWO_Diamond, TWO_Club))
         val triple2 = Move(List(TWO_Diamond, TWO_Club, TWO_Heart))
@@ -398,7 +398,7 @@ class GameEngineTest extends FunSpec {
         val gameState = Move(List(ACE_Spade))
         val randomHand = Hand(GameUtilities.dealNewHand(4, Constants.totalNumberOfCards).listOfCards.slice(0, 6))
         val playerInd = PlayerIndicators(randomHand)
-        val joker = Move(List(Joker))
+        val joker = Move(List(BlackJoker))
         val single2 = Move(List(TWO_Diamond))
         val double2 = Move(List(TWO_Diamond, TWO_Club))
         val triple2 = Move(List(TWO_Diamond, TWO_Club, TWO_Heart))
@@ -537,11 +537,11 @@ class GameEngineTest extends FunSpec {
       }
 
       it("Should return either Joker or None, if gameState involves single or two 2s"){
-        val result1 = GameEngine.getNextMove(Moves(List(Move(List(Joker)))), betterTwo2GameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
-        assert(result1.contains(Move(List(Joker))) || result1.isEmpty)
+        val result1 = GameEngine.getNextMove(Moves(List(Move(List(BlackJoker)))), betterTwo2GameState)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
+        assert(result1.contains(Move(List(BlackJoker))) || result1.isEmpty)
 
-        val result2 = GameEngine.getNextMove(Moves(List(Move(List(Joker)))), betterTwoGameState2)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
-        assert(result2.contains(Move(List(Joker))) || result2.isEmpty)
+        val result2 = GameEngine.getNextMove(Moves(List(Move(List(BlackJoker)))), betterTwoGameState2)(GameEngine.applySpecialCardMoveHeuristic, playerInd)
+        assert(result2.contains(Move(List(BlackJoker))) || result2.isEmpty)
       }
     }
 
@@ -566,7 +566,7 @@ class GameEngineTest extends FunSpec {
           Move(List(TWO_Diamond)),
           Move(List(TWO_Heart)),
           Move(List(TWO_Diamond, TWO_Heart)),
-          Move(List(Joker)),
+          Move(List(BlackJoker)),
         ))
         val gameState = Move(List.empty)
         val result = GameEngine.getNextMoveWrapper(validMoves, gameState)(playerInd)
@@ -598,7 +598,7 @@ class GameEngineTest extends FunSpec {
 
     describe("When both normal (moves with normalcard/wildcard) and special moves are available") {
       it("Should only return a normalCard move and NOT a specialCard move") {
-        val hand = Hand(List(THREE_Spade, SIX_Diamond, QUEEN_Heart, KING_Diamond, KING_Heart, TWO_Spade, Joker))
+        val hand = Hand(List(THREE_Spade, SIX_Diamond, QUEEN_Heart, KING_Diamond, KING_Heart, TWO_Spade, BlackJoker))
         val playerInd = PlayerIndicators(hand)
         val validMoves = Moves(List(
           Move(List(THREE_Spade(14))),
@@ -608,7 +608,7 @@ class GameEngineTest extends FunSpec {
           Move(List(KING_Heart)),
           Move(List(KING_Diamond, KING_Heart)),
           Move(List(TWO_Spade)),
-          Move(List(Joker)),
+          Move(List(BlackJoker)),
         ))
         val gameState = Move(List.empty)
         val result = GameEngine.getNextMoveWrapper(validMoves, gameState)(playerInd)
@@ -627,7 +627,7 @@ class GameEngineTest extends FunSpec {
     describe("Throws exception when") {
 
       it("Move involves a joker") {
-        assertThrows[IllegalHeuristicFunctionException](GameEngine.applyNormalCardMoveHeuristic(Move(List(Joker)), Move(List.empty)))
+        assertThrows[IllegalHeuristicFunctionException](GameEngine.applyNormalCardMoveHeuristic(Move(List(BlackJoker)), Move(List.empty)))
       }
 
       describe("When move involves a 2") {
@@ -775,7 +775,7 @@ class GameEngineTest extends FunSpec {
       NINE_Diamond,
       JACK_Club, JACK_Diamond,
       ACE_Spade,
-      TWO_Diamond, TWO_Club, TWO_Heart, Joker
+      TWO_Diamond, TWO_Club, TWO_Heart, BlackJoker
     ))
 
     val playerIndicators = PlayerIndicators(hand)
@@ -793,7 +793,7 @@ class GameEngineTest extends FunSpec {
 
     describe("When validMove comprises of a Joker") {
 
-      val validMove = Move(List(Joker))
+      val validMove = Move(List(BlackJoker))
 
       describe("When gameState is empty") {
         it("Should return playerModifier.specialCardModifier or 0") {

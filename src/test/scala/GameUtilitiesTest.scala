@@ -1,4 +1,4 @@
-import game.{Bum, Card, GameUtilities, Hand, IllegalAssumedValueException, Joker, Move, Moves, Neutral, NormalCard, President, SpecialCard, ViceBum, VicePres, WildCard}
+import game.{BlackJoker, Bum, Card, GameUtilities, Hand, IllegalAssumedValueException, Move, Moves, Neutral, NormalCard, President, RedJoker, SpecialCard, ViceBum, VicePres, WildCard}
 import org.scalatest.FunSpec
 import utils.Constants
 
@@ -71,8 +71,8 @@ class GameUtilitiesTest extends FunSpec {
         val dealtHands = GameUtilities.dealHands(2)
         val hand1 = dealtHands.head
         val hand2 = dealtHands.tail.head
-        assert(hand1.listOfCards.filter(card => !(card == Joker)).forall(card => !(hand2.listOfCards.contains(card))))
-        assert(hand2.listOfCards.filter(card => !(card == Joker)).forall(card => !(hand1.listOfCards.contains(card))))
+        assert(hand1.listOfCards.filter(card => !(card == BlackJoker)).forall(card => !(hand2.listOfCards.contains(card))))
+        assert(hand2.listOfCards.filter(card => !(card == BlackJoker)).forall(card => !(hand1.listOfCards.contains(card))))
       }
     }
 
@@ -87,13 +87,13 @@ class GameUtilitiesTest extends FunSpec {
         val hand2 = dealtHands(1)
         val hand3 = dealtHands(2)
         assert(hand1.listOfCards
-          .filter(card => !(card == Joker))
+          .filter(card => !(card == BlackJoker))
           .forall(card => !(hand2.listOfCards.contains(card)) && !(hand3.listOfCards.contains(card))))
         assert(hand2.listOfCards
-          .filter(card => !(card == Joker))
+          .filter(card => !(card == BlackJoker))
           .forall(card => !(hand1.listOfCards.contains(card)) && !(hand3.listOfCards.contains(card))))
         assert(hand3.listOfCards
-          .filter(card => !(card == Joker))
+          .filter(card => !(card == BlackJoker))
           .forall(card => !(hand1.listOfCards.contains(card)) && !(hand2.listOfCards.contains(card))))
       }
     }
@@ -161,8 +161,8 @@ class GameUtilitiesTest extends FunSpec {
           NormalCard(QUEEN, Club),
           NormalCard(QUEEN, Spade),
           SpecialCard(TWO, Diamond),
-          Joker,
-          Joker
+          BlackJoker,
+          BlackJoker
         )
         assert(GameUtilities.sortCards(Random.shuffle(sortedList)) == sortedList)
       }
@@ -231,13 +231,13 @@ class GameUtilitiesTest extends FunSpec {
       describe("And the hand is comprised cards including 2s and Jokers") {
         it("Should return the expected response"){
           val hand = Hand(List(NormalCard(FOUR, Spade), NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade),
-            NormalCard(JACK, Club), SpecialCard(TWO, Heart), Joker))
+            NormalCard(JACK, Club), SpecialCard(TWO, Heart), BlackJoker))
           val expectedResult = List(
             List(NormalCard(FOUR, Spade)),
             List(NormalCard(SEVEN, Heart), NormalCard(SEVEN, Spade)),
             List(NormalCard(JACK, Club)),
             List(SpecialCard(TWO, Heart)),
-            List(Joker)
+            List(BlackJoker)
           )
           assert(GameUtilities.getListsOfSimilarCards(hand) == expectedResult)
         }
@@ -260,7 +260,8 @@ class GameUtilitiesTest extends FunSpec {
           List(NormalCard(KING, Diamond), NormalCard(KING, Club), NormalCard(KING, Heart), NormalCard(KING, Spade)),
           List(NormalCard(ACE, Diamond), NormalCard(ACE, Club), NormalCard(ACE, Heart), NormalCard(ACE, Spade)),
           List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade)),
-          List(Joker, Joker),
+          List(RedJoker),
+          List(BlackJoker)
         )
         assert(GameUtilities.getListsOfSimilarCards(Constants.sortedHandWithAllCards) == expectedResult)
       }
@@ -384,16 +385,16 @@ class GameUtilitiesTest extends FunSpec {
 
       describe("When the list comprises of a single game.Joker in it") {
         it("should return the expected response") {
-          val intermediateLists = commonListOfLists :+ List(Joker)
-          val expectedMoves = Moves(commonExpectedMovesList :+ Move(List(Joker)))
+          val intermediateLists = commonListOfLists :+ List(BlackJoker)
+          val expectedMoves = Moves(commonExpectedMovesList :+ Move(List(BlackJoker)))
           assert(GameUtilities.getAllMoves(intermediateLists) == expectedMoves)
         }
       }
 
       describe("When the list comprises of a multiple Jokers in it") {
         it("should return the expected response") {
-          val intermediateLists = commonListOfLists :+ List(Joker) :+ List(Joker)
-          val expectedMoves = Moves(commonExpectedMovesList :+ Move(List(Joker)) :+ Move(List(Joker)))
+          val intermediateLists = commonListOfLists :+ List(BlackJoker) :+ List(BlackJoker)
+          val expectedMoves = Moves(commonExpectedMovesList :+ Move(List(BlackJoker)) :+ Move(List(BlackJoker)))
           assert(GameUtilities.getAllMoves(intermediateLists) == expectedMoves)
         }
       }
@@ -423,7 +424,7 @@ class GameUtilitiesTest extends FunSpec {
       Move(List(SpecialCard(TWO, Club))),
       Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart))),
       Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart), SpecialCard(TWO, Spade))),
-      Move(List(Joker))
+      Move(List(BlackJoker))
     ))
 
     describe("When gameState is empty") {
@@ -508,47 +509,47 @@ class GameUtilitiesTest extends FunSpec {
           Move(List.empty)))
       }
       it("Should return true for a game.Joker") {
-        assert(GameUtilities.isValidMove(Move(List(Joker)), Move(List.empty)))
+        assert(GameUtilities.isValidMove(Move(List(BlackJoker)), Move(List.empty)))
       }
     }
 
     describe("When gameState is game.Joker") {
       it("Should return false") {
-        assert(!GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Spade))), Move(List(Joker))))
+        assert(!GameUtilities.isValidMove(Move(List(NormalCard(SEVEN, Spade))), Move(List(BlackJoker))))
       }
     }
 
     describe("When move is game.Joker") {
       it("Should return true for a single") {
-        assert(GameUtilities.isValidMove(Move(List(Joker)),
+        assert(GameUtilities.isValidMove(Move(List(BlackJoker)),
           Move(List(NormalCard(ACE, Diamond)))))
       }
       it("Should return true for a double") {
-        assert(GameUtilities.isValidMove(Move(List(Joker)),
+        assert(GameUtilities.isValidMove(Move(List(BlackJoker)),
           Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart)))))
       }
       it("Should return true for a triple") {
-        assert(GameUtilities.isValidMove(Move(List(Joker)),
+        assert(GameUtilities.isValidMove(Move(List(BlackJoker)),
           Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart), NormalCard(ACE, Club)))))
       }
       it("Should return true for a quadruple") {
-        assert(GameUtilities.isValidMove(Move(List(Joker)),
+        assert(GameUtilities.isValidMove(Move(List(BlackJoker)),
           Move(List(NormalCard(ACE, Diamond), NormalCard(ACE, Heart), NormalCard(ACE, Club), NormalCard(ACE, Spade)))))
       }
       it("Should return true for a single2") {
-        assert(GameUtilities.isValidMove(Move(List(Joker)),
+        assert(GameUtilities.isValidMove(Move(List(BlackJoker)),
           Move(List(SpecialCard(TWO, Diamond)))))
       }
       it("Should return true for a double2s") {
-        assert(GameUtilities.isValidMove(Move(List(Joker)),
+        assert(GameUtilities.isValidMove(Move(List(BlackJoker)),
           Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart)))))
       }
       it("Should return true for a triple2s") {
-        assert(GameUtilities.isValidMove(Move(List(Joker)),
+        assert(GameUtilities.isValidMove(Move(List(BlackJoker)),
           Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Club)))))
       }
       it("Should return true for a quad2s") {
-        assert(GameUtilities.isValidMove(Move(List(Joker)),
+        assert(GameUtilities.isValidMove(Move(List(BlackJoker)),
           Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart), SpecialCard(TWO, Club), SpecialCard(TWO, Spade)))))
       }
     }
@@ -794,13 +795,13 @@ class GameUtilitiesTest extends FunSpec {
 
       describe("When move1 is game.Joker and move2 is 2-Spade") {
         it("Should return true") {
-          assert(GameUtilities.checkIfBetter(Move(List(Joker)), Move(List(SpecialCard(TWO, Spade)))))
+          assert(GameUtilities.checkIfBetter(Move(List(BlackJoker)), Move(List(SpecialCard(TWO, Spade)))))
         }
       }
 
       describe("When move1 is game.Joker and move2 is ALSO game.Joker") {
         it("Should return false") {
-          assert(!GameUtilities.checkIfBetter(Move(List(Joker)), Move(List(Joker))))
+          assert(!GameUtilities.checkIfBetter(Move(List(BlackJoker)), Move(List(BlackJoker))))
         }
       }
     }
@@ -837,7 +838,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When move1 is game.Joker and move2 is doubleAces") {
         it("should return true"){
           assert(GameUtilities.checkIfBetter(
-            Move(List(Joker)),
+            Move(List(BlackJoker)),
             Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club)))))
         }
       }
@@ -875,7 +876,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When move1 is game.Joker and move2 is tripleAces") {
         it("should return true"){
           assert(GameUtilities.checkIfBetter(
-            Move(List(Joker)),
+            Move(List(BlackJoker)),
             Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club), NormalCard(ACE,Heart)))))
         }
       }
@@ -904,7 +905,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When move1 is game.Joker and move2 is tripleAces") {
         it("should return true"){
           assert(GameUtilities.checkIfBetter(
-            Move(List(Joker)),
+            Move(List(BlackJoker)),
             Move(List(NormalCard(ACE, Diamond), NormalCard(ACE,Club), NormalCard(ACE,Heart), NormalCard(ACE,Spade)))))
         }
       }
@@ -931,10 +932,12 @@ class GameUtilitiesTest extends FunSpec {
     it("should return the right value when supplied card is a SpecialCard") {
       assert(GameUtilities.cardOrderValue(SpecialCard(TWO, Spade)) == 51)
     }
-    it("should return the right value when supplied card is a Joker") {
-      assert(GameUtilities.cardOrderValue(Joker) == 52)
+    it("should return the right value when supplied card is a Red Joker") {
+      assert(GameUtilities.cardOrderValue(RedJoker) == 52)
     }
-
+    it("should return the right value when supplied card is a Black Joker") {
+      assert(GameUtilities.cardOrderValue(BlackJoker) == 53)
+    }
     it("Should return the right value when supplied card is a WildCard assuming another card") {
       assert(GameUtilities.cardOrderValue(THREE_Spade(8)) == GameUtilities.cardOrderValue(EIGHT_Spade))
     }
@@ -960,9 +963,9 @@ class GameUtilitiesTest extends FunSpec {
     describe("When only moves involving a Joker are available") {
       it("Should return true") {
         val validMoves = Moves(List(
-          Move(List(Joker)),
-          Move(List(Joker)),
-          Move(List(Joker, Joker)),
+          Move(List(RedJoker)),
+          Move(List(BlackJoker)),
+          Move(List(RedJoker, BlackJoker)),
         ))
         assert(GameUtilities.isOnlySpecialMovesAvailable(validMoves))
       }
@@ -1000,9 +1003,9 @@ class GameUtilitiesTest extends FunSpec {
           Move(List(SpecialCard(TWO, Club), SpecialCard(TWO, Heart))),
           Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Heart))),
           Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Heart))),
-          Move(List(Joker)),
-          Move(List(Joker)),
-          Move(List(Joker, Joker)),
+          Move(List(RedJoker)),
+          Move(List(BlackJoker)),
+          Move(List(RedJoker, BlackJoker)),
         ))
         assert(!GameUtilities.isOnlySpecialMovesAvailable(validMoves))
       }
@@ -1040,7 +1043,7 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       it("Should be a burn when a single game.Joker is played") {
-        assert(GameUtilities.getNextGameState(single7, Some(Move(List(Joker)))) == Move(List.empty))
+        assert(GameUtilities.getNextGameState(single7, Some(Move(List(BlackJoker)))) == Move(List.empty))
       }
     }
 
@@ -1070,7 +1073,7 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       it("Should be a burn when a single game.Joker is played") {
-        assert(GameUtilities.getNextGameState(double6s, Some(Move(List(Joker)))) == Move(List.empty))
+        assert(GameUtilities.getNextGameState(double6s, Some(Move(List(BlackJoker)))) == Move(List.empty))
       }
     }
 
@@ -1090,7 +1093,7 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       it("Should be a burn when a single game.Joker is played") {
-        val joker = Move(List(Joker))
+        val joker = Move(List(BlackJoker))
         assert(GameUtilities.getNextGameState(triple7s, Some(joker)) == Move(List.empty))
       }
     }
@@ -1169,7 +1172,7 @@ class GameUtilitiesTest extends FunSpec {
       List(EIGHT_Club, EIGHT_Heart, EIGHT_Spade),
       List(TEN_Diamond, TEN_Club, TEN_Heart, TEN_Spade),
       List(TWO_Spade),
-      List(Joker)
+      List(BlackJoker)
     )
 
     describe("When intermediate list is empty") {
@@ -1233,7 +1236,7 @@ class GameUtilitiesTest extends FunSpec {
       SIX_Diamond, SIX_Heart,
       EIGHT_Club, TEN_Heart,
       ACE_Diamond, ACE_Heart,
-      TWO_Diamond, Joker))
+      TWO_Diamond, BlackJoker))
     val player = Player("Test", currentHand)
 
     describe("When the movePlayed is none"){
@@ -1273,18 +1276,24 @@ class GameUtilitiesTest extends FunSpec {
         it("Should return the hand minus the played cards") {
           assert(GameUtilities.getNewHand(player.hand, Some(Move(List(TWO_Diamond))))
             == Hand(currentHand.listOfCards.slice(0,8) ++ currentHand.listOfCards.slice(9, 10)))
-          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(Joker))))
+          assert(GameUtilities.getNewHand(player.hand, Some(Move(List(BlackJoker))))
             == Hand(currentHand.listOfCards.slice(0,9)))
         }
 
-        it("Should only filter out one joker when the hand has two in it and the move is a joker") {
-          val hand = Hand(List(TWO_Club, Joker, Joker))
-          assert(GameUtilities.getNewHand(hand, Some(Move(List(Joker)))) == Hand(hand.listOfCards.take(2)))
+        it("Should only filter out BlackJoker joker when the hand has two in it and the move is a BlackJoker") {
+          val hand = Hand(List(TWO_Club, RedJoker, BlackJoker))
+          assert(GameUtilities.getNewHand(hand, Some(Move(List(BlackJoker)))) == Hand(hand.listOfCards.take(2)))
         }
 
+        it("Should only filter out RedJoker joker when the hand has two in it and the move is a RedJoker") {
+          val hand = Hand(List(TWO_Club, BlackJoker, RedJoker))
+          assert(GameUtilities.getNewHand(hand, Some(Move(List(RedJoker)))) == Hand(hand.listOfCards.take(2)))
+        }
+
+
         it("Should filter out both jokers from the hand if the move played is 2 jokers") {
-          val hand = Hand(List(TWO_Club, Joker, Joker))
-          assert(GameUtilities.getNewHand(hand, Some(Move(List(Joker, Joker)))) == Hand(hand.listOfCards.take(1)))
+          val hand = Hand(List(TWO_Club, BlackJoker, RedJoker))
+          assert(GameUtilities.getNewHand(hand, Some(Move(List(RedJoker, BlackJoker)))) == Hand(hand.listOfCards.take(1)))
         }
 
       }
@@ -1388,7 +1397,7 @@ class GameUtilitiesTest extends FunSpec {
       Move(List(SIX_Club, SIX_Diamond)),
       Move(List(SEVEN_Heart)),
       Move(List(KING_Heart, KING_Diamond, KING_Club)),
-      Move(List(TWO_Spade)), Move(List(Joker))))
+      Move(List(TWO_Spade)), Move(List(BlackJoker))))
 
     describe("When suppliedMoves has a wildcard in it") {
       it("Throws an exception") {
@@ -1417,7 +1426,7 @@ class GameUtilitiesTest extends FunSpec {
             Move(List(THREE_Diamond(7), SEVEN_Heart)),
             Move(List(THREE_Diamond(13), KING_Heart, KING_Diamond, KING_Club)),
             Move(List(THREE_Diamond(14))),
-            Move(List(TWO_Spade)), Move(List(Joker))))
+            Move(List(TWO_Spade)), Move(List(BlackJoker))))
           println(expectedResult)
           assert(GameUtilities.addThreesToMoves(allMoves, listOfThrees) == expectedResult)
         }
@@ -1443,7 +1452,7 @@ class GameUtilitiesTest extends FunSpec {
           Move(List(THREE_Spade(14))),
           Move(List(THREE_Heart(14), THREE_Spade(14))),
 
-          Move(List(TWO_Spade)), Move(List(Joker))))
+          Move(List(TWO_Spade)), Move(List(BlackJoker))))
           assert(GameUtilities.addThreesToMoves(allMoves, listOfThrees) == expectedResult)
         }
       }
@@ -1491,7 +1500,7 @@ class GameUtilitiesTest extends FunSpec {
 
       it("Should throw an exception when move supplied has a specialCard in it") {
         val validMove = Move(List(TWO_Spade))
-        val validMove2 = Move(List(Joker))
+        val validMove2 = Move(List(BlackJoker))
         assertThrows[IllegalMoveSuppliedException](GameUtilities.getMoveWithOptimalWildCardValue(validMove, Move(List.empty)))
         assertThrows[IllegalMoveSuppliedException](GameUtilities.getMoveWithOptimalWildCardValue(validMove2, Move(List.empty)))
       }
@@ -1560,8 +1569,11 @@ class GameUtilitiesTest extends FunSpec {
   describe("tests for getCardFromCardStrings") {
 
     describe("When card strings are Joker") {
-      it("Should return Joker") {
-        assert(GameUtilities.getCardFromCardStrings("joker", "joker") == Joker)
+      it("Should return BlackJoker") {
+        assert(GameUtilities.getCardFromCardStrings("black_joker", "joker") == BlackJoker)
+      }
+      it("Should return RedJoker") {
+        assert(GameUtilities.getCardFromCardStrings("red_joker", "joker") == RedJoker)
       }
     }
 
@@ -1666,28 +1678,32 @@ class GameUtilitiesTest extends FunSpec {
         assert(GameUtilities.isLegalMove(Move(List(TWO_Diamond, TWO_Club, TWO_Heart))))
       }
 
-      it("The move is comprised of a single Joker") {
-        assert(GameUtilities.isLegalMove(Move(List(Joker))))
+      it("The move is comprised of a single BlackJoker") {
+        assert(GameUtilities.isLegalMove(Move(List(BlackJoker))))
       }
 
-      it("Is a move with multiple jokers") {
-        assert(GameUtilities.isLegalMove(Move(List(Joker, Joker))))
+      it("The move is comprised of a single RedJoker") {
+        assert(GameUtilities.isLegalMove(Move(List(RedJoker))))
       }
 
     }
 
     describe("It should return false when") {
 
+      it("Is a move involving multiple Jokers") {
+        assert(!GameUtilities.isLegalMove(Move(List(RedJoker, BlackJoker))))
+      }
+
       it("Is a move involving NormalCards and Joker"){
-        assert(!GameUtilities.isLegalMove(Move(List(Joker, FOUR_Spade))))
+        assert(!GameUtilities.isLegalMove(Move(List(BlackJoker, FOUR_Spade))))
       }
 
       it("Is a move involving SpecialCards and Joker"){
-        assert(!GameUtilities.isLegalMove(Move(List(Joker, TWO_Club))))
+        assert(!GameUtilities.isLegalMove(Move(List(BlackJoker, TWO_Club))))
       }
 
       it("Is a move involving WildCards and Joker"){
-        assert(!GameUtilities.isLegalMove(Move(List(Joker, THREE_Diamond(12)))))
+        assert(!GameUtilities.isLegalMove(Move(List(BlackJoker, THREE_Diamond(12)))))
       }
 
       it("Is a move involving SpecialCards and WildCards"){
@@ -1754,7 +1770,7 @@ class GameUtilitiesTest extends FunSpec {
       val hand = Hand(List.empty)
       describe("When cards to drop is empty") {
         val cardsToDrop = List.empty
-        val cardsToReplace = List(TWO_Diamond, Joker)
+        val cardsToReplace = List(TWO_Diamond, BlackJoker)
         val expectedHand = Hand(cardsToReplace)
         assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
       }
@@ -1769,14 +1785,14 @@ class GameUtilitiesTest extends FunSpec {
       describe("When both cards to drop and cards to replace is non-empty") {
         it("Should only add cards and not drop anything") {
           val cardsToDrop = List(SIX_Spade, SEVEN_Club)
-          val cardsToReplace = List(TWO_Diamond, Joker)
+          val cardsToReplace = List(TWO_Diamond, BlackJoker)
           val expectedHand = Hand(cardsToReplace)
           assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
         }
 
         it("Should work fine when 2 jokers are to be added") {
           val cardsToDrop = List(SIX_Spade, SEVEN_Club)
-          val cardsToReplace = List(Joker, Joker)
+          val cardsToReplace = List(RedJoker, BlackJoker)
           val expectedHand = Hand(cardsToReplace)
           assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
         }
@@ -1784,12 +1800,12 @@ class GameUtilitiesTest extends FunSpec {
     }
 
     describe("When hand is non-empty") {
-      val hand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker))
+      val hand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, BlackJoker))
 
       describe("When cards to drop is empty") {
         it("Should drop no cards and replace as needed") {
           val cardsToDrop = List.empty
-          val cardsToReplace = List(Joker, THREE_Club, Joker, EIGHT_Diamond)
+          val cardsToReplace = List(BlackJoker, THREE_Club, BlackJoker, EIGHT_Diamond)
           val expectedHand = Hand(GameUtilities.sortCards(hand.listOfCards ++ cardsToReplace))
           assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
         }
@@ -1798,7 +1814,7 @@ class GameUtilitiesTest extends FunSpec {
       describe("When cards to replace with is empty") {
         it("Should only drop cards and not replace them with anything") {
           val cardsToReplace = List.empty
-          val cardsToDrop = List(SIX_Club, SIX_Spade, THREE_Spade, TWO_Heart, TWO_Club, Joker)
+          val cardsToDrop = List(SIX_Club, SIX_Spade, THREE_Spade, TWO_Heart, TWO_Club, BlackJoker)
           val expectedHand = Hand(List(EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade))
           assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
         }
@@ -1806,33 +1822,33 @@ class GameUtilitiesTest extends FunSpec {
 
       describe("When there are cards to drop and replace") {
         it("Should only drop those cards that appear in the hand and add cardToReplace to hand even if there are duplicates") {
-          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, Joker, NINE_Spade)
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, BlackJoker, NINE_Spade)
           val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
           val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade))
           assert(GameUtilities.dropAndReplaceCardsInHand(hand, cardsToDrop, cardsToReplace) == expectedHand)
         }
 
         it("Should drop both jokers accurately and replace") {
-          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker, Joker))
-          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, Joker, NINE_Spade, Joker)
+          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, RedJoker, BlackJoker))
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, RedJoker, NINE_Spade, BlackJoker)
           val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
           val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade))
           assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
         }
 
         it("Should drop only one joker accurately and replace") {
-          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker, Joker))
-          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, Joker, NINE_Spade)
+          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, RedJoker, BlackJoker))
+          val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, BlackJoker, NINE_Spade)
           val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
-          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade, Joker))
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade, RedJoker))
           assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
         }
 
         it("Should drop no jokers and replace as required") {
-          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, Joker, Joker))
+          val newHand = Hand(List(THREE_Spade, SIX_Spade,  EIGHT_Club, TEN_Diamond, KING_Spade, KING_Heart, ACE_Spade, TWO_Club, RedJoker, BlackJoker))
           val cardsToDrop = List(THREE_Spade, SIX_Spade, TWO_Club, NINE_Spade)
           val cardsToReplace = List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade)
-          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade, Joker, Joker))
+          val expectedHand = Hand(List(SEVEN_Club, SEVEN_Club, SEVEN_Heart, SEVEN_Spade, EIGHT_Club, TEN_Diamond, KING_Heart, KING_Spade, ACE_Spade, RedJoker, BlackJoker))
           assert(GameUtilities.dropAndReplaceCardsInHand(newHand, cardsToDrop, cardsToReplace) == expectedHand)
         }
       }
@@ -1842,7 +1858,7 @@ class GameUtilitiesTest extends FunSpec {
   describe("Tests for sortCardsToGiveAway") {
 
     it("Should throw an exception when supplied with a Normal Card") {
-      val listOfCards = List(THREE_Spade, KING_Spade, TWO_Diamond, Joker)
+      val listOfCards = List(THREE_Spade, KING_Spade, TWO_Diamond, BlackJoker)
       assertThrows[IllegalCardSuppliedException](GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfCards))
     }
 
@@ -1857,13 +1873,13 @@ class GameUtilitiesTest extends FunSpec {
       }
 
       it("Should sort the list of size 2 appropriately") {
-        val listOfCards = List(TWO_Diamond, THREE_Spade, Joker)
-        assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfCards) == List(Joker, THREE_Spade, TWO_Diamond))
+        val listOfCards = List(TWO_Diamond, THREE_Spade, BlackJoker)
+        assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(listOfCards) == List(BlackJoker, THREE_Spade, TWO_Diamond))
       }
 
       it("Should sort the list of size 10 appropriately") {
         val expectedListOfCards = List(TWO_Diamond, TWO_Club, THREE_Diamond, THREE_Club, THREE_Heart,
-                                      THREE_Spade, TWO_Heart, TWO_Spade, Joker, Joker).reverse
+                                      THREE_Spade, TWO_Heart, TWO_Spade, RedJoker, BlackJoker).reverse
         assert(GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(Random.shuffle(expectedListOfCards)) == expectedListOfCards)
       }
     }
@@ -1872,9 +1888,9 @@ class GameUtilitiesTest extends FunSpec {
   describe("Tests for exchangeHands") {
 
     describe("When there is 3 players") {
-      val h1 = Hand(List(THREE_Spade, SEVEN_Spade, JACK_Club, TWO_Heart, Joker))
-      val h2 = Hand(List(THREE_Heart, SEVEN_Club, JACK_Spade, TWO_Spade, Joker))
-      val h3 = Hand(List(THREE_Club, SEVEN_Heart, JACK_Heart, TWO_Club, Joker))
+      val h1 = Hand(List(THREE_Spade, SEVEN_Spade, JACK_Club, TWO_Heart, BlackJoker))
+      val h2 = Hand(List(THREE_Heart, SEVEN_Club, JACK_Spade, TWO_Spade, BlackJoker))
+      val h3 = Hand(List(THREE_Club, SEVEN_Heart, JACK_Heart, TWO_Club, RedJoker))
       val p1 = Player("p1", h1)
       val p2 = Player("p2", h2)
       val p3 = Player("p3", h3)
@@ -1901,10 +1917,10 @@ class GameUtilitiesTest extends FunSpec {
               val playerCompletionOrder = List("p1", "p2", "p3")
               val userSelectedCardToGetRidOf = List(JACK_Club)
               val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
-              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, TWO_Heart, Joker, Joker)))
+              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, TWO_Heart, RedJoker, BlackJoker)))
               assert(resultingPlayers(1).hand == h2)
               assert(resultingPlayers.last.hand == Hand(List(THREE_Club, SEVEN_Heart, JACK_Club, JACK_Heart, TWO_Club)))
-              assert(receivedCards == List(Joker))
+              assert(receivedCards == List(RedJoker))
             }
           }
 
@@ -1914,7 +1930,7 @@ class GameUtilitiesTest extends FunSpec {
               val userSelectedCardToGetRidOf = List(JACK_Club)
               val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == h1)
-              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, Joker, Joker)))
+              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, RedJoker, BlackJoker)))
               assert(resultingPlayers.last.hand == Hand(List(THREE_Club, SEVEN_Club, SEVEN_Heart, JACK_Heart, TWO_Club)))
               assert(receivedCards == List.empty)
             }
@@ -1927,7 +1943,7 @@ class GameUtilitiesTest extends FunSpec {
               val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Heart, SEVEN_Spade, JACK_Club, TWO_Heart)))
               assert(resultingPlayers(1).hand == h2)
-              assert(resultingPlayers.last.hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
+              assert(resultingPlayers.last.hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, RedJoker, BlackJoker)))
               assert(receivedCards == List(SEVEN_Heart))
             }
           }
@@ -1938,7 +1954,7 @@ class GameUtilitiesTest extends FunSpec {
             val playerCompletionOrder = List("p1", "p2", "p3")
             val userSelectedCardToGetRidOf = List(JACK_Club)
             val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
-            assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, JACK_Club, TWO_Heart, Joker, Joker)))
+            assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, JACK_Club, TWO_Heart, RedJoker, BlackJoker)))
             assert(resultingPlayers(1).hand == h2)
             assert(resultingPlayers.last.hand == Hand(List(THREE_Club, SEVEN_Heart, SEVEN_Spade, JACK_Heart, TWO_Club)))
             assert(receivedCards == List.empty)
@@ -1949,12 +1965,12 @@ class GameUtilitiesTest extends FunSpec {
     }
 
     describe("When there is 6 players") {
-      val h1 = Hand(List(THREE_Spade, SEVEN_Spade, JACK_Club, TWO_Heart, Joker))
-      val h2 = Hand(List(THREE_Heart, SEVEN_Club, JACK_Spade, TWO_Spade, Joker))
-      val h3 = Hand(List(THREE_Club, SEVEN_Heart, JACK_Heart, TWO_Club, Joker))
-      val h4 = Hand(List(THREE_Diamond, SEVEN_Diamond, JACK_Diamond, TWO_Diamond, Joker))
-      val h5 = Hand(List(FIVE_Club, SIX_Diamond, EIGHT_Heart, ACE_Club, Joker))
-      val h6 = Hand(List(FIVE_Diamond, SIX_Spade, EIGHT_Diamond, ACE_Diamond, Joker))
+      val h1 = Hand(List(THREE_Spade, SEVEN_Spade, JACK_Club, TWO_Heart, BlackJoker))
+      val h2 = Hand(List(THREE_Heart, SEVEN_Club, JACK_Spade, TWO_Spade, RedJoker))
+      val h3 = Hand(List(THREE_Club, SEVEN_Heart, JACK_Heart, TWO_Club, BlackJoker))
+      val h4 = Hand(List(THREE_Diamond, SEVEN_Diamond, JACK_Diamond, TWO_Diamond, RedJoker))
+      val h5 = Hand(List(FIVE_Club, SIX_Diamond, EIGHT_Heart, ACE_Club, BlackJoker))
+      val h6 = Hand(List(FIVE_Diamond, SIX_Spade, EIGHT_Diamond, ACE_Diamond, RedJoker))
 
       val p1 = Player("p1", h1)
       val p2 = Player("p2", h2)
@@ -1986,13 +2002,13 @@ class GameUtilitiesTest extends FunSpec {
               val playerCompletionOrder = List("p1", "p2", "p3", "p4", "p5", "p6")
               val userSelectedCardToGetRidOf = List(JACK_Club, TWO_Heart)
               val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
-              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, ACE_Diamond, Joker, Joker)))
-              assert(resultingPlayers(1).hand ==  Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, Joker, Joker)))
+              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, ACE_Diamond, RedJoker, BlackJoker)))
+              assert(resultingPlayers(1).hand ==  Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, RedJoker, BlackJoker)))
               assert(resultingPlayers(2).hand ==  h3)
               assert(resultingPlayers(3).hand ==  h4)
               assert(resultingPlayers(4).hand ==  Hand(List(FIVE_Club, SIX_Diamond, SEVEN_Club, EIGHT_Heart, ACE_Club)))
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, EIGHT_Diamond, JACK_Club, TWO_Heart)))
-              assert(receivedCards == List(ACE_Diamond, Joker))
+              assert(receivedCards == List(ACE_Diamond, RedJoker))
             }
           }
 
@@ -2001,13 +2017,13 @@ class GameUtilitiesTest extends FunSpec {
               val playerCompletionOrder = List("p2", "p1", "p3", "p4", "p5", "p6")
               val userSelectedCardToGetRidOf = List(JACK_Club)
               val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
-              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, TWO_Heart, Joker, Joker)))
-              assert(resultingPlayers(1).hand ==  Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, Joker, Joker)))
+              assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Spade, TWO_Heart, BlackJoker, BlackJoker)))
+              assert(resultingPlayers(1).hand ==  Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, RedJoker, RedJoker)))
               assert(resultingPlayers(2).hand ==  h3)
               assert(resultingPlayers(3).hand ==  h4)
               assert(resultingPlayers(4).hand ==  Hand(List(FIVE_Club, SIX_Diamond, EIGHT_Heart, JACK_Club, ACE_Club)))
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Club, EIGHT_Diamond, JACK_Spade)))
-              assert(receivedCards == List(Joker))
+              assert(receivedCards == List(BlackJoker))
             }
           }
 
@@ -2017,8 +2033,8 @@ class GameUtilitiesTest extends FunSpec {
               val userSelectedCardToGetRidOf = List(JACK_Club)
               val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == h1)
-              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, Joker, Joker)))
-              assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
+              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, RedJoker, RedJoker)))
+              assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, BlackJoker, BlackJoker)))
               assert(resultingPlayers(3).hand == h4)
               assert(resultingPlayers(4).hand == Hand(List(FIVE_Club, SIX_Diamond, SEVEN_Heart, EIGHT_Heart, ACE_Club)))
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Club, EIGHT_Diamond, JACK_Spade)))
@@ -2032,8 +2048,8 @@ class GameUtilitiesTest extends FunSpec {
               val userSelectedCardToGetRidOf = List(JACK_Club)
               val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Heart, SEVEN_Spade, JACK_Club, TWO_Heart)))
-              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, Joker, Joker)))
-              assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
+              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, ACE_Diamond, TWO_Spade, RedJoker, RedJoker)))
+              assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, BlackJoker, BlackJoker)))
               assert(resultingPlayers(3).hand == h4)
               assert(resultingPlayers(4).hand == h5)
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Club, EIGHT_Diamond, JACK_Spade)))
@@ -2047,8 +2063,8 @@ class GameUtilitiesTest extends FunSpec {
               val userSelectedCardToGetRidOf = List(JACK_Club)
               val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(newPlayers, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
               assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, SEVEN_Club, SEVEN_Spade, JACK_Club, JACK_Spade)))
-              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, TWO_Heart, TWO_Spade, Joker, Joker)))
-              assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, Joker, Joker)))
+              assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, TWO_Heart, TWO_Spade, RedJoker, BlackJoker)))
+              assert(resultingPlayers(2).hand == Hand(List(THREE_Club, JACK_Heart, TWO_Club, RedJoker, BlackJoker)))
               assert(resultingPlayers(3).hand == h4)
               assert(resultingPlayers(4).hand == h5)
               assert(resultingPlayers.last.hand == Hand(List(FIVE_Diamond, SIX_Spade, SEVEN_Heart, EIGHT_Diamond, ACE_Diamond)))
@@ -2062,8 +2078,8 @@ class GameUtilitiesTest extends FunSpec {
             val playerCompletionOrder = List("p1", "p2", "p3", "p4", "p5", "p6")
             val userSelectedCardToGetRidOf = List(JACK_Club)
             val (resultingPlayers, receivedCards) = GameUtilities.exchangeHands(players, playerCompletionOrder, playerCompletionStatuses, userSelectedCardToGetRidOf)
-            assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, ACE_Diamond, TWO_Heart, Joker, Joker)))
-            assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, Joker, Joker)))
+            assert(resultingPlayers.head.hand == Hand(List(THREE_Spade, ACE_Diamond, TWO_Heart, RedJoker, BlackJoker)))
+            assert(resultingPlayers(1).hand == Hand(List(THREE_Heart, JACK_Spade, TWO_Spade, RedJoker, BlackJoker)))
             assert(resultingPlayers(2).hand == h3)
             assert(resultingPlayers(3).hand == h4)
             assert(resultingPlayers(4).hand == Hand(List(FIVE_Club, SIX_Diamond, SEVEN_Club, EIGHT_Heart, ACE_Club)))

@@ -16,8 +16,7 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   * Pitfall - what about worst cards in terms of being part of a set? We don't want to split up triple-4s do we?
   */
   def getWorstCards(totalCardsToGet: Int): List[Card] = {
-    val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
-    val nonNormalCardsInHand = GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
+    val (normalCardsInHand, nonNormalCardsInHand) = GameUtilities.getNormalAndNonNormalListsOfCardsFromHand(hand)
     val handInGivingAwayOrder = normalCardsInHand ++ nonNormalCardsInHand
     handInGivingAwayOrder.take(totalCardsToGet)
   }
@@ -27,8 +26,7 @@ case class Player(name: String, hand: Hand, isRealPlayer: Boolean = false) {
   * Does so my preferring Jokers > TWO(spade/heart) > 3(spade/heart) > 2(club/diamond) > 3(club/diamond)
    */
   def getBestCards(totalCardsToGet: Int): List[Card] = {
-    val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
-    val nonNormalCardsInHand = GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
+    val (normalCardsInHand, nonNormalCardsInHand) = GameUtilities.getNormalAndNonNormalListsOfCardsFromHand(hand)
     val handInGivingAwayOrder = normalCardsInHand ++ nonNormalCardsInHand
     handInGivingAwayOrder.takeRight(totalCardsToGet)
   }
@@ -154,6 +152,7 @@ case class PlayerIndicators(hand: Hand) {
   lazy val highCardModifier: Double =  if(hand.delta == 0) 1d else 1d/hand.delta
 
   /*
+  This method is only used for validMoves that do not involve 2s, Jokers
   Gets the total number of cards of the type that is being played
   Returns
   Generally speaking, it is desirable to play all cards of the same type at once

@@ -64,39 +64,51 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
 
   /*
  Simulates multiple runs of the game, until user quits. First game begins with P1 starting
+ todo - minimize state changes?
   */
   def play(): Unit = {
 
     while(true) {
       playerCompletionOrder.clear()
+      // This game ends when there's either a bum (graceful exit)
+      // Or the game was restarted/hands re-dealt (isActive = false)
       runSingleGame(startingPlayerIndex)
 
-      // This check exists so that BUM doesnt get updated when the user has requested a re-deal/new game
+      // This check exists so that BUM does'nt get updated when the user has requested a re-deal/new game
       // This is true if the game has ended gracefully -> aka there is a BUM
       if(isActive) {
-        mainLayout.updateLastRemainingPlayer(players.indexWhere(player => player.status == Active))
-        // Update next iteration of game's startingPlayerIndex => President gets to start the next game
-        startingPlayerIndex = players.map(_.name).indexOf(playerCompletionOrder.head)
-        // Update the round completion status of the previous round = Graceful exit means all positions are filled
-        previousRoundPlayerCompletionStatuses = playerCompletionStatusOrder
-        previousRoundPlayerCompletionOrder = playerCompletionOrder.toList
-        // Print stats to console and show UI dialog
-        printStats()
-        // Re-deal fresh set of hands and update UI
-        players = GameUtilities.generatePlayersAndDealHands(players.map(_.name).toList)
-          .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
-        updateUI(players)
-        // This blocks passage until user dismisses dialog
-        mainLayout.showUserPromptForGameCompletionStatus(previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses)
-        val (newPlayers, realPlayerCardsReceived) = GameUtilities.exchangeHands(players, previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses, mainLayout.selectedCardsToGetRidOf)
-        players = newPlayers
-        mainLayout.selectedCardsToGetRidOf = List.empty
-        updateUI(players)
-        mainLayout.highlightNewlyReceivedCard(realPlayerCardsReceived)
+        // Involves bookkeeping, UI cleanup
+        performGracefulExit()
       }
       else return
     }
 
+  }
+
+  def performGracefulExit() = {
+    mainLayout.updateLastRemainingPlayer(players.indexWhere(player => player.status == Active))
+    // Update next iteration of game's startingPlayerIndex => President gets to start the next game
+    startingPlayerIndex = players.map(_.name).indexOf(playerCompletionOrder.head)
+    // Update the round completion status of the previous round = Graceful exit means all positions are filled
+    previousRoundPlayerCompletionStatuses = playerCompletionStatusOrder
+    previousRoundPlayerCompletionOrder = playerCompletionOrder.toList
+
+    // Print stats to console and show UI dialog
+    printStats()
+
+    // Re-deal fresh set of hands and update UI
+    players = GameUtilities.generatePlayersAndDealHands(players.map(_.name).toList)
+      .map(player => if(player.name == Game.realPlayerName) player.copy(isRealPlayer = true) else player).toBuffer
+    updateUI(players)
+    // This blocks passage until user dismisses dialog
+    mainLayout.showUserPromptForGameCompletionStatus(previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses)
+    // Perform card exchange
+    val (newPlayers, realPlayerCardsReceived) = GameUtilities.exchangeHands(players, previousRoundPlayerCompletionOrder, previousRoundPlayerCompletionStatuses, mainLayout.selectedCardsToGetRidOf)
+    players = newPlayers
+    mainLayout.selectedCardsToGetRidOf = List.empty
+    // Perform UI updates
+    updateUI(players)
+    mainLayout.highlightNewlyReceivedCard(realPlayerCardsReceived)
   }
 
   def updateUI(players: mutable.Buffer[Player]) = {

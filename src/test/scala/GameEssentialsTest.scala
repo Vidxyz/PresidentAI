@@ -1,4 +1,4 @@
-import game.{Hand, Joker, Move, NormalCard, WildCard}
+import game.{Hand, BlackJoker, Move, NormalCard, WildCard}
 import org.scalatest.FunSpec
 import game.FaceValue._
 import game.Suits._
@@ -61,11 +61,11 @@ class GameEssentialsTest extends FunSpec {
           val move = Move(List(NINE_Spade))
           val move2 = Move(List(THREE_Diamond(14)))
           val move3 = Move(List(TWO_Spade))
-          val move4 = Move(List(Joker))
+          val move4 = Move(List(BlackJoker))
           assert(move.highestCard == NINE_Spade)
           assert(move2.highestCard == THREE_Diamond(14))
           assert(move3.highestCard == TWO_Spade)
-          assert(move4.highestCard == Joker)
+          assert(move4.highestCard == BlackJoker)
         }
       }
 
@@ -107,7 +107,7 @@ class GameEssentialsTest extends FunSpec {
       describe("When numberOfNormalCards is 0") {
         it("Should return 0 when move is comprised of special cards") {
           val move = Move(List(TWO_Heart, TWO_Spade))
-          val move2 = Move(List(Joker))
+          val move2 = Move(List(BlackJoker))
           assert(move.numberOfNormalcards == 0)
           assert(move2.numberOfNormalcards == 0)
         }
@@ -178,8 +178,8 @@ class GameEssentialsTest extends FunSpec {
 
       describe("When highestCard is a Joker") {
         it("Should return -1") {
-          val move = Move(List(Joker))
-          assert(move.moveFaceValue == Joker.intValue)
+          val move = Move(List(BlackJoker))
+          assert(move.moveFaceValue == BlackJoker.intValue)
         }
       }
 
