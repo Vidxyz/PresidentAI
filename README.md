@@ -6,9 +6,9 @@ This game allows you to choose between 2-6 players to play the game
 
 
 ## Getting Started
-```sbt clean compile``` 
+```$ sbt clean compile``` 
 
-``` sbt run```
+```$ sbt run```
 
 
 ## Prerequisites
