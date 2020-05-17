@@ -77,12 +77,16 @@ $ sbt jacoco
     - This person then becomes **Bum**
 - The person to lose all their cards first becomes **President**
 - Everyone else finishes at positions between these two, based on order of completion
+
+## Game Positions
+
 - All the positions, in order, are as follows
     - President
     - Vice-President
     - Neutral
     - Vice-Bum
     - Bum
+- At the beginning, everyone starts off as a Neutral
 - President gets Bum's 
     - Best card, if there are <= 3 players in the game
     - Two best cards, if there are >= 4 players in the game
