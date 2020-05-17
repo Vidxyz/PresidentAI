@@ -31,7 +31,11 @@ $ sbt jacoco
 ## Rules of the game
 
 - Aim of the game is to lose all your cards as quickly as possible
-- Each game comprises of multiple *rounds*. Rounds can be arbitrarily long or short depending on cards involved
+- Each game comprises of multiple *rounds*. 
+    - Rounds can be arbitrarily long or short depending on cards involved
+    - The number of rounds per game is also arbitrary
+    - A round is simply the concept of all the moves played from an empty game state until a round ends
+    - A round ends when a **burn** happens, or all but one player passes
 - You can lose cards by playing a move on top of the current round state
     - Playing a move can either lead to the round ending, or continuing
     - Moves comprise of a single card, or multiple cards of the same face value
@@ -66,6 +70,9 @@ $ sbt jacoco
         - `3_any, 4_Club, 4_Spade` - since `4_Spade` > `3_Spade` assuming face-value of 4
         -  Two 2s - `2_diamond, 2_spade` for example
         - A single Joker
+- If at any point, you do not have a valid move to play, or do not wish to play a move (for strategy reasons), you can choose to pass
+    - Passing a round means you won't get to play until that round ends
+    - Rounds end when a **burn** happens, or all-but-one player passes
 - The game continues on until there is only one person remaining
     - This person then becomes **Bum**
 - The person to lose all their cards first becomes **President**
