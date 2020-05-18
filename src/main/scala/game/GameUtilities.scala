@@ -537,9 +537,10 @@ case object GameUtilities {
       cardsReceivedByRealPlayer)
   }
 
-  // todo - write unit tests
-  // Returns NormalCards in order
-  // Returns non normal cards in preference order of giving away
+  /* Returns a tuple of normal cards and non-normal cards
+     Returns NormalCards in order
+     Returns non normal cards in preference order of giving away
+  */
   def getNormalAndNonNormalListsOfCardsFromHand(hand: Hand): (List[Card], List[Card]) = {
     val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
     val nonNormalCardsInHand = GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
