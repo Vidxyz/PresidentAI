@@ -32,14 +32,14 @@ case object GameEngine {
     val randomValue = Random.nextDouble()
     validMove match {
       case Move(List(NormalCard(_,_), _*), _) => throw IllegalHeuristicFunctionException("Incorrect heuristic supplied to evaluate normal card")
-      case Move(List(Joker, _*), _) =>  if (gameState.isEmpty || gameState.parity < 3 ) {
+      case Move(List(BlackJoker, _*), _) | Move(List(RedJoker, _*), _) =>  if (gameState.isEmpty || gameState.parity < 3 ) {
         /* We don't care about playing jokers any differently if its a double/single */
         val l = if (randomValue < playerIndicators.specialCardModifier) playerIndicators.specialCardModifier else 0
         validMove.copy(likelihood = l)
       }
       else{
         /* Modifying probability of playing a joker according to :- modifier^(2/(parity-1))
-        This is to incentivize playing jokers for triples/quads
+           This is to incentivize playing jokers for triples/quads
         */
         val l = if (randomValue < applyJokerModifierFunction(playerIndicators.specialCardModifier, gameState.parity)) playerIndicators.specialCardModifier else 0
         validMove.copy(likelihood = l)

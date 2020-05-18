@@ -30,7 +30,7 @@ class DevelopmentTest extends FunSpec {
         SpecialCard(TWO, Diamond),
         SpecialCard(TWO, Club),
         SpecialCard(TWO, Heart),
-        Joker
+        BlackJoker
       ))
       val playerIndicators = PlayerIndicators(hand2)
       //      val validMove1 = game.Move(List(game.SpecialCard(TWO, Diamond)))
@@ -56,7 +56,7 @@ class DevelopmentTest extends FunSpec {
       val single2H = Move(List(SpecialCard(TWO, Heart)))
       val two2s = Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club)))
       val three2s = Move(List(SpecialCard(TWO, Diamond), SpecialCard(TWO, Club), SpecialCard(TWO, Spade)))
-      val joker = Move(List(Joker))
+      val joker = Move(List(BlackJoker))
       //      val validMoves = game.Moves(List(validMove1, validMove2, validMove3))
       //      val gameState = game.Move(List(game.NormalCard(THREE, Club), game.NormalCard(THREE, Spade)))
       //      println(game.GameUtilities.getNextMoveWrapper(validMoves, gameState)(player.PlayerIndicators(Main.stackedHand)))
@@ -95,7 +95,7 @@ class DevelopmentTest extends FunSpec {
         Move(List(NormalCard(NINE, Club), NormalCard(NINE, Heart), NormalCard(NINE, Spade))),
         Move(List(NormalCard(TEN, Diamond), NormalCard(TEN, Club), NormalCard(TEN, Heart), NormalCard(TEN, Spade))),
         Move(List(SpecialCard(TWO, Heart))),
-        Move(List(Joker))
+        Move(List(BlackJoker))
       ))
 
       val threes = List(WildCard(THREE, Diamond), WildCard(THREE, Spade))
@@ -286,7 +286,7 @@ class DevelopmentTest extends FunSpec {
     }
 
     it("Is a new function scenario") {
-      val move = Move(List(TWO_Heart, Joker))
+      val move = Move(List(TWO_Heart, BlackJoker))
       println(GameUtilities.isLegalMove(move))
     }
 

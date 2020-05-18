@@ -19,7 +19,11 @@ case object GameUtilities {
   }
 
   def getCardFromCardStrings(value: String, suit: String): Card = {
-    if(value.toLowerCase match { case "joker" => true; case _ => false}) return Joker
+    value.toLowerCase match {
+      case "black_joker" => return BlackJoker
+      case "red_joker" =>  return RedJoker
+      case _ => /* continue */
+    }
 
     val faceValue = value.toLowerCase  match {
       case "2" => TWO
@@ -188,13 +192,7 @@ case object GameUtilities {
   def getAllMoves(intermediateSetsOfCards: List[List[Card]]): Moves = {
     @tailrec
     def createListOfMoves(currentSetIndex: Int, movesSoFar: List[Move]): List[Move] = {
-      if (currentSetIndex == intermediateSetsOfCards.size) return movesSoFar
-
-      if (intermediateSetsOfCards(currentSetIndex).head == Joker) {
-        val splitUpJokers = intermediateSetsOfCards(currentSetIndex)
-                                        .map(e => Move(List(e)))
-        createListOfMoves(currentSetIndex + 1, movesSoFar ++ splitUpJokers)
-      }
+      if (currentSetIndex == intermediateSetsOfCards.size) movesSoFar
       else {
         val allCombinations: List[Move] = intermediateSetsOfCards(currentSetIndex)
                                           .toSet
@@ -222,11 +220,14 @@ case object GameUtilities {
 
   /* Assumption : All cards in move are the same, except in the case of 3s being used as a WildCard */
   def isValidMove(move: Move, gameState: Move): Boolean = {
+    // Base checks
     if(move.cards.isEmpty) return false
     if(gameState.cards.isEmpty) return true
-    if(gameState.highestCard == Joker) return false
-    if(move.highestCard == Joker) return true
+    // Checks for Jokers
+    if(gameState.highestCard == BlackJoker || gameState.highestCard == RedJoker) return false
+    if(move.highestCard == BlackJoker || move.highestCard == RedJoker) return true
 
+    // Checks for 2s
     // Need max(1, n-1) 2s to be played when state.size = n
     if(move.moveFaceValue == 2) {
       gameState.moveFaceValue match {
@@ -234,12 +235,12 @@ case object GameUtilities {
           case 2 => return move.parity == gameState.parity && checkIfBetter(move, gameState)
           case _ => gameState.parity match {
                     case 1 => return move.parity == 1
-                    case 2 => return move.parity == 1
                     case other => return move.parity == other - 1
                   }
       }
     }
 
+    // Trivial Check
     if(move.parity != gameState.parity) false
 
     // This only happens when the Move in question doesn't involve 2s/JOKERs
@@ -261,7 +262,8 @@ case object GameUtilities {
   6. For cases 3-5, all faceValues/assumedValues are the same
    */
   def isLegalMove(move: Move): Boolean = {
-    if(move.cards.forall(card => card == Joker)) true
+    if(move.cards.forall(card => card == BlackJoker)) true
+    else if(move.cards.forall(card => card == RedJoker)) true
     else if(move.cards.forall(card => card match { case s:SpecialCard => true; case _ => false})) true
     else move.cards.forall(card => card match {
         case n:NormalCard => n.intValue == move.moveFaceValue
@@ -273,8 +275,8 @@ case object GameUtilities {
   // Returns true if move1 is "better" than move2 :- Higher value in numberToCardMap
   // Assumptions :-
   // 1. move1 and move2 are not EMPTY moves
-  // 2. move1 and move2 have same parity - same size of cards
-  //    - only exception to the above is 2s and JOKERs
+  // 2. move1 and move2 have same parity - same size of cards - even in comparisons involving 2s
+  //    - This is because we don't need to check if 2s are better than NormalCards, except for parity
   def checkIfBetter(move1: Move, move2: Move): Boolean = {
     // This is the case in which 3s are involved, leading to assumedCard being same as original NormalCard
     if (cardOrderValue(move1.highestCard) == cardOrderValue(move2.highestCard)) {
@@ -304,7 +306,8 @@ case object GameUtilities {
   def isOnlySpecialMovesAvailable(validMoves: Moves): Boolean = {
     validMoves.moves.foldLeft(true)((acc, move) => move.cards match {
       case List(SpecialCard(_, _), _*) => acc
-      case List(Joker,_*) => acc
+      case List(BlackJoker,_*) => acc
+      case List(RedJoker,_*) => acc
       case _ => false
     })
   }
@@ -318,15 +321,15 @@ case object GameUtilities {
   def getNextGameState(gameState: Move, nextValidMove: Option[Move]): Move = {
     nextValidMove.getOrElse(None) match {
       case move: Move =>
-        if (move.moveFaceValue == -1) Move(List.empty) // game.Joker
-        else if(move.moveFaceValue != gameState.moveFaceValue) move // Higher card, or 2, replaces gameState
-        else Move(List.empty) // game.Suit Burn, since it is a valid move and faceValues are the same as gameState
+        if (move.moveFaceValue == -1) Move(List.empty) // Red_Joker or Black_Joker
+        else if(move.moveFaceValue != gameState.moveFaceValue) move // Since it is a valid move, it has to be a higher card, or 2, replaces gameState
+        else Move(List.empty) // Suit Burn, since it is a valid move and faceValues are the same as gameState
       case None => gameState
     }
   }
 
   /*
-  Returns a list of validMoves containing only NormalCard moves
+  Returns a list of validMoves containing only NormalCard/WildCard moves
    */
   def filterNonSpecialCardMoves(validMoves: Moves): Moves = {
     Moves(validMoves.moves.filter(m => m.cards match {
@@ -356,7 +359,8 @@ case object GameUtilities {
         case _ => false
       }).map(move => move.cards)
       val listOfSpecialMoves = allMoves.moves.filter(move => move match {
-        case Move(List(Joker), _) => true
+        case Move(List(BlackJoker), _) => true
+        case Move(List(RedJoker), _) => true
         case Move(List(SpecialCard(_,_), _*), _) => true
         case _ => false
       })
@@ -367,6 +371,7 @@ case object GameUtilities {
 
       // Making 3s assume values of the set they're a part of, or ACE for now
       // Cards get reassigned values later if they can be used to burn
+      // If not, they stick to the value of ACE - greedy algorithm
       Moves(totalMoves
         .map(move => move.cards)
           .map(listOfCard =>
@@ -411,7 +416,6 @@ case object GameUtilities {
    */
   def getNewHand(currentHand: Hand, movePlayed: Option[Move]): Hand = {
     movePlayed.getOrElse(None) match {
-      case Move(List(Joker), _) => Hand(removeFirst(currentHand.listOfCards){_ == Joker})
       case move: Move => Hand(currentHand.listOfCards.filter(c => !move.cards.contains(c)))
       case None => currentHand
     }
@@ -481,20 +485,7 @@ case object GameUtilities {
   Drops cards, and replaces them with cards, and returns a sorted hand
    */
   def dropAndReplaceCardsInHand(hand: Hand, cardsToDrop: List[Card], cardsToReplce: List[Card]): Hand = {
-    var jokersToRemove = cardsToDrop.count(c => c == Joker)
-    Hand(GameUtilities.sortCards(hand.listOfCards.filter({
-      case card: NormalCard => !cardsToDrop.contains(card)
-      case card: SpecialCard => !cardsToDrop.contains(card)
-      case card: WildCard => !cardsToDrop.contains(card)
-      // This case will have to be Joker
-      case card: Card => {
-        if(jokersToRemove > 0) {
-          jokersToRemove -= 1
-          !cardsToDrop.contains(card)
-        }
-        else true
-      }
-    }) ++ cardsToReplce))
+    Hand(GameUtilities.sortCards(hand.listOfCards.filter(card => !cardsToDrop.contains(card)) ++ cardsToReplce))
   }
 
 
@@ -546,10 +537,14 @@ case object GameUtilities {
       cardsReceivedByRealPlayer)
   }
 
-  /* Removes first occurrence of element in list that satisfies predicate function */
-  private def removeFirst[T](list: List[T])(pred: (T) => Boolean): List[T] = {
-    val (before, atAndAfter) = list span (x => !pred(x))
-    before ::: atAndAfter.drop(1)
+  /* Returns a tuple of normal cards and non-normal cards
+     Returns NormalCards in order
+     Returns non normal cards in preference order of giving away
+  */
+  def getNormalAndNonNormalListsOfCardsFromHand(hand: Hand): (List[Card], List[Card]) = {
+    val normalCardsInHand = GameUtilities.sortCards(hand.listOfCards.filter({case n: NormalCard => true; case _ => false}))
+    val nonNormalCardsInHand = GameUtilities.sortCardsInPreferenceOrderOfGivingAwayBestCards(hand.listOfCards.filter({case n: NormalCard => false; case _ => true})).reverse
+    (normalCardsInHand, nonNormalCardsInHand)
   }
 
   case class IllegalMoveSuppliedException(s: String) extends IllegalArgumentException(s)

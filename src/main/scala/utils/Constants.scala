@@ -2,7 +2,7 @@ package utils
 
 import game.FaceValue._
 import game.Suits._
-import game.{Bum, Card, Hand, Joker, Neutral, NormalCard, PlayerCompletionStatus, President, SpecialCard, Value, ViceBum, VicePres, WildCard}
+import game.{BlackJoker, Bum, Card, Hand, Neutral, NormalCard, PlayerCompletionStatus, President, RedJoker, SpecialCard, Value, ViceBum, VicePres, WildCard}
 import javax.swing.ImageIcon
 
 import scala.swing.SimpleSwingApplication
@@ -22,15 +22,16 @@ object Constants {
   )
 
   val cardGiveAwayPreference: Map[Card, Int] = Map (
-    Joker -> 1,
-    TWO_Spade -> 2,
-    TWO_Heart -> 3,
-    THREE_Spade -> 4,
-    THREE_Heart -> 5,
-    THREE_Club -> 6,
-    THREE_Diamond -> 7,
-    TWO_Club -> 8,
-    TWO_Diamond -> 9
+    BlackJoker -> 1,
+    RedJoker -> 2,
+    TWO_Spade -> 3,
+    TWO_Heart -> 4,
+    THREE_Spade -> 5,
+    THREE_Heart -> 6,
+    THREE_Club -> 7,
+    THREE_Diamond -> 8,
+    TWO_Club -> 9,
+    TWO_Diamond -> 10
   )
 
   val numberToCardMap: Map[Int, Card] = Map(
@@ -99,10 +100,11 @@ object Constants {
     50 -> SpecialCard(TWO, Heart),
     51 -> SpecialCard(TWO, Spade),
 
-    52 -> Joker,
-    53 -> Joker
+    52 -> RedJoker,
+    53 -> BlackJoker
   )
 
+  // todo - maybe this can be trimmed
   val sortedHandWithAllCards: Hand = Hand(List(
     WildCard(THREE, Diamond),
     WildCard(THREE, Club),
@@ -156,8 +158,8 @@ object Constants {
     SpecialCard(TWO, Club),
     SpecialCard(TWO, Heart),
     SpecialCard(TWO, Spade),
-    Joker,
-    Joker,
+    RedJoker,
+    BlackJoker,
   ))
 
   val numberToFaceValueMap: Map[Int, Value] = Map(
@@ -230,7 +232,8 @@ object Constants {
       case SpecialCard(TWO, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}2_of_clubs.png"))
       case SpecialCard(TWO, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}2_of_hearts.png"))
       case SpecialCard(TWO, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}2_of_spades.png"))
-      case Joker => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}black_joker.png"))
+      case RedJoker => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}red_joker.png"))
+      case BlackJoker => new ImageIcon(app.resourceFromClassloader(s"assets/card_hand_assets/${directoryPrefix}black_joker.png"))
     }
   }
 
@@ -290,7 +293,8 @@ object Constants {
       case SpecialCard(TWO, Club) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}2_of_clubs.png"))
       case SpecialCard(TWO, Heart) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}2_of_hearts.png"))
       case SpecialCard(TWO, Spade) => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}2_of_spades.png"))
-      case Joker => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}black_joker.png"))
+      case RedJoker => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}red_joker.png"))
+      case BlackJoker => new ImageIcon(app.resourceFromClassloader(s"assets/card_tile_assets/${directoryPrefix}black_joker.png"))
     }
   }
 
