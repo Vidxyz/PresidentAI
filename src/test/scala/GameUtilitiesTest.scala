@@ -2114,16 +2114,16 @@ class GameUtilitiesTest extends FunSpec {
 
       describe("When hand has only non-normal cards") {
         it("Should return an empty list of normal cards") {
-          val hand = Hand(List(THREE_Club, THREE_Spade, TWO_Diamond, TWO_Club, BlackJoker, RedJoker))
+          val hand = Hand(List(THREE_Club, THREE_Spade, TWO_Diamond, TWO_Club, RedJoker, BlackJoker))
           val (l1, l2) = GameUtilities.getNormalAndNonNormalListsOfCardsFromHand(hand)
           assert(l1.isEmpty)
-          assert(l2 == hand.listOfCards)
+          assert(l2 == List(TWO_Diamond, TWO_Club, THREE_Club, THREE_Spade, RedJoker, BlackJoker))
         }
       }
 
       describe("When hand has both normal and non-normal cards") {
         it("Should return a non-empty list of normal and non-normal cards") {
-          val hand = Hand(List(SIX_Heart, NINE_Club, JACK_Spade, KING_Diamond, ACE_Spade, THREE_Club, THREE_Spade, TWO_Diamond, TWO_Club, BlackJoker, RedJoker))
+          val hand = Hand(List(SIX_Heart, NINE_Club, JACK_Spade, KING_Diamond, ACE_Spade, THREE_Club, THREE_Spade, TWO_Diamond, TWO_Club, RedJoker, BlackJoker))
           val (l1, l2) = GameUtilities.getNormalAndNonNormalListsOfCardsFromHand(hand)
           assert(l1 == List(SIX_Heart, NINE_Club, JACK_Spade, KING_Diamond, ACE_Spade))
           assert(l2 == List(TWO_Diamond, TWO_Club, THREE_Club, THREE_Spade, RedJoker, BlackJoker))
