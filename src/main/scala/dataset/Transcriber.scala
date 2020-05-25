@@ -3,6 +3,7 @@ package dataset
 import java.io.{BufferedWriter, File, FileWriter}
 
 import game.{GameUtilities, Hand, Move}
+import org.nd4j.linalg.lossfunctions.ILossFunction
 import utils.Constants
 
 trait DatasetCreator {
@@ -18,8 +19,8 @@ class Transcriber extends DatasetCreator {
    * Generates a binary list of size 54 * 2 = 128
    * Set bits of the first 54 indices represent the cards present in player's hand
    * Set bits of the last 54 indices represent the cards present in current gameState
-   * @param hand
-   * @param gameState
+   * @param hand - The player's hand
+   * @param gameState - The current gameState
    * @return
    */
   override def generateInputValue(hand: Hand, gameState: Move): List[Int] = {
