@@ -2,9 +2,19 @@ package dataset
 
 import java.io.{BufferedWriter, File, FileWriter}
 
-import game.{GameUtilities, Hand, Move}
-import org.nd4j.linalg.lossfunctions.ILossFunction
+import game.{Game, GameUtilities, Hand, Move}
 import utils.Constants
+
+trait Observer[S] {
+  def receiveUpdate(subject: S)
+}
+
+trait Subject[S] {
+  this: S =>
+  private var observers: List[Observer[S]] = Nil
+  def addObserver(observer: Observer[S]) = observers = observer :: observers
+  def notifyObservers = observers.foreach(_.receiveUpdate(this))
+}
 
 trait DatasetCreator {
   def generateInputValue(hand: Hand, gameState: Move): List[Int]
@@ -12,7 +22,7 @@ trait DatasetCreator {
   def appendToDataSet(input: List[Int], output: List[Int])
 }
 
-class Transcriber extends DatasetCreator {
+class Transcriber extends DatasetCreator with Observer[Game] {
   import Transcriber._
 
   /**
@@ -44,7 +54,7 @@ class Transcriber extends DatasetCreator {
   /**
    * Appends to dataset files, currently defined as `data/inputs.txt` and `data/outputs.txt`
    * @param input - Binary list of size 128
-   * @param output - Binary list of size54
+   * @param output - Binary list of size 54
    * Throws exception if input/output sizes don't match
    */
   override def appendToDataSet(input: List[Int], output: List[Int]): Unit = {
@@ -53,15 +63,24 @@ class Transcriber extends DatasetCreator {
 
     val inputWriter = new BufferedWriter(new FileWriter(new File(datasetInputPath), true))
     val outputWriter = new BufferedWriter(new FileWriter(new File(datasetOutputPath), true))
-    inputWriter.write(input.toString)
-    outputWriter.write(output.toString)
+    inputWriter.write(input.mkString(",") + '\n')
+    outputWriter.write(output.mkString(",") + '\n')
+    inputWriter.flush()
+    outputWriter.flush()
+    inputWriter.close()
+    outputWriter.close()
   }
 
+  override def receiveUpdate(subject: Game): Unit = {
+    val translatedInputs = generateInputValue(subject.gameData.currentHand, subject.gameData.gameState)
+    val translatedOutputs = generateOutputValue(subject.gameData.movePlayed.getOrElse(Move(List.empty)))
+    appendToDataSet(translatedInputs, translatedOutputs)
+  }
 }
 
 case object Transcriber {
-  val datasetInputPath = "data/inputs.txt"
-  val datasetOutputPath = "data/outputs.txt"
+  val datasetInputPath = "data/real_player_inputs.txt"
+  val datasetOutputPath = "data/real_player_outputs.txt"
 }
 
 case class InvalidInputSizeException(s: String) extends IllegalArgumentException(s)

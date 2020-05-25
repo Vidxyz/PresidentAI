@@ -1,5 +1,6 @@
 package game
 
+import dataset.{Subject, Transcriber}
 import player.Player
 import game.GameUtilities.{getNextGameState, sortCards}
 import ui.MainLayout
@@ -27,17 +28,16 @@ case object Game {
   def getPlayerCompletionMessage(status: PlayerCompletionStatus, totalNumberOfPlayers: Int): String = {
     val numberOfCards = if(totalNumberOfPlayers >= 4) 2 else 1
     status match {
-      case President => {
+      case President =>
         if(numberOfCards == 1) "Congratulations! You are the new President!\nAs a reward, you will get the Bum's best card.\nAdditionally, you can choose 1 card to give away.\nYou also get to start the next game!"
         else "Congratulations! You are the new President!\nAs a reward, you get the Bum's 2 best cards.\nAdditionally, you can also choose 2 cards to give away.\nYou also get to start the next game!"
-      }
       case VicePres => "Congratulations, You are the new VicePresident!\nAs a reward, you will get the Bum's best card.\nAdditionally, you can choose 1 card to give away."
       case Neutral =>  "Good Job, You are Neutral!\nYou will not be involved in any exchange of cards."
       case ViceBum => "Sorry, you are the ViceBum.\nYou will be forced to give up your best card in exchange for the VicePresident's worst."
-      case Bum => {
+      case Bum =>
         if(numberOfCards == 1) "Sorry, you are the Bum.\nYou will be forced to give up your best card in exchange for the President's worst card."
         else "Sorry, you are the Bum.\nYou will be forced to give up your 2 best cards in exchange for the President's 2 worst cards."
-      }
+
     }
   }
 
@@ -51,8 +51,17 @@ case object Game {
   }
 }
 
-case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayout: MainLayout, var isActive: Boolean = true) {
+case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayout: MainLayout, var isActive: Boolean = true) extends Subject[Game]{
   import Game._
+
+  /**
+   * Used for creating datasets
+   * @param currentHand - real player's current hand
+   * @param gameState - last move played in current round
+   * @param movePlayed - move chosen to play by the real player
+   */
+  case class GameData(currentHand: Hand = Hand(List.empty), gameState: Move = Move(List.empty), movePlayed: Option[Move] = Some(Move(List.empty)))
+
 
   val playerCompletionStatusOrder: List[PlayerCompletionStatus] = totalPlayerSizeMap.getOrElse(players.size, List.empty)
 
@@ -61,6 +70,11 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
 
   var playerCompletionOrder: ListBuffer[String] = new ListBuffer[String]
   var startingPlayerIndex = 0
+
+  // Establish observer pattern relationship
+  var gameData = GameData()
+  val transcriber: Transcriber = new Transcriber
+  addObserver(transcriber)
 
   /*
  Simulates multiple runs of the game, until user quits. First game begins with P1 starting
@@ -175,6 +189,18 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
         }
       println("The next move is : " + nextMove)
 
+      /**
+      Here, we have info regarding
+       1. The player's hand
+       2. The player's chosen move
+       3. The current gameState that led to player choosing this move
+       We simply transcribe this data into our dataset, iff the player in question is a real player
+       */
+      if(currentPlayerObject.isRealPlayer) {
+        gameData = GameData(currentPlayerObject.hand, currentState, nextMove)
+        notifyObservers
+      }
+
       currentState = getNextGameState(currentState, nextMove)
       // If nextMove is not none, update lastMovePlayedBy since the player is gonna play the move
       if(nextMove.isDefined){
@@ -206,7 +232,6 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
 
       println("The current round state is : " + round.gameState)
       println("The roundMovesPlayed is " + round.movesPlayed)
-      //    println("The pass status is : " + round.roundPassStatus)
 
       val newHandAfterPlaying = GameUtilities.getNewHand(currentPlayerObject.hand, nextMove)
       players.update(round.currentPlayerTurn, currentPlayerObject.copy(hand = newHandAfterPlaying))
