@@ -2,19 +2,19 @@ package dataset
 
 import java.io.{BufferedWriter, File, FileWriter}
 
-import game.{Card, DummyCard, Game, GameUtilities, Hand, Move}
+import game.{Card, DummyCard, Game, GameData, Hand, Move}
 import utils.Constants
 import utils.Constants.numberToCardMap
 
-trait Observer[S] {
-  def receiveUpdate(subject: S)
+trait Observer[S, D] {
+  def receiveUpdate(subject: S, data: D)
 }
 
-trait Subject[S] {
+trait Subject[S, D] {
   this: S =>
-  private var observers: List[Observer[S]] = Nil
-  def addObserver(observer: Observer[S]) = observers = observer :: observers
-  def notifyObservers = observers.foreach(_.receiveUpdate(this))
+  private var observers: List[Observer[S, D]] = Nil
+  def addObserver(observer: Observer[S, D]) = observers = observer :: observers
+  def notifyObservers(data: D) = observers.foreach(_.receiveUpdate(this, data))
 }
 
 trait DatasetCreator {
@@ -24,7 +24,7 @@ trait DatasetCreator {
 }
 
 // todo - there is a bug here with user passing when new game is created - leading to incorrect dataset being created - must fix
-class Transcriber extends DatasetCreator with Observer[Game] {
+class Transcriber extends DatasetCreator with Observer[Game, GameData] {
   import Transcriber._
 
   /**
@@ -71,11 +71,12 @@ class Transcriber extends DatasetCreator with Observer[Game] {
     outputWriter.flush()
     inputWriter.close()
     outputWriter.close()
+    println("Transcriber: Appended to dataset")
   }
 
-  override def receiveUpdate(subject: Game): Unit = {
-    val translatedInputs = generateInputValue(subject.gameData.currentHand, subject.gameData.gameState)
-    val translatedOutputs = generateOutputValue(subject.gameData.movePlayed.getOrElse(Move(List.empty)))
+  override def receiveUpdate(subject: Game, gameData: GameData): Unit = {
+    val translatedInputs = generateInputValue(gameData.currentHand, gameData.gameState)
+    val translatedOutputs = generateOutputValue(gameData.movePlayed.getOrElse(Move(List.empty)))
     appendToDataSet(translatedInputs, translatedOutputs)
   }
 }

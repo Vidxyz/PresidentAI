@@ -15,7 +15,7 @@ case object Game {
   val realPlayerName = "YOU"
   val sleepTimeBetweenGames = 5000
   val newCardReceivedTime = 1500
-  val sleepTime = 50
+  val sleepTime = 750
 
   val totalPlayerSizeMap: Map[Int, List[PlayerCompletionStatus]] = Map(
     2 -> List(President, Bum),
@@ -51,17 +51,16 @@ case object Game {
   }
 }
 
-case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayout: MainLayout, var isActive: Boolean = true) extends Subject[Game]{
+/**
+ * Used for creating datasets
+ * @param currentHand - real player's current hand
+ * @param gameState - last move played in current round
+ * @param movePlayed - move chosen to play by the real player
+ */
+case class GameData(currentHand: Hand = Hand(List.empty), gameState: Move = Move(List.empty), movePlayed: Option[Move] = Some(Move(List.empty)))
+
+case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayout: MainLayout, var isActive: Boolean = true) extends Subject[Game, GameData]{
   import Game._
-
-  /**
-   * Used for creating datasets
-   * @param currentHand - real player's current hand
-   * @param gameState - last move played in current round
-   * @param movePlayed - move chosen to play by the real player
-   */
-  case class GameData(currentHand: Hand = Hand(List.empty), gameState: Move = Move(List.empty), movePlayed: Option[Move] = Some(Move(List.empty)))
-
 
   val playerCompletionStatusOrder: List[PlayerCompletionStatus] = totalPlayerSizeMap.getOrElse(players.size, List.empty)
 
@@ -72,7 +71,6 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
   var startingPlayerIndex = 0
 
   // Establish observer pattern relationship
-  var gameData = GameData()
   val transcriber: Transcriber = new Transcriber
   addObserver(transcriber)
 
@@ -179,7 +177,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
       val nextMove: Option[Move] =
       // If player has not skipped turn this round already, then they get to play
         if(!round.hasAlreadySkippedTurn(currentPlayerObject.name)) {
-          if(currentPlayerObject.isRealPlayer) mainLayout.getUserInputMove()
+          if(currentPlayerObject.isRealPlayer) mainLayout.getUserInputMove() /** This is blocking, waits for user input */
           else currentPlayerObject.playNextMove(currentPlayerObject.hand, currentState)
         }
         else {
@@ -197,8 +195,7 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
        We simply transcribe this data into our dataset, iff the player in question is a real player
        */
       if(currentPlayerObject.isRealPlayer) {
-        gameData = GameData(currentPlayerObject.hand, currentState, nextMove)
-        notifyObservers
+        notifyObservers(GameData(currentPlayerObject.hand, currentState, nextMove))
       }
 
       currentState = getNextGameState(currentState, nextMove)

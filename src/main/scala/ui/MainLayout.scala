@@ -137,10 +137,12 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
 
   }
 
-  // Difference between new game and re-dealing hands is that state is saved
-  // Saved state for redealing hands include startIndex (may or may not be 0, based on if one game has already competed)
-  // While the game initially starts with index 0, once one game ends, the winner of that game starts next
-  // startIndex could thus be not 0 in these situations
+  /**
+   Difference between new game and re-dealing hands is that state is saved
+   Saved state for redealing hands include startIndex (may or may not be 0, based on if one game has already competed)
+   While the game initially starts with index 0, once one game ends, the winner of that game starts next
+   startIndex could thus be not 0 in these situations
+  */
   def reDealHandsForThisGame = {
     game.isActive = false
 

@@ -122,6 +122,7 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
     playerHandPanel.resetSelectionOnCards
   }
 
+  // todo - when game goes inActive - the user input move is incorrectly classified as None - should have some sort of interrupt
   def getUserInputMove(): Option[Move] = {
     while(!isMoveSelected && parent.isGameActive) {
       Thread.sleep(100)
