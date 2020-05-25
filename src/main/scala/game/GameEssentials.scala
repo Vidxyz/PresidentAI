@@ -46,6 +46,12 @@ object FaceValue {
 case class IllegalFaceValueException(s: String) extends IllegalArgumentException(s)
 case class IllegalAssumedValueException(s: String) extends IllegalArgumentException(s)
 
+case object DummyCard extends Card {
+  override val intValue: Int = -5
+  override def toString: String = "<DUMMY>"
+  override def value: String = "DUMMY"
+}
+
 case object BlackJoker extends Card {
   override def toString: String = "<BLACK_JOKER>"
   override def value: String = "BLACK_JOKER"
