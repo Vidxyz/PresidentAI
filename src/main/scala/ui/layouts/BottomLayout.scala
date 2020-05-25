@@ -1,7 +1,7 @@
 package ui.layouts
 
 import scala.swing.Dialog._
-import game.{Card, GameUtilities, Move, Round}
+import game.{Card, GameUtilities, InactiveGameException, Move, Round}
 import player.Player
 import ui.MainLayout
 import ui.models.{CardTile, HandCard}
@@ -122,13 +122,12 @@ class BottomLayout(app: SimpleSwingApplication, parent: MainLayout, var realPlay
     playerHandPanel.resetSelectionOnCards
   }
 
-  // todo - when game goes inActive - the user input move is incorrectly classified as None - should have some sort of interrupt
   def getUserInputMove(): Option[Move] = {
     while(!isMoveSelected && parent.isGameActive) {
       Thread.sleep(100)
     }
     isMoveSelected = false
-    if(parent.isGameActive) selectedMove else None
+    if(parent.isGameActive) selectedMove else throw InactiveGameException("Game is Inactive!")
   }
 
   def updateRealPlayerObject(newPlayer: Player) = {
