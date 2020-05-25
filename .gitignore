@@ -26,3 +26,6 @@ temp/
 .metals/
 .bloop/˚
 project/metals.sbt
+
+# dataset path
+data/
