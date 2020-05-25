@@ -1,4 +1,4 @@
-package dataset
+package neural_network
 
 import java.io.{BufferedWriter, File, FileWriter}
 

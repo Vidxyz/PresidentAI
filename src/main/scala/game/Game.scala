@@ -1,6 +1,6 @@
 package game
 
-import dataset.{Subject, Transcriber}
+import neural_network.{Subject, Transcriber}
 import player.Player
 import game.GameUtilities.{getNextGameState, sortCards}
 import ui.MainLayout
