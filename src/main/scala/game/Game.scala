@@ -15,7 +15,7 @@ case object Game {
   val realPlayerName = "YOU"
   val sleepTimeBetweenGames = 5000
   val newCardReceivedTime = 1500
-  val sleepTime = 750
+  val sleepTime = 50
 
   val totalPlayerSizeMap: Map[Int, List[PlayerCompletionStatus]] = Map(
     2 -> List(President, Bum),
@@ -73,6 +73,16 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
   // Establish observer pattern relationship
   val transcriber: Transcriber = new Transcriber
   addObserver(transcriber)
+
+  def begin(): Unit = {
+    /***
+     * Train network first before game starts
+     */
+//    val network = PresidentNeuralNetwork()
+//    network.init()
+
+    play()
+  }
 
   /*
  Simulates multiple runs of the game, until user quits. First game begins with P1 starting

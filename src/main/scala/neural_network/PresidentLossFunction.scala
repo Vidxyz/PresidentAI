@@ -34,7 +34,7 @@ class PresidentLossFunction extends ILossFunction {
    */
   override def computeScore(labels: INDArray, preOutput: INDArray, activationFn: IActivation, mask: INDArray, average: Boolean): Double = {
     val scoreArray = getScoreArray(labels, preOutput, activationFn, mask)
-    if(average) scoreArray.sumNumber().doubleValue() /= scoreArray.size(0)
+    if(average) scoreArray.sumNumber().doubleValue() / scoreArray.size(0)
     else scoreArray.sumNumber().doubleValue()
   }
 
@@ -42,7 +42,7 @@ class PresidentLossFunction extends ILossFunction {
     getScoreArray(labels, preOutput, activationFn, mask).sum(1)
 
   override def computeGradientAndScore(labels: INDArray, preOutput: INDArray, activationFn: IActivation, mask: INDArray, average: Boolean): Pair[lang.Double, INDArray] =
-    new Pair(computeScore(labels, preOutput, activationFn, mask), computeGradient(labels, preOutput, activationFn, mask))
+    new Pair(computeScore(labels, preOutput, activationFn, mask, average), computeGradient(labels, preOutput, activationFn, mask))
 
   override def name(): String = "PresidentLossFunction"
 }

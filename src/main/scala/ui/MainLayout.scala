@@ -180,7 +180,7 @@ class MainLayout(app: SimpleSwingApplication) extends GridBagPanel {
     gameThread = new Thread {
       override def run {
         println("Starting a new game")
-        game.play()
+        game.begin()
         println("Game thread is over!")
       }
     }
