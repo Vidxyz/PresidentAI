@@ -1,6 +1,6 @@
 package game
 
-import neural_network.{Subject, Transcriber}
+import neural_network.{PresidentNeuralNetwork, Subject, Transcriber}
 import player.Player
 import game.GameUtilities.{getNextGameState, sortCards}
 import ui.MainLayout
@@ -78,10 +78,11 @@ case class Game(startState: Move, var players: mutable.Buffer[Player], mainLayou
     /***
      * Train network first before game starts
      */
-//    val network = PresidentNeuralNetwork()
-//    network.init()
+    val network = PresidentNeuralNetwork()
+    network.initV3()
+//    network.initV1()
 
-    play()
+//    play()
   }
 
   /*
